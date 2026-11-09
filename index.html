@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Deep Learning PYQ – Questions &amp; Solutions</title>
-<meta name="description" content="Deep Learning previous year questions with worked solutions, formulas, calculations and diagrams.">
+<meta name="description" content="Deep Learning previous year questions with worked solutions, formulas, calculations and interactive diagrams: convolution, back-propagation, optimisers, bias-variance, CNN architectures, RNN/LSTM, regularisation.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=VT323&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -24,15 +24,15 @@ window.MathJax = {
   --ink:#1a1a1a;--ink-soft:#4a4a4a;--ink-mute:#7a7a78;
   --rule:#1a1a1a;--rule-soft:rgba(26,26,26,.16);--paper-rule:rgba(26,26,26,.08);
   --blueprint:#3553ff;--tint:rgba(53,83,255,.08);--tint-strong:rgba(53,83,255,.18);
-  --code-bg:#efece0;--header-bg:rgba(250,250,245,.94);--warn:#b8870f;
-  --shadow:3px 3px 0 var(--ink);
+  --code-bg:#efece0;--header-bg:rgba(250,250,245,.94);--warn:#b8870f;--ok:#1d7a46;
+  --shadow:3px 3px 0 var(--ink);--sbw:300px;
 }
 [data-theme=dark]{
   --bg:#0a0d1a;--bg-surface:#131830;--bg-hover:#1b2244;
   --ink:#e8e6dc;--ink-soft:#a8a6a0;--ink-mute:#7a7878;
   --rule:#e8e6dc;--rule-soft:rgba(232,230,220,.18);--paper-rule:rgba(232,230,220,.08);
   --blueprint:#6b8eff;--tint:rgba(107,142,255,.12);--tint-strong:rgba(107,142,255,.22);
-  --code-bg:#131830;--header-bg:rgba(10,13,26,.94);--warn:#d4a83d;
+  --code-bg:#131830;--header-bg:rgba(10,13,26,.94);--warn:#d4a83d;--ok:#4fc283;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:90px}
@@ -43,7 +43,7 @@ body{font-family:var(--font-body);font-size:18px;line-height:1.62;color:var(--in
 
 /* header */
 .site-header{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--header-bg);backdrop-filter:blur(10px);border-bottom:1px solid var(--rule-soft)}
-.header-inner{max-width:1360px;margin:0 auto;padding:0 28px;height:64px;display:flex;align-items:center;gap:20px}
+.header-inner{max-width:1460px;margin:0 auto;padding:0 20px;height:64px;display:flex;align-items:center;gap:16px}
 .logo{font-family:var(--font-display);font-size:1.6rem;text-transform:uppercase;letter-spacing:.04em;color:var(--ink);text-decoration:none;display:flex;align-items:baseline;gap:8px;margin-right:auto;white-space:nowrap}
 .logo i{display:inline-block;width:12px;height:12px;background:var(--blueprint)}
 .header-nav{display:flex;gap:20px;align-items:center}
@@ -51,27 +51,36 @@ body{font-family:var(--font-body);font-size:18px;line-height:1.62;color:var(--in
 .header-nav a:hover{color:var(--blueprint);border-bottom-color:var(--blueprint)}
 button{font-family:var(--font-mono);background:transparent;color:var(--ink);border:1px solid var(--rule-soft);cursor:pointer;font-size:.9rem;width:36px;height:36px;border-radius:0}
 button:hover{background:var(--tint);border-color:var(--blueprint);color:var(--blueprint)}
-#menu{display:none}
 
 /* sidebar */
-aside{position:fixed;top:64px;bottom:0;left:0;width:290px;overflow:auto;padding:22px 16px 40px 28px;border-right:1px solid var(--rule-soft);background:var(--header-bg);z-index:50}
-.fig-label,aside h4{font-family:var(--font-mono);font-size:.7rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--blueprint);margin:0 0 10px}
-aside a{display:block;font-family:var(--font-mono);font-size:.76rem;line-height:1.35;color:var(--ink-soft);text-decoration:none;padding:5px 8px;border-left:2px solid transparent}
+aside{position:fixed;top:64px;bottom:0;left:0;width:var(--sbw);overflow:auto;padding:16px 12px 40px 16px;border-right:1px solid var(--rule-soft);background:var(--header-bg);z-index:50;transition:transform .25s cubic-bezier(.32,.72,.0,1)}
+.side-head{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.side-head h4{margin:0;margin-right:auto;font-family:var(--font-mono);font-size:.7rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--blueprint)}
+.side-head button{width:auto;height:26px;padding:0 8px;font-size:.66rem;letter-spacing:.06em;text-transform:uppercase}
+aside a{display:block;font-family:var(--font-mono);font-size:.74rem;line-height:1.35;color:var(--ink-soft);text-decoration:none;padding:5px 8px;border-left:2px solid transparent;border-bottom:0}
 aside a:hover{color:var(--blueprint);background:var(--tint);border-left-color:var(--blueprint)}
-aside a.n1{margin-top:16px;font-weight:700;color:var(--ink);letter-spacing:.04em;text-transform:uppercase;border-left:2px solid var(--ink)}
-aside a.n2{padding-left:18px}
+aside a.n1{flex:1;font-weight:700;color:var(--ink);letter-spacing:.03em;text-transform:uppercase;border-left:2px solid var(--ink)}
+aside a.n2{padding-left:30px}
 aside a.on{color:var(--blueprint);background:var(--tint);border-left-color:var(--blueprint)}
+.grp{margin-top:10px}
+.grp .row{display:flex;align-items:stretch;gap:2px}
+.grp .car{width:24px;height:auto;min-height:28px;flex:none;border:0;padding:0;font-size:.7rem;color:var(--ink-soft);background:transparent}
+.grp .car::before{content:"▾";display:inline-block;transition:transform .18s}
+.grp.closed .car::before{transform:rotate(-90deg)}
+.grp.closed .sub{display:none}
 
-main{margin-left:290px;padding:96px 48px 100px;max-width:1090px}
+main{margin-left:var(--sbw);padding:96px 48px 100px;max-width:1160px;transition:margin .25s}
+body.nosb aside{transform:translateX(-100%)}
+body.nosb main{margin-left:auto;margin-right:auto}
 .crumbs{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:6px}
-.kicker{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--blueprint);font-weight:500}
 
 /* headings */
 h1,h2,h3,h4{font-family:var(--font-display);font-weight:400;line-height:1;letter-spacing:.02em;text-transform:uppercase;color:var(--blueprint);overflow-wrap:break-word}
 h1{font-size:clamp(2.4rem,5vw,3.6rem);margin:2.4em 0 .5em;padding-top:.6em;border-top:3px solid var(--ink);position:relative}
 h1::before{content:"PAPER";font-family:var(--font-mono);font-size:.68rem;letter-spacing:.2em;position:absolute;top:10px;left:0;color:var(--ink-mute)}
-main>h1:first-of-type{margin-top:.2em;border-top:0;padding-top:0}
-main>h1:first-of-type::before{content:none}
+h1.doc-title{margin-top:.2em;border-top:0;padding-top:0}
+h1.doc-title::before{content:none}
+h1.plain::before{content:"REVISION"}
 h2{font-size:clamp(1.9rem,3.4vw,2.5rem);margin:2.2em 0 .6em;padding:0 0 .25em;border-bottom:1px solid var(--rule-soft)}
 h2::after{content:"";display:block;width:64px;height:3px;background:var(--blueprint);margin-top:.3em}
 h3{font-size:clamp(1.35rem,2.4vw,1.7rem);margin:1.9em 0 .5em;padding-left:12px;border-left:4px solid var(--blueprint);color:var(--ink)}
@@ -87,24 +96,31 @@ a:hover{border-bottom-color:var(--blueprint)}
 
 blockquote{margin:1.2em 0;padding:12px 18px;background:var(--bg-surface);border:1px solid var(--ink);border-left:6px solid var(--warn);box-shadow:var(--shadow);color:var(--ink-soft)}
 blockquote p{margin:.3em 0}
+.note{margin:1em 0;padding:8px 14px;border-left:4px solid var(--ok);background:var(--tint);font-size:.95rem}
 
 /* tables */
 .tw{overflow-x:auto;margin:1.3em 0;border:1px solid var(--ink);box-shadow:var(--shadow);background:var(--bg)}
-table{border-collapse:collapse;width:100%;font-size:.92rem;line-height:1.45}
-th,td{padding:9px 14px;border-bottom:1px solid var(--rule-soft);border-right:1px solid var(--rule-soft);text-align:left;vertical-align:top}
+table{border-collapse:collapse;width:100%;font-size:.9rem;line-height:1.45}
+th,td{padding:8px 12px;border-bottom:1px solid var(--rule-soft);border-right:1px solid var(--rule-soft);text-align:left;vertical-align:top}
 th:last-child,td:last-child{border-right:0}
-th{font-family:var(--font-mono);font-size:.7rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;background:var(--bg-surface);color:var(--blueprint);white-space:nowrap;border-bottom:1px solid var(--ink)}
+th{font-family:var(--font-mono);font-size:.7rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;background:var(--bg-surface);color:var(--blueprint);border-bottom:1px solid var(--ink)}
 tbody tr:nth-child(even) td{background:var(--tint)}
 tr:last-child td{border-bottom:0}
 
 /* figures */
 img{display:block;max-width:100%;height:auto;margin:1.4em auto;border:1px solid var(--ink);box-shadow:var(--shadow);background:#fff;padding:8px}
 img.zoom{cursor:zoom-in}
+.pages{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.pages img{margin:0}
+details.pg{margin:1em 0;border:1px solid var(--rule-soft);background:var(--bg-surface)}
+details.pg>summary{cursor:pointer;padding:8px 14px;font-family:var(--font-mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--blueprint)}
+details.pg[open]>summary{border-bottom:1px solid var(--rule-soft)}
+details.pg .pages{padding:14px}
 
 /* code */
 code,pre{font-family:var(--font-mono)}
 code{background:var(--code-bg);padding:1px 6px;font-size:.84em;border:1px solid var(--rule-soft)}
-pre{background:var(--code-bg);border:1px solid var(--ink);box-shadow:var(--shadow);padding:16px 18px;overflow:auto;font-size:.8rem;line-height:1.55;margin:1.3em 0}
+pre{background:var(--code-bg);border:1px solid var(--ink);box-shadow:var(--shadow);padding:14px 16px;overflow:auto;font-size:.78rem;line-height:1.5;margin:1.3em 0}
 pre code{background:none;border:0;padding:0;font-size:inherit}
 mjx-container[display=true]{overflow-x:auto;overflow-y:hidden;padding:6px 0;margin:.9em 0!important}
 hr{border:0;height:6px;margin:3em 0;background-image:repeating-linear-gradient(to right,var(--blueprint) 0,var(--blueprint) 4px,transparent 4px,transparent 8px);background-size:100% 3px;background-repeat:no-repeat;opacity:.8}
@@ -115,50 +131,77 @@ em{font-style:italic}
 #top{position:fixed;right:20px;bottom:20px;width:auto;padding:0 12px;height:34px;background:var(--bg);box-shadow:var(--shadow);display:none;z-index:60;border-color:var(--ink);font-size:.72rem;letter-spacing:.1em}
 
 @media(max-width:980px){
-  #menu{display:block}.header-nav{display:none}
-  aside{transform:translateX(-100%);transition:transform .25s cubic-bezier(.32,.72,.0,1);width:300px}
+  .header-nav{display:none}
+  aside{transform:translateX(-100%);width:310px}
   aside.open{transform:none;box-shadow:6px 0 0 rgba(0,0,0,.15)}
-  main{margin-left:0;padding:88px 20px 80px}
+  main,body.nosb main{margin-left:0;padding:88px 18px 80px}
   body{font-size:17px}
 }
 @media print{.site-header,aside,#top{display:none}main{margin:0;max-width:none;padding:0}}
+/* ---------- interactive widgets ---------- */
+.wid{margin:1.6em 0;border:1px solid var(--ink);box-shadow:var(--shadow);background:var(--bg)}
+.wbar{display:flex;justify-content:space-between;gap:10px;padding:6px 12px;background:var(--bg-surface);border-bottom:1px solid var(--ink);font-family:var(--font-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase}
+.wbar span:first-child{color:var(--blueprint);font-weight:700}.wbar span:first-child::before{content:"● ";color:#16a34a}
+.wbar span:last-child{color:var(--ink-mute)}
+.wbody{padding:14px 16px}
+.wcap{padding:6px 16px 10px;font-size:.82rem;color:var(--ink-mute);border-top:1px dashed var(--rule-soft)}
+.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px 18px;margin-bottom:12px}
+.sl{display:flex;flex-direction:column;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.04em;color:var(--ink-soft);text-transform:uppercase;gap:3px}
+.sl b{color:var(--blueprint);font-weight:700;text-transform:none}
+.sl input[type=range]{width:100%;accent-color:var(--blueprint);height:18px;margin:0}
+.sl select{font-family:var(--font-mono);font-size:.76rem;padding:4px 6px;background:var(--bg);color:var(--ink);border:1px solid var(--rule-soft)}
+.wid button{width:auto;height:auto;padding:5px 12px;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;margin:0 6px 8px 0}
+.wid button.on{background:var(--blueprint);color:var(--bg);border-color:var(--blueprint)}
+.btns{margin-bottom:6px}
+.row2{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
+@media(max-width:900px){.row2{grid-template-columns:1fr}}
+.ro{font-family:var(--font-mono);font-size:.76rem;line-height:1.7;color:var(--ink);background:var(--bg-surface);border:1px solid var(--rule-soft);padding:10px 14px;overflow-wrap:anywhere}
+.wid .viz>svg,.wid .viz2>svg{max-width:100%}
+.ro .mut,.cap{color:var(--ink-mute)}
+.cap{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.04em;text-align:center;margin:2px 0 10px}
+.ok{color:var(--ok)}.warn{color:#c2410c}[data-theme=dark] .warn{color:#fb923c}
+.ro b{color:var(--blueprint)}
+.ro a{border-bottom:1px dotted var(--blueprint)}
+table.mini{border-collapse:collapse;margin:8px 0;font-size:.72rem;width:100%}
+table.mini th,table.mini td{padding:2px 8px;border:1px solid var(--rule-soft);text-align:center;font-size:.72rem;letter-spacing:0}
+table.mini th{background:var(--bg);color:var(--blueprint);text-transform:none}
+table.mini tr.cur td{background:var(--tint-strong);font-weight:700}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+svg.pl{display:block;width:100%;height:auto;margin:0 auto}
+svg.pl text{fill:var(--ink-soft);font:10px 'JetBrains Mono',monospace}
+svg.pl .gr{stroke:var(--rule-soft);stroke-width:.6;fill:none}
+.calc{margin-top:12px;padding:10px 14px;border:1px dashed var(--rule-soft);font-family:var(--font-mono);font-size:.76rem}
+.calc input[type=text]{font:inherit;padding:2px 6px;background:var(--bg);color:var(--ink);border:1px solid var(--rule-soft)}
+.q6{display:flex;flex-wrap:wrap;gap:18px;margin-bottom:12px}
+table.gx{border-collapse:collapse;margin:0 auto}
+table.gx td{border:1px solid var(--ink);width:44px;height:36px;text-align:center;font-family:var(--font-mono);font-size:.85rem;padding:0;background:var(--bg);transition:background .1s}
+table.gx.kf td{width:40px}
+table.gx td input{width:100%;height:100%;border:0;background:transparent;color:var(--ink);text-align:center;font:inherit;padding:0;-moz-appearance:textfield}
+table.gx td input::-webkit-outer-spin-button,table.gx td input::-webkit-inner-spin-button{-webkit-appearance:none}
+table.gx td.hl{background:rgba(220,38,38,.28)}
+table.gx.cc td:hover,table.gx.pp td:hover{background:var(--tint-strong);cursor:crosshair}
+.strip{overflow-x:auto;border:1px solid var(--rule-soft);background:var(--bg);margin-bottom:10px}
+.strip svg{min-width:640px}
+.det{margin-bottom:10px}
+.bar{display:flex;height:16px;border:1px solid var(--ink);background:var(--bg)}
+.bar span{display:block;height:100%}
+
 </style>
 </head>
 <body>
 <header class="site-header"><div class="header-inner">
-  <button id="menu" aria-label="Menu">≡</button>
+  <button id="menu" aria-label="Collapse or expand sidebar" title="Collapse / expand sidebar">≡</button>
   <a href="#top-of-page" class="logo"><i></i>DEEP LEARNING / PYQ</a>
-  <nav class="header-nav"><a href="#paper-a">Paper A</a><a href="#paper-b">Paper B</a><a href="#paper-c">Paper C</a><a href="#quick-formula-sheet">Formulas</a></nav>
+  <nav class="header-nav"><a href="#paper-a">Paper A</a><a href="#paper-b">Paper B</a><a href="#paper-c">Paper C</a><a href="#quick-formula-sheet">Cheat sheet</a></nav>
   <button id="theme" aria-label="Toggle theme"><span id="ti">N</span></button>
 </div></header>
-<aside id="side"><h4>Contents</h4>
-<a class="n1" href="#deep-learning-previous-year-questions-pyq-with-full-solutions">Deep Learning – Previous Year Questions (PYQ) with Full Solutions</a>
-<a class="n2" href="#contents">Contents</a>
-<a class="n1" href="#paper-a">Paper A</a>
-<a class="n2" href="#a-q1">A-Q1</a>
-<a class="n2" href="#a-q2">A-Q2</a>
-<a class="n2" href="#a-q3">A-Q3</a>
-<a class="n2" href="#a-q4">A-Q4</a>
-<a class="n2" href="#a-q5">A-Q5</a>
-<a class="n1" href="#paper-b">Paper B</a>
-<a class="n2" href="#b-q1">B-Q1</a>
-<a class="n2" href="#b-q2">B-Q2</a>
-<a class="n2" href="#b-q2-b">B-Q2 (b)</a>
-<a class="n2" href="#b-q3">B-Q3</a>
-<a class="n2" href="#b-q4">B-Q4</a>
-<a class="n2" href="#b-q5">B-Q5</a>
-<a class="n1" href="#paper-c">Paper C</a>
-<a class="n2" href="#c-q1">C-Q1</a>
-<a class="n2" href="#c-q2">C-Q2</a>
-<a class="n2" href="#c-q3">C-Q3</a>
-<a class="n2" href="#c-q4">C-Q4</a>
-<a class="n2" href="#c-q5">C-Q5</a>
-<a class="n2" href="#c-q6">C-Q6</a>
-<a class="n1" href="#quick-formula-sheet">Quick formula sheet</a>
+<aside id="side">
+  <div class="side-head"><h4>Contents</h4><button id="expAll" title="Expand all sections">Expand</button><button id="colAll" title="Collapse all sections">Collapse</button></div>
+  <nav id="toc"></nav>
 </aside>
 <main id="top-of-page">
 <p class="crumbs">PYQ / Deep Learning</p>
-<h1 id="deep-learning-previous-year-questions-pyq-with-full-solutions">Deep Learning – Previous Year Questions (PYQ) with Full Solutions</h1>
+<h1 class="doc-title" id="deep-learning-previous-year-questions-pyq-with-full-solutions">Deep Learning – Previous Year Questions (PYQ) with Full Solutions</h1>
 <blockquote>
 <p>Every question is shown as the original exam image, followed by a worked answer with <strong>formulas, calculations, diagrams and graphs</strong>.
 All numerical answers were re-computed in Python (NumPy) and cross-checked.</p>
@@ -197,9 +240,10 @@ All numerical answers were re-computed in Python (NumPy) and cross-checked.</p>
 </tbody>
 </table></div>
 <hr />
-<h1 id="paper-a">Paper A</h1>
-<h2 id="a-q1">A-Q1</h2>
-<p><img alt="A Q1 – original question" src="assets/pyq/a1.png"  loading="lazy" class="zoom"></p>
+<h1 id="paper-a">Paper A – Question set 1 (5 questions)</h1>
+<h2 id="a-q1-convolution-size-params-back-propagation">A-Q1 – Convolution size, params &amp; back-propagation</h2>
+<details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="A Q1 – original question" src="assets/pyq/a1.png"></div></details>
+
 <h3 id="a-q1-a-output-size-of-a-convolution-and-number-of-parameters">A-Q1 (A) – Output size of a convolution and number of parameters</h3>
 <p><strong>Given:</strong> input <span class="arithmatex">\(W_1 \times H_1 \times D\)</span>, kernel <span class="arithmatex">\(k\times k\)</span> (width <span class="arithmatex">\(F=k\)</span>), stride <span class="arithmatex">\(S\)</span>, padding <span class="arithmatex">\(P\)</span>, <span class="arithmatex">\(K\)</span> kernels.</p>
 <p><strong>Derivation.</strong> After zero-padding the width becomes <span class="arithmatex">\(W_1+2P\)</span>. A window of width <span class="arithmatex">\(F\)</span> can start at positions <span class="arithmatex">\(0, S, 2S, \dots\)</span> and must fit inside the padded width, so the last start position <span class="arithmatex">\(s_{max}\cdot S \le W_1+2P-F\)</span>. The number of positions is therefore</p>
@@ -208,7 +252,8 @@ All numerical answers were re-computed in Python (NumPy) and cross-checked.</p>
 \boxed{H_2=\left\lfloor\frac{H_1-F+2P}{S}\right\rfloor+1},\qquad
 D_2=K
 \]</div>
-<p><img alt="Convolution size" src="assets/f_conv_size.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="conv" data-cap="Convolution size"></div>
+
 <p><strong>Number of parameters.</strong> One kernel has <span class="arithmatex">\(F\cdot F\cdot D\)</span> weights plus <strong>1 bias</strong>. With <span class="arithmatex">\(K\)</span> kernels:</p>
 <div class="arithmatex">\[
 \boxed{\text{Params}=K\,(F\cdot F\cdot D+1)}
@@ -216,7 +261,8 @@ D_2=K
 <p>(weights are shared across all positions, so the count does <strong>not</strong> depend on <span class="arithmatex">\(W_1,H_1\)</span>.)</p>
 <p><em>Example:</em> <span class="arithmatex">\(227\times227\times3\)</span> input, <span class="arithmatex">\(F=11\)</span>, <span class="arithmatex">\(S=4\)</span>, <span class="arithmatex">\(P=0\)</span>, <span class="arithmatex">\(K=96\)</span> → <span class="arithmatex">\(W_2=(227-11)/4+1=55\)</span>; params <span class="arithmatex">\(=96(11\cdot11\cdot3+1)=34{,}944\)</span>.</p>
 <h3 id="a-q1-b-back-propagation-numerical-sigmoid-absolute-error-target-037">A-Q1 (B) – Back-propagation numerical (sigmoid, absolute error, target 0.37)</h3>
-<p><img alt="Network" src="assets/f_bp_net.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="bp" data-loss="abs" data-t="0.37" data-lr="0.01" data-n="2" data-cap="Network"></div>
+
 <p><strong>Given:</strong> <span class="arithmatex">\(x_1=0.35,\;x_2=0.7\)</span>; <span class="arithmatex">\(w_{11}=0.2,\;w_{21}=0.2,\;w_{12}=0.3,\;w_{22}=0.3,\;w_{13}=0.3,\;w_{23}=0.9\)</span>; target <span class="arithmatex">\(t=0.37\)</span>; <span class="arithmatex">\(\eta=0.01\)</span>; loss <span class="arithmatex">\(L=|t-y_5|\)</span>; 2 epochs; no bias terms.</p>
 <p><strong>Forward pass (epoch 1)</strong></p>
 <div class="arithmatex">\[
@@ -332,8 +378,9 @@ L=|0.37-0.66507|=0.29507
 </table></div>
 <p>So after two epochs the outputs are <span class="arithmatex">\(y_3\approx0.5523,\;y_4\approx0.5780,\;y_5\approx0.6644\)</span>. With <span class="arithmatex">\(\eta=0.01\)</span> the network barely moves toward the target 0.37 (it is still far away), because the learning rate is tiny and the sigmoid slope is small.</p>
 <hr />
-<h2 id="a-q2">A-Q2</h2>
-<p><img alt="A Q2 – original question" src="assets/pyq/a2.png"  loading="lazy" class="zoom"></p>
+<h2 id="a-q2-dropout-algorithm-gd-variants">A-Q2 – Dropout algorithm &amp; GD variants</h2>
+<details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="A Q2 – original question" src="assets/pyq/a2.png"></div></details>
+
 <h3 id="a-q2-a-dropout-algorithm-for-fastest-convergence">A-Q2 (A) – Dropout algorithm for fastest convergence</h3>
 <p>Let <span class="arithmatex">\(|W|\)</span> be the number of weights, <span class="arithmatex">\(p\)</span> the probability a weight is <strong>deactivated</strong>, so each weight is <strong>kept</strong> with probability <span class="arithmatex">\(q=1-p\)</span>, and <span class="arithmatex">\(m\)</span> epochs are available.</p>
 <p><strong>Idea.</strong> In every mini-batch a random sub-network of <span class="arithmatex">\(\approx q|W|\)</span> weights is trained (different each time → acts like an ensemble). The "optimal" <span class="arithmatex">\(W\)</span> is the one with the best <em>validation</em> loss; the dropout rate <span class="arithmatex">\(p\)</span> itself is tuned so the validation loss reaches its target in the fewest epochs. Weights are rescaled by <span class="arithmatex">\(1/q\)</span> ("inverted dropout") so no change is needed at test time.</p>
@@ -412,11 +459,13 @@ L=|0.37-0.66507|=0.29507
 </tr>
 </tbody>
 </table></div>
-<p><img alt="Optimiser paths" src="assets/f_optim.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="optim" data-cap="Optimiser paths"></div>
+
 <p><em>Intuition:</em> Momentum = "ball rolling downhill" (first compute gradient, then take a big jump). NAG = "ball that looks ahead": first make the momentum jump, <strong>then</strong> compute the gradient there and correct.</p>
 <hr />
-<h2 id="a-q3">A-Q3</h2>
-<p><img alt="A Q3 and Q4 – original questions" src="assets/pyq/a3.png"  loading="lazy" class="zoom"></p>
+<h2 id="a-q3-gradient-chain-rule-bias-variance">A-Q3 – Gradient chain rule &amp; bias-variance</h2>
+<details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="A Q3 and Q4 – original questions" src="assets/pyq/a3.png"></div></details>
+
 <h3 id="a-q3-a-generic-term-of-operatornamegradw_i">A-Q3 (A) – Generic term of <span class="arithmatex">\(\operatorname{grad}(w_i)\)</span></h3>
 <p>Reading the figure: input <span class="arithmatex">\(x_i\)</span> is multiplied by <span class="arithmatex">\(w_i\)</span> and goes into a sigmoid unit of layer 1, which feeds (fully connected) 3 sigmoid units of layer 2, then one unit in layer 3, then the output unit that produces <span class="arithmatex">\(y\)</span>.</p>
 <p><img alt="Chain of dependencies" src="assets/f_grad_net.png"  loading="lazy" class="zoom"></p>
@@ -451,7 +500,8 @@ y=a_4=\sigma(c\,a_3),\qquad L=L(y,\text{target})
 \]</div>
 <p>Note every term contains the factor <span class="arithmatex">\(\sigma'\le0.25\)</span> once per layer → the product shrinks with depth (vanishing gradient, see A-Q5 (B)).</p>
 <h3 id="a-q3-b-biasvariance-trade-off-and-the-error-equation">A-Q3 (B) – Bias–variance trade-off and the error equation</h3>
-<p><img alt="Bias variance" src="assets/f_biasvar.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="biasvar" data-cap="Bias variance"></div>
+
 <ul>
 <li><strong>Bias</strong> – error from wrong/too simple assumptions (under-fitting). High bias: model misses the real pattern; training and test error both high.</li>
 <li><strong>Variance</strong> – sensitivity to the particular training set (over-fitting). High variance: tiny training error, big test error.</li>
@@ -493,9 +543,10 @@ E\big[(f-\hat f)^2\big]=E\big[(f-E\hat f+E\hat f-\hat f)^2\big]
 </tbody>
 </table></div>
 <hr />
-<h2 id="a-q4">A-Q4</h2>
+<h2 id="a-q4-alexnet-vs-lenet-5-cnvfc-ratio">A-Q4 – AlexNet vs LeNet-5 &amp; CNV:FC ratio</h2>
 <h3 id="a-q4-a-alexnet-architecture-and-comparison-with-lenet-5">A-Q4 (A) – AlexNet architecture, and comparison with LeNet-5</h3>
-<p><img alt="AlexNet" src="assets/f_alexnet.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="alexnet" data-cap="AlexNet"></div>
+
 <p><strong>AlexNet</strong> (Krizhevsky et al., 2012). Input <span class="arithmatex">\(227\times227\times3\)</span> (the paper says 224, 227 makes the arithmetic exact), 5 CONV (CNV) layers + 3 FC layers, 1000-way softmax.</p>
 <div class="tw"><table>
 <thead>
@@ -617,7 +668,8 @@ E\big[(f-\hat f)^2\big]=E\big[(f-E\hat f+E\hat f-\hat f)^2\big]
 </table></div>
 <p>Size formula used for each CNV layer: <span class="arithmatex">\(W_2=\frac{W_1-F+2P}{S}+1\)</span>; e.g. CONV1: <span class="arithmatex">\((227-11)/4+1=55\)</span>; POOL1: <span class="arithmatex">\((55-3)/2+1=27\)</span>; POOL3: <span class="arithmatex">\((13-3)/2+1=6\)</span>.</p>
 <p><strong>LeNet-5</strong> (LeCun, 1998)</p>
-<p><img alt="LeNet-5" src="assets/f_lenet.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="lenet" data-cap="LeNet-5"></div>
+
 <p><strong>Compare / contrast</strong></p>
 <div class="tw"><table>
 <thead>
@@ -709,11 +761,13 @@ E\big[(f-\hat f)^2\big]=E\big[(f-E\hat f+E\hat f-\hat f)^2\big]
 </table></div>
 <p><strong>Impact on overall training:</strong> faster per-iteration compute but larger memory footprint, poorer generalisation, higher risk of over-fitting and typically slower/less stable convergence to the same accuracy – so the change is generally <strong>detrimental</strong>; moving the ratio in the opposite direction (<span class="arithmatex">\((X+1):(Y-1)\)</span>, as in VGG/ResNet which use few FC layers) is the beneficial trend.</p>
 <hr />
-<h2 id="a-q5">A-Q5</h2>
-<p><img alt="A Q5 – original question" src="assets/pyq/a4.png"  loading="lazy" class="zoom"></p>
+<h2 id="a-q5-vgg16-vanishing-gradient">A-Q5 – VGG16 &amp; vanishing gradient</h2>
+<details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="A Q5 – original question" src="assets/pyq/a4.png"></div></details>
+
 <h3 id="a-q5-a-vgg16-architecture-and-choice-for-image-detection">A-Q5 (A) – VGG16 architecture and choice for image detection</h3>
 <p>VGG16 (Simonyan &amp; Zisserman, 2014) uses only <strong>3×3 conv (stride 1, pad 1)</strong> and <strong>2×2 max-pool (stride 2)</strong>; <strong>13 CNV + 3 FC = 16 weight layers</strong>. Two stacked 3×3 convs see a 5×5 area but use <span class="arithmatex">\(2\cdot9C^2=18C^2\)</span> weights vs <span class="arithmatex">\(25C^2\)</span> for one 5×5 (and add more non-linearity).</p>
-<p><img alt="VGG16" src="assets/f_vgg.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="vgg" data-cap="VGG16"></div>
+
 <div class="tw"><table>
 <thead>
 <tr>
@@ -800,7 +854,8 @@ E\big[(f-\hat f)^2\big]=E\big[(f-E\hat f+E\hat f-\hat f)^2\big]
 \frac{\partial L}{\partial W^{1}}=\frac{\partial L}{\partial a^{N}}\prod_{l=2}^{N}\Big(\operatorname{diag}\big(\sigma'(z^{l})\big)\,W^{l}\Big)\;\cdot\operatorname{diag}\big(\sigma'(z^{1})\big)\,a^{0\,T}
 \]</div>
 <p>For sigmoid <span class="arithmatex">\(\sigma'(z)=\sigma(1-\sigma)\le\tfrac14\)</span>, so with <span class="arithmatex">\(\lVert W\rVert\lesssim1\)</span> the product behaves like <span class="arithmatex">\((0.25)^{N}\)</span> → 0.</p>
-<p><img alt="Vanishing gradient" src="assets/f_vanish.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="vanish" data-cap="Vanishing gradient"></div>
+
 <p><strong>Mechanisms to tackle it</strong></p>
 <ol>
 <li><strong>ReLU-family activations</strong> <span class="arithmatex">\(f(z)=\max(0,z)\)</span>, <span class="arithmatex">\(f'(z)=1\)</span> for <span class="arithmatex">\(z&gt;0\)</span> → no shrinking factor:
@@ -817,9 +872,10 @@ E\big[(f-\hat f)^2\big]=E\big[(f-E\hat f+E\hat f-\hat f)^2\big]
 4. <strong>Proper initialisation</strong> – He: <span class="arithmatex">\(\operatorname{Var}(w)=2/n_{in}\)</span> (Xavier: <span class="arithmatex">\(2/(n_{in}+n_{out})\)</span>) keeps the variance of activations and gradients ≈ constant across layers.
 5. Others: gradient clipping (for the opposite problem, exploding), auxiliary classifiers (GoogLeNet), shorter paths/dense connections.</p>
 <hr />
-<h1 id="paper-b">Paper B</h1>
-<h2 id="b-q1">B-Q1</h2>
-<p><img alt="B Q1 and Q2(a) – original question" src="assets/pyq/b1.png"  loading="lazy" class="zoom"></p>
+<h1 id="paper-b">Paper B – Question set 2 (CO/BL tagged)</h1>
+<h2 id="b-q1-perceptron-gates-lenet-5">B-Q1 – Perceptron gates &amp; LeNet-5</h2>
+<details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="B Q1 and Q2(a) – original question" src="assets/pyq/b1.png"></div></details>
+
 <h3 id="b-q1-a-output-size-and-parameters-filter-width-f-depth-d">B-Q1 (a) – Output size and parameters (filter width <span class="arithmatex">\(F\)</span>, depth <span class="arithmatex">\(d\)</span>)</h3>
 <p>Same as A-Q1 (A):</p>
 <div class="arithmatex">\[
@@ -853,7 +909,8 @@ W_2=\frac{W_1-F+2P}{S}+1,\quad H_2=\frac{H_1-F+2P}{S}+1,\quad D_2=K,\qquad
 </tr>
 </tbody>
 </table></div>
-<p><img alt="Gates" src="assets/f_gates.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="gates" data-cap="Gates"></div>
+
 <p><strong>iii) Composite circuit.</strong> The text defines an AND gate on <span class="arithmatex">\((x_1,x_2)\)</span> followed by an OR gate whose two inputs are the AND output <span class="arithmatex">\(a\)</span> and the source input <span class="arithmatex">\(x_2\)</span>: <span class="arithmatex">\(y=\mathrm{OR}(\mathrm{AND}(x_1,x_2),x_2)\)</span>.</p>
 <p><img alt="Circuit" src="assets/f_circuit.png"  loading="lazy" class="zoom"></p>
 <ul>
@@ -898,9 +955,10 @@ W_2=\frac{W_1-F+2P}{S}+1,\quad H_2=\frac{H_1-F+2P}{S}+1,\quad D_2=K,\qquad
 </table></div>
 <p>The truth table shows <span class="arithmatex">\(y=x_2\)</span> (absorption law: <span class="arithmatex">\(x_1x_2+x_2=x_2\)</span>). The other reading ("OR first, then AND with <span class="arithmatex">\(x_2\)</span>") is <span class="arithmatex">\((x_1\vee x_2)\wedge x_2=x_2\)</span> as well. So the whole circuit is also realised by <strong>one</strong> perceptron with <span class="arithmatex">\(W=(0,\,1)\)</span>, <span class="arithmatex">\(\beta=-0.5\)</span>.</p>
 <hr />
-<h2 id="b-q2">B-Q2</h2>
+<h2 id="b-q2-lenet-5-architecture">B-Q2 – LeNet-5 architecture</h2>
 <h3 id="b-q2-a-lenet-5-with-every-layer-transition">B-Q2 (a) – LeNet-5 with every layer transition</h3>
-<p><img alt="LeNet-5" src="assets/f_lenet.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="lenet" data-cap="LeNet-5"></div>
+
 <p>Formula per layer: <span class="arithmatex">\(W_2=\frac{W_1-F+2P}{S}+1\)</span>, conv params <span class="arithmatex">\(=K(F^2D+1)\)</span>.</p>
 <div class="tw"><table>
 <thead>
@@ -1010,8 +1068,9 @@ W_2=\frac{W_1-F+2P}{S}+1,\quad H_2=\frac{H_1-F+2P}{S}+1,\quad D_2=K,\qquad
 </table></div>
 <p>Activation: tanh/sigmoid (classic), output RBF/softmax. Flow: <span class="arithmatex">\(32\times32\to28\times28\to14\times14\to10\times10\to5\times5\to1\times1\to84\to10\)</span>.</p>
 <hr />
-<h2 id="b-q2-b">B-Q2 (b)</h2>
-<p><img alt="B Q2(b) – original question" src="assets/pyq/b2.png"  loading="lazy" class="zoom"></p>
+<h2 id="b-q2-b-back-propagation-sigmoid-mse">B-Q2 (b) – Back-propagation (sigmoid, MSE)</h2>
+<details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="B Q2(b) – original question" src="assets/pyq/b2.png"></div></details>
+
 <h3 id="b-q2-b-back-propagation-sigmoid-mse-target-035">B-Q2 (b) – Back-propagation (sigmoid, MSE, target 0.35)</h3>
 <p>Same network and initial weights as A-Q1 (B) (Figure 1), now with target <span class="arithmatex">\(t=0.35\)</span> and <span class="arithmatex">\(L=\tfrac12(t-y_5)^2\)</span> (if the convention <span class="arithmatex">\(L=(t-y_5)^2\)</span> is used, every gradient below is simply doubled).</p>
 <p><strong>Forward pass (epoch 1)</strong> – identical to A-Q1 (B): <span class="arithmatex">\(y_3=0.55231,\;y_4=0.57811,\;y_5=0.66507\)</span>.</p>
@@ -1116,17 +1175,20 @@ L=\tfrac12(0.35-0.66507)^2=0.04964
 </tr>
 </tbody>
 </table></div>
-<p><img alt="Output moves slowly toward the target" src="assets/f_bp_curve.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="bp" data-loss="mse" data-t="0.35" data-lr="0.01" data-n="2" data-cap="Output moves slowly toward the target"></div>
+
 <p>The graph (run for many epochs with <span class="arithmatex">\(\eta=0.01\)</span>) shows that the output creeps toward the target very slowly – two epochs hardly change it.</p>
 <hr />
-<h2 id="b-q3">B-Q3</h2>
-<p><img alt="B Q3 and Q4(a) – original questions" src="assets/pyq/b3.png"  loading="lazy" class="zoom"></p>
+<h2 id="b-q3-bias-variance-1x1-nxn-filters">B-Q3 – Bias-variance &amp; 1x1 / nxn filters</h2>
+<details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="B Q3 and Q4(a) – original questions" src="assets/pyq/b3.png"></div></details>
+
 <h3 id="b-q3-a-biasvariance-trade-off-and-error-equation">B-Q3 (a) – Bias–variance trade-off and error equation</h3>
 <p>Identical to <strong>A-Q3 (B)</strong> above:</p>
 <div class="arithmatex">\[
 \mathrm{Err}(x)=\mathrm{Bias}^2+\mathrm{Variance}+\sigma^2
 \]</div>
-<p><img alt="Bias variance" src="assets/f_biasvar.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="biasvar" data-cap="Bias variance"></div>
+
 <h3 id="b-q3-b-conv-filter-k1-vs-kn-on-an-ntimes-n-image">B-Q3 (b) – Conv filter <span class="arithmatex">\(k=1\)</span> vs <span class="arithmatex">\(k=n\)</span> on an <span class="arithmatex">\(n\times n\)</span> image</h3>
 <p>Output size <span class="arithmatex">\(=\dfrac{n-k+2P}{S}+1\)</span> with <span class="arithmatex">\(P=0,\;S=1\)</span>.</p>
 <div class="tw"><table>
@@ -1167,7 +1229,7 @@ L=\tfrac12(0.35-0.66507)^2=0.04964
 <li>Practical filters (3×3, 5×5) sit between these extremes: local receptive field + weight sharing + few parameters.</li>
 </ul>
 <hr />
-<h2 id="b-q4">B-Q4</h2>
+<h2 id="b-q4-gradient-formula-redundant-layers">B-Q4 – Gradient formula &amp; redundant layers</h2>
 <h3 id="b-q4-a-generic-operatornamegradw_i">B-Q4 (a) – Generic <span class="arithmatex">\(\operatorname{grad}(w_i)\)</span></h3>
 <p>Identical to <strong>A-Q3 (A)</strong>.</p>
 <p><img alt="Figure 2 – gradient flow" src="assets/f_grad_net.png"  loading="lazy" class="zoom"></p>
@@ -1175,7 +1237,8 @@ L=\tfrac12(0.35-0.66507)^2=0.04964
 \operatorname{grad}(w_i)=\frac{\partial L}{\partial y}\,y(1-y)\,c\;a_3(1-a_3)\sum_{j=1}^{3}u_j\,a_{2j}(1-a_{2j})\,v_{ji}\;a_{1i}(1-a_{1i})\;x_i,\qquad i=1,2,3
 \]</div>
 <hr />
-<p><img alt="B Q4(b), Q5 – original questions" src="assets/pyq/b4.png"  loading="lazy" class="zoom"></p>
+<details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="B Q4(b), Q5 – original questions" src="assets/pyq/b4.png"></div></details>
+
 <h3 id="b-q4-b-assertion-10-layers-do-the-work-90-are-redundant">B-Q4 (b) – Assertion: 10 % layers do the work, 90 % are redundant</h3>
 <p><strong>Conclusion(s):</strong> <em>"The ANN can be made efficient by using only the 10 % active layers"</em> – <strong>partly True (after pruning/retraining)</strong>; <em>"back-propagation will not have a major impact on the remaining layers"</em> – <strong>False</strong>. Overall the assertion as written is <strong>False</strong>.</p>
 <p><strong>Reasons</strong></p>
@@ -1185,7 +1248,7 @@ L=\tfrac12(0.35-0.66507)^2=0.04964
 <li>Redundant layers can also add over-fitting and training time; therefore redundancy is removed deliberately (pruning, quantisation, compression) rather than ignored.</li>
 </ol>
 <hr />
-<h2 id="b-q5">B-Q5</h2>
+<h2 id="b-q5-cnn-comparison-on-mnist-alexnet-conv1">B-Q5 – CNN comparison on MNIST &amp; AlexNet conv1</h2>
 <h3 id="b-q5-a-lenet-5-alexnet-resnet-zfnet-vggnet-on-mnist">B-Q5 (a) – LeNet-5, AlexNet, ResNet, ZFNet, VGGNet on MNIST</h3>
 <p>MNIST: 70 000 grey-scale <span class="arithmatex">\(28\times28\times1\)</span> images, 10 classes (60 k train / 10 k test).</p>
 <div class="tw"><table>
@@ -1243,7 +1306,6 @@ L=\tfrac12(0.35-0.66507)^2=0.04964
 </tbody>
 </table></div>
 <p><strong>Conclusion:</strong> for MNIST the simple, small <strong>LeNet-5</strong> gives essentially the same accuracy at a tiny fraction of the cost; deeper nets (ResNet) can give marginal gains with tuning, while AlexNet/ZFNet/VGG are over-sized.</p>
-<p><img alt="Architecture growth" src="assets/f_alexnet.png"  loading="lazy" class="zoom"></p>
 <h3 id="b-q5-b-conv1-of-alexnet">B-Q5 (b) – Conv1 of AlexNet</h3>
 <p>Input <span class="arithmatex">\(227\times227\times3\)</span>, <span class="arithmatex">\(K=96\)</span>, <span class="arithmatex">\(F=11\)</span>, <span class="arithmatex">\(S=4\)</span>, <span class="arithmatex">\(P=0\)</span>:</p>
 <div class="arithmatex">\[
@@ -1255,9 +1317,10 @@ W_2=H_2=\frac{227-11+0}{4}+1=\frac{216}{4}+1=\boxed{55}
 \]</div>
 <p>(34,848 weights + 96 biases.)</p>
 <hr />
-<h1 id="paper-c">Paper C</h1>
-<h2 id="c-q1">C-Q1</h2>
-<p><img alt="C Q1–Q3 – original questions" src="assets/pyq/c1.png"  loading="lazy" class="zoom"></p>
+<h1 id="paper-c">Paper C – Question set 3 (marks tagged)</h1>
+<h2 id="c-q1-squared-loss-mp-neuron-adagradrmsprop">C-Q1 – Squared loss, MP neuron, Adagrad/RMSProp</h2>
+<details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="C Q1–Q3 – original questions" src="assets/pyq/c1.png"></div></details>
+
 <h3 id="c-q1-a-why-squared-loss-instead-of-absolute-or-0-1-actual-loss-in-regression-2">C-Q1 (a) – Why squared loss instead of absolute (or 0-1 "actual") loss in regression? [2]</h3>
 <div class="tw"><table>
 <thead>
@@ -1304,7 +1367,8 @@ W_2=H_2=\frac{227-11+0}{4}+1=\frac{216}{4}+1=\boxed{55}
 <p>So squared loss gives smooth, well-behaved gradients (and penalises large errors more). Its drawback is sensitivity to outliers.</p>
 <h3 id="c-q1-b-mccullochpitts-neuron-for-3-bit-and-2">C-Q1 (b) – McCulloch–Pitts neuron for 3-bit AND [2]</h3>
 <p>MP neuron: inputs are binary, all excitatory weights <span class="arithmatex">\(=+1\)</span>, output <span class="arithmatex">\(y=1\)</span> iff <span class="arithmatex">\(\sum x_i\ge\theta\)</span>.</p>
-<p><img alt="MP neuron" src="assets/f_mp.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="mp" data-cap="MP neuron"></div>
+
 <div class="arithmatex">\[
 y=\begin{cases}1&amp;x_1+x_2+x_3\ge3\\0&amp;\text{otherwise}\end{cases}\qquad(\theta=3)
 \]</div>
@@ -1376,7 +1440,7 @@ w_{t+1}=w_t-\frac{\eta}{\sqrt{E[g^2]_t+\epsilon}}\;g_t
 <li>Input/output may be sequences in different modes: one-to-many, many-to-one, many-to-many.</li>
 </ol>
 <hr />
-<h2 id="c-q2">C-Q2</h2>
+<h2 id="c-q2-bias-variance-truefalse-cnn-block">C-Q2 – Bias-variance true/false &amp; CNN block</h2>
 <h3 id="c-q2-a-truefalse-with-corrections-4">C-Q2 (a) – True/False with corrections [4]</h3>
 <div class="tw"><table>
 <thead>
@@ -1465,7 +1529,7 @@ H=W=\frac{62-2}{2}+1=31\;\Rightarrow\;\boxed{(31,31,32)},\qquad\text{Params}=\bo
 </tbody>
 </table></div>
 <hr />
-<h2 id="c-q3">C-Q3</h2>
+<h2 id="c-q3-rnn-adam-correction-lstmgru">C-Q3 – RNN, Adam correction, LSTM/GRU</h2>
 <h3 id="c-q3-a-rnn-dimensions-and-equations-3">C-Q3 (a) – RNN dimensions and equations [3]</h3>
 <p><span class="arithmatex">\(k\)</span>-dim input <span class="arithmatex">\(x_i\in\mathbb R^{k}\)</span>, <span class="arithmatex">\(n\)</span>-dim state <span class="arithmatex">\(s_i\in\mathbb R^{n}\)</span>, <span class="arithmatex">\(d\)</span> classes, <span class="arithmatex">\(y_i\in\mathbb R^{d}\)</span>.</p>
 <p><img alt="RNN" src="assets/f_rnn.png"  loading="lazy" class="zoom"></p>
@@ -1523,7 +1587,8 @@ w_{t+1}=w_t-\eta\frac{\hat m_t}{\sqrt{\hat v_t}+\epsilon}
 \lim_{t\to\infty}\frac{1}{1-\beta^{t}}=1\;\Rightarrow\;\hat m_t\to m_t,\;\hat v_t\to v_t
 \]</div>
 <p>– the correction factor tends to 1 and "disappears" on its own. Examples: <span class="arithmatex">\(\beta_1=0.9\)</span>: <span class="arithmatex">\(0.9^{50}=0.005\)</span> (after about 50 steps); <span class="arithmatex">\(\beta_2=0.999\)</span>: <span class="arithmatex">\(0.999^{3000}=0.05\)</span> (needs a few thousand steps).</p>
-<p><img alt="Bias correction factor" src="assets/f_adam.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="adam" data-cap="Bias correction factor"></div>
+
 <h3 id="c-q3-c-gates-of-an-lstm-why-gru-is-cheaper-4">C-Q3 (c) – Gates of an LSTM; why GRU is cheaper [4]</h3>
 <p><img alt="LSTM cell" src="assets/f_lstm.png"  loading="lazy" class="zoom"></p>
 <p>Let <span class="arithmatex">\(z_t=[h_{t-1},x_t]\)</span> (concatenation), <span class="arithmatex">\(\sigma\)</span>=sigmoid, <span class="arithmatex">\(\odot\)</span>=element-wise product.</p>
@@ -1570,8 +1635,9 @@ h_t=(1-z_t)\odot h_{t-1}+z_t\odot\tilde h_t
 \]</div>
 <p><strong>Why cheaper:</strong> GRU has 3 weight blocks (update, reset, candidate) versus LSTM's 4 (forget, input, candidate, output) → parameters <span class="arithmatex">\(3\,[n(n+k)+n]\)</span> vs <span class="arithmatex">\(4\,[n(n+k)+n]\)</span> ⇒ <strong>25 % fewer parameters/mat-muls</strong>, only one state vector (<span class="arithmatex">\(h_t\)</span>) instead of two (<span class="arithmatex">\(h_t,c_t\)</span>), so less memory and faster training with usually comparable accuracy.</p>
 <hr />
-<h2 id="c-q4">C-Q4</h2>
-<p><img alt="C Q4 – original question" src="assets/pyq/c2.png"  loading="lazy" class="zoom"></p>
+<h2 id="c-q4-activation-functions-bce">C-Q4 – Activation functions &amp; BCE</h2>
+<details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="C Q4 – original question" src="assets/pyq/c2.png"></div></details>
+
 <h3 id="c-q4-a-activation-function-need-characteristics-sigmoid">C-Q4 (a) – Activation function: need, characteristics, sigmoid</h3>
 <p><strong>Why needed.</strong> Without a non-linearity, a stack of layers collapses to one linear map: <span class="arithmatex">\(W_2(W_1x)=(W_2W_1)x\)</span>. The activation introduces <strong>non-linearity</strong> so the network can approximate any function (universal approximation) and it also bounds/normalises outputs.</p>
 <p><strong>Characteristics of a good activation function</strong></p>
@@ -1589,7 +1655,8 @@ h_t=(1-z_t)\odot h_{t-1}+z_t\odot\tilde h_t
 =\frac1{1+e^{-z}}\cdot\frac{e^{-z}}{1+e^{-z}}=\sigma(z)\,\big(1-\sigma(z)\big)
 \]</div>
 <p>Maximum at <span class="arithmatex">\(z=0\)</span>: <span class="arithmatex">\(\sigma'(0)=0.25\)</span>; <span class="arithmatex">\(\sigma'(\pm5)\approx0.0066\)</span>; <span class="arithmatex">\(\sigma'\to0\)</span> as <span class="arithmatex">\(\lvert z\rvert\to\infty\)</span>.</p>
-<p><img alt="Activation functions" src="assets/f_activations.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="act" data-cap="Activation functions"></div>
+
 <div class="tw"><table>
 <thead>
 <tr>
@@ -1617,7 +1684,8 @@ h_t=(1-z_t)\odot h_{t-1}+z_t\odot\tilde h_t
 </tbody>
 </table></div>
 <h3 id="c-q4-b-watermelon-classifier-sweet-1-not-0">C-Q4 (b) – Watermelon classifier (sweet = 1 / not = 0)</h3>
-<p><img alt="BCE vs MSE" src="assets/f_bce_mse.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="bce" data-cap="BCE vs MSE"></div>
+
 <p><strong>i) Why MSE may be a poor choice (one reason).</strong> With a sigmoid output <span class="arithmatex">\(\hat y=\sigma(z)\)</span>, the MSE gradient is <span class="arithmatex">\(\partial L/\partial z=2(\hat y-y)\hat y(1-\hat y)\)</span>; when the prediction is confidently <em>wrong</em> (<span class="arithmatex">\(\hat y\to0\)</span> while <span class="arithmatex">\(y=1\)</span>) the factor <span class="arithmatex">\(\hat y(1-\hat y)\to0\)</span>, so the gradient <strong>vanishes</strong> and learning is very slow. (The loss surface is also non-convex in the weights for classification.) BCE's gradient is simply <span class="arithmatex">\(\hat y-y\)</span>.</p>
 <p><strong>ii) Binary cross-entropy (one example)</strong></p>
 <div class="arithmatex">\[
@@ -1672,8 +1740,9 @@ J=\frac{3.7297}{3}=\boxed{1.2432}
 \]</div>
 <p>(natural logarithm used.)</p>
 <hr />
-<h2 id="c-q5">C-Q5</h2>
-<p><img alt="C Q5 – original question" src="assets/pyq/c3.png"  loading="lazy" class="zoom"></p>
+<h2 id="c-q5-cnn-parameters-3-bit-xor-rnn">C-Q5 – CNN parameters, 3-bit XOR, RNN</h2>
+<details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="C Q5 – original question" src="assets/pyq/c3.png"></div></details>
+
 <h3 id="c-q5-a-feature-map-dimension-and-parameters">C-Q5 (a) – Feature-map dimension and parameters</h3>
 <p>Padding 0, stride 1 for CONV → <span class="arithmatex">\(W_2=W_1-K+1\)</span>; POOL-<span class="arithmatex">\(K\)</span> uses a <span class="arithmatex">\(K\times K\)</span> window with stride <span class="arithmatex">\(K\)</span> → <span class="arithmatex">\(W_2=W_1/K\)</span>. CONV params <span class="arithmatex">\(=(K\cdot K\cdot D_{in}+1)N\)</span>; POOL params <span class="arithmatex">\(=0\)</span>; FC params <span class="arithmatex">\(=(n_{in}+1)N\)</span>.</p>
 <div class="tw"><table>
@@ -1745,7 +1814,8 @@ J=\frac{3.7297}{3}=\boxed{1.2432}
 h_i=\mathbb 1\big[x_1+x_2+x_3\ge i\big],\quad i=1,2,3\qquad(\text{weights }1,1,1;\ \text{thresholds }1,2,3)
 \]</div>
 <p>Output: <span class="arithmatex">\(y=\mathbb 1\big[h_1-h_2+h_3-0.5\ge0\big]\)</span> (weights <span class="arithmatex">\(+1,-1,+1\)</span>, bias <span class="arithmatex">\(-0.5\)</span>).</p>
-<p><img alt="XOR3 network" src="assets/f_xor3.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="xor3" data-cap="XOR3 network"></div>
+
 <div class="tw"><table>
 <thead>
 <tr>
@@ -1791,8 +1861,9 @@ L=-\sum_{t}\log P\big(y_t=\text{true next char}\mid x_{1:t}\big)=-\sum_t\sum_{c\
 \]</div>
 <p>iii) <strong>Dimension of the input sequence.</strong> Each character is a one-hot vector of size <span class="arithmatex">\(\lvert V\rvert\)</span> (or a fixed-size embedding), so one instance has shape <span class="arithmatex">\(T\times\lvert V\rvert\)</span> (<span class="arithmatex">\(T\)</span> = sequence length). The input size <span class="arithmatex">\(k=\lvert V\rvert\)</span> is the same at every time step; sequences can have different lengths (padded/truncated per batch); the output at each step is also <span class="arithmatex">\(\lvert V\rvert\)</span>-dimensional. A batch is <span class="arithmatex">\(B\times T\times\lvert V\rvert\)</span>.</p>
 <hr />
-<h2 id="c-q6">C-Q6</h2>
-<p><img alt="C Q6 – original question" src="assets/pyq/c4.png"  loading="lazy" class="zoom"></p>
+<h2 id="c-q6-convolution-guided-backprop-regularisation">C-Q6 – Convolution, guided backprop, regularisation</h2>
+<details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="C Q6 – original question" src="assets/pyq/c4.png"></div></details>
+
 <h3 id="c-q6-a-convolution-max-pooling-and-padding">C-Q6 (a) – Convolution, max-pooling and padding</h3>
 <p><strong>Input (6×6)</strong> and <strong>filter (3×3)</strong>:</p>
 <div class="arithmatex">\[
@@ -1845,7 +1916,8 @@ F=\begin{bmatrix}1&amp;2&amp;1\\0&amp;0&amp;0\\-1&amp;-2&amp;-1\end{bmatrix}
 \text{Pooled}=\begin{bmatrix}7&amp;7&amp;1\\10&amp;10&amp;10\\10&amp;10&amp;10\end{bmatrix}
 \]</div>
 <p>e.g. <span class="arithmatex">\(\max(-2,-6,4,7)=7\)</span>, <span class="arithmatex">\(\max(-6,-10,7,0)=7\)</span>, <span class="arithmatex">\(\max(-10,-10,0,1)=1\)</span>, <span class="arithmatex">\(\max(4,7,3,10)=10\)</span>, …</p>
-<p><img alt="Input, convolution output and pooled output" src="assets/f_q6conv.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="q6" data-cap="Input, convolution output and pooled output"></div>
+
 <p><strong>Padding to bring the convolved image back to the input size.</strong> Convolved image is 4×4, the input is 6×6: <span class="arithmatex">\(4+2P=6\Rightarrow\boxed{P=1}\)</span> (one row/column of zeros on every side). Equivalently, for the original convolution to keep size: <span class="arithmatex">\((6-3+2P)/1+1=6\Rightarrow P=1\)</span> ("same" padding, <span class="arithmatex">\(P=(F-1)/2\)</span>).</p>
 <blockquote>
 <p><strong>Note.</strong> The earlier Word answer file listed the convolution result as <code>[-2 7 1 -1; 4 7 -2 1; 6 13 11 9; -3 4 8 4]</code> and the pooled result <code>[7 7 1; 13 13 11; 13 13 11]</code>. The row-subtraction in it was wrong (e.g. R1−R3 = 8−10 = −2, 12−18 = <strong>−6</strong>, not 7). The values above were recomputed in code and are correct.</p>
@@ -1960,9 +2032,10 @@ R^{l}=\underbrace{\mathbb 1[f^{l}&gt;0]}_{\text{forward activation was positive}
 </tr>
 </tbody>
 </table></div>
-<p><img alt="Regularisation" src="assets/f_reg.png"  loading="lazy" class="zoom"></p>
+<div class="w" data-w="reg" data-cap="Regularisation"></div>
+
 <hr />
-<h1 id="quick-formula-sheet">Quick formula sheet</h1>
+<h1 class="plain" id="quick-formula-sheet">Quick formula sheet</h1>
 <div class="tw"><table>
 <thead>
 <tr>
@@ -2061,23 +2134,597 @@ R^{l}=\underbrace{\mathbb 1[f^{l}&gt;0]}_{\text{forward activation was positive}
 <button id="top" aria-label="Back to top">TOP ↑</button>
 <div id="lb"><img alt=""></div>
 <script>
+(function(){
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 const r=document.documentElement,ti=document.getElementById('ti');
-function setT(t){r.dataset.theme=t;ti.textContent=t==='dark'?'D':'N';localStorage.setItem('t',t)}
-setT(localStorage.getItem('t')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+function setT(t){r.dataset.theme=t;ti.textContent=t==='dark'?'D':'N';lsSet('t',t)}
+setT(lsGet('t')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
 document.getElementById('theme').onclick=()=>setT(r.dataset.theme==='dark'?'light':'dark');
-const side=document.getElementById('side');
-document.getElementById('menu').onclick=()=>side.classList.toggle('open');
-side.addEventListener('click',e=>{if(e.target.tagName==='A')side.classList.remove('open')});
+
+/* ---------- build collapsible sidebar from headings ---------- */
+const side=document.getElementById('side'),toc=document.getElementById('toc'),main=document.getElementById('top-of-page');
+const store={get(k,d){try{return JSON.parse(lsGet(k))??d}catch(e){return d}},set(k,v){lsSet(k,JSON.stringify(v))}};
+const closedSet=new Set(store.get('toc-closed',[]));
+function short(t){return t.replace(/\s+/g,' ').trim()}
+const groups=[];let cur=null;
+main.querySelectorAll('h1[id]:not(.doc-title),h2[id]').forEach(h=>{
+  if(h.tagName==='H1'){cur={id:h.id,text:short(h.textContent),kids:[]};groups.push(cur)}
+  else{
+    if(!cur){cur={id:'overview',text:'Overview',kids:[],noLink:true};groups.push(cur)}
+    cur.kids.push({id:h.id,text:short(h.textContent)});
+  }
+});
+groups.forEach(g=>{
+  const d=document.createElement('div');d.className='grp';d.dataset.id=g.id;
+  const row=document.createElement('div');row.className='row';
+  const car=document.createElement('button');car.className='car';car.type='button';
+  car.setAttribute('aria-label','Collapse or expand '+g.text);
+  const a=document.createElement('a');a.className='n1';a.textContent=g.text;
+  if(g.noLink){a.href='#top-of-page'}else a.href='#'+g.id;
+  row.append(car,a);d.append(row);
+  const sub=document.createElement('div');sub.className='sub';
+  g.kids.forEach(k=>{const l=document.createElement('a');l.className='n2';l.href='#'+k.id;l.textContent=k.text;sub.append(l)});
+  d.append(sub);
+  if(!g.kids.length){car.style.visibility='hidden'}
+  if(closedSet.has(g.id)&&g.kids.length)d.classList.add('closed');
+  car.setAttribute('aria-expanded',!d.classList.contains('closed'));
+  car.onclick=()=>toggle(d);
+  toc.append(d);
+});
+function toggle(d,force){
+  const close=force===undefined?!d.classList.contains('closed'):force;
+  d.classList.toggle('closed',close);
+  d.querySelector('.car').setAttribute('aria-expanded',!close);
+  close?closedSet.add(d.dataset.id):closedSet.delete(d.dataset.id);
+  store.set('toc-closed',[...closedSet]);
+}
+document.getElementById('expAll').onclick=()=>toc.querySelectorAll('.grp').forEach(d=>toggle(d,false));
+document.getElementById('colAll').onclick=()=>toc.querySelectorAll('.grp').forEach(d=>{if(d.querySelector('.n2'))toggle(d,true)});
+
+/* ---------- whole-sidebar collapse (desktop) / drawer (mobile) ---------- */
+const mq=matchMedia('(max-width:980px)');
+if(!mq.matches&&store.get('sb-hidden',false))document.body.classList.add('nosb');
+document.getElementById('menu').onclick=()=>{
+  if(mq.matches)side.classList.toggle('open');
+  else{const h=document.body.classList.toggle('nosb');store.set('sb-hidden',h)}
+};
+side.addEventListener('click',e=>{if(e.target.closest('a')&&mq.matches)side.classList.remove('open')});
+
+/* ---------- image zoom, back-to-top ---------- */
 const lb=document.getElementById('lb');
 document.querySelectorAll('img.zoom').forEach(i=>i.onclick=()=>{lb.firstElementChild.src=i.src;lb.style.display='flex'});
 lb.onclick=()=>lb.style.display='none';
 document.addEventListener('keydown',e=>{if(e.key==='Escape')lb.style.display='none'});
 const tb=document.getElementById('top');tb.onclick=()=>scrollTo({top:0});
 addEventListener('scroll',()=>{tb.style.display=scrollY>600?'block':'none'},{passive:true});
-// scroll-spy
-const links=[...side.querySelectorAll('a')],map=new Map(links.map(a=>[a.hash.slice(1),a]));
-const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove('on'));const a=map.get(e.target.id);if(a){a.classList.add('on');a.scrollIntoView({block:'nearest'})}}})},{rootMargin:'-90px 0px -75% 0px'});
+
+/* ---------- scroll-spy (highlights the group header if its section is collapsed) ---------- */
+const links=[...toc.querySelectorAll('a')],map=new Map();
+links.forEach(a=>{const id=a.hash.slice(1);if(id&&!map.has(id))map.set(id,a)});
+const io=new IntersectionObserver(es=>{es.forEach(e=>{
+  if(!e.isIntersecting)return;
+  links.forEach(l=>l.classList.remove('on'));
+  const a=map.get(e.target.id);if(!a)return;
+  const grp=a.closest('.grp');
+  const target=(grp&&grp.classList.contains('closed'))?grp.querySelector('.n1'):a;
+  target.classList.add('on');
+  if(!side.matches(':hover'))target.scrollIntoView({block:'nearest'});
+})},{rootMargin:'-90px 0px -75% 0px'});
 map.forEach((a,id)=>{const el=document.getElementById(id);if(el)io.observe(el)});
+toc.addEventListener('click',e=>{const a=e.target.closest('a.n2');if(a){const g=a.closest('.grp');if(g.classList.contains('closed'))toggle(g,false)}});
+})();
+</script>
+<script>
+/* Interactive widgets – vanilla JS, no dependencies */
+(function(){
+const $=(s,r)=>(r||document).querySelector(s);
+const el=h=>{const t=document.createElement('template');t.innerHTML=h.trim();return t.content.firstChild};
+const f4=x=>Number(x).toFixed(4), f3=x=>Number(x).toFixed(3), f2=x=>Number(x).toFixed(2);
+const nf=v=>String(+Number(v).toFixed(2));
+const sig=z=>1/(1+Math.exp(-z));
+let uid=0;
+
+/* ---------- control panel ---------- */
+function controls(root,defs,cb){
+  const st={},refs={};
+  const box=el('<div class="ctl"></div>');
+  defs.forEach(d=>{
+    st[d.k]=d.v;
+    if(d.opts){
+      const l=el(`<label class="sl"><span>${d.label}</span><select>${d.opts.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join('')}</select></label>`);
+      const s=l.querySelector('select');s.value=d.v;
+      s.onchange=()=>{st[d.k]=s.value;cb(d.k)};
+      refs[d.k]={set:v=>{st[d.k]=v;s.value=v},inp:s};box.append(l);
+    }else{
+      const l=el(`<label class="sl"><span>${d.label} <b></b></span><input type="range" min="${d.min}" max="${d.max}" step="${d.step||1}" value="${d.v}"></label>`);
+      const inp=l.querySelector('input'),b=l.querySelector('b');
+      const show=()=>b.textContent=d.fmt?d.fmt(st[d.k]):st[d.k];
+      inp.oninput=()=>{st[d.k]=parseFloat(inp.value);show();cb(d.k)};
+      refs[d.k]={set:v=>{st[d.k]=v;inp.value=v;show()},inp};show();box.append(l);
+    }
+  });
+  root.append(box);
+  st.$=refs;
+  st.set=(o,silent)=>{for(const k in o)refs[k].set(o[k]);if(!silent)cb();};
+  return st;
+}
+function btn(label,fn){const b=el(`<button type="button">${label}</button>`);b.onclick=fn;return b}
+function player(st,key,getMax,draw,ms){
+  let tm=null;const b=btn('▶ Play',()=>{
+    if(tm){clearInterval(tm);tm=null;b.textContent='▶ Play';return}
+    b.textContent='❚❚ Pause';
+    tm=setInterval(()=>{const mx=getMax();const nv=st[key]>=mx?0:st[key]+1;st.$[key].set(nv);draw()},ms||350);
+  });return b;
+}
+
+/* ---------- svg plot helper ---------- */
+function plot(W,H,x0,x1,y0,y1,o){
+  o=o||{};const m=Object.assign({l:44,r:12,t:10,b:28},o.m||{});
+  const X=x=>m.l+(x-x0)/(x1-x0)*(W-m.l-m.r), Y=y=>H-m.b-(y-y0)/(y1-y0)*(H-m.t-m.b);
+  let s='';const nt=o.nt||5,id='c'+(++uid);
+  for(let i=0;i<=nt;i++){
+    const xv=x0+(x1-x0)*i/nt,yv=y0+(y1-y0)*i/nt;
+    s+=`<line class="gr" x1="${X(xv)}" x2="${X(xv)}" y1="${m.t}" y2="${H-m.b}"/><text x="${X(xv)}" y="${H-m.b+13}" text-anchor="middle">${(o.xf||nf)(xv)}</text>`;
+    s+=`<line class="gr" y1="${Y(yv)}" y2="${Y(yv)}" x1="${m.l}" x2="${W-m.r}"/><text x="${m.l-5}" y="${Y(yv)+3}" text-anchor="end">${(o.yf||nf)(yv)}</text>`;
+  }
+  if(o.xl)s+=`<text x="${(m.l+W-m.r)/2}" y="${H-3}" text-anchor="middle">${o.xl}</text>`;
+  s+=`<defs><clipPath id="${id}"><rect x="${m.l}" y="${m.t}" width="${W-m.l-m.r}" height="${H-m.t-m.b}"/></clipPath></defs><g clip-path="url(#${id})">`;
+  const api={X,Y,m,W,H,add:t=>{s+=t},
+    path(fn,a,b,n,style){let d='';for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;d+=(i?'L':'M')+X(x).toFixed(1)+' '+Y(fn(x)).toFixed(1)}s+=`<path d="${d}" fill="none" style="${style}"/>`},
+    poly(pts,style){if(!pts.length)return;s+=`<path d="${pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join('')}" fill="none" style="${style}"/>`},
+    dot(x,y,c,r){s+=`<circle cx="${X(x)}" cy="${Y(y)}" r="${r||5}" style="fill:${c};stroke:var(--ink);stroke-width:1"/>`},
+    vline(x,style){s+=`<line x1="${X(x)}" x2="${X(x)}" y1="${m.t}" y2="${H-m.b}" style="${style}"/>`},
+    hline(y,style){s+=`<line y1="${Y(y)}" y2="${Y(y)}" x1="${m.l}" x2="${W-m.r}" style="${style}"/>`},
+    text(x,y,t,style){s+=`<text x="${X(x)}" y="${Y(y)}" style="${style||''}">${t}</text>`},
+    svg:()=>`<svg class="pl" viewBox="0 0 ${W} ${H}">${s}</g></svg>`};
+  return api;
+}
+const BLUE='stroke:var(--blueprint);stroke-width:2.2',RED='stroke:#dc2626;stroke-width:2.2',GRN='stroke:#16a34a;stroke-width:2.2',GRY='stroke:var(--ink-mute);stroke-width:1.5;stroke-dasharray:4 3',BLK='stroke:var(--ink);stroke-width:2.6',AMB='stroke:#d97706;stroke-width:2.2';
+
+const W={};
+
+/* =========================================================
+   1. Convolution size calculator + sliding window
+   ========================================================= */
+W.conv=b=>{
+  const v=el('<div class="row2"><div class="viz"></div><div class="ro"></div></div>');
+  let playBtn;
+  const st=controls(b,[
+    {k:'W1',label:'W₁ = H₁ (input)',min:3,max:32,v:5},{k:'F',label:'F (kernel)',min:1,max:11,v:3},
+    {k:'S',label:'S (stride)',min:1,max:6,v:2},{k:'P',label:'P (padding)',min:0,max:5,v:1},
+    {k:'K',label:'K (kernels)',min:1,max:256,v:96},{k:'D',label:'D (input depth)',min:1,max:64,v:3},
+    {k:'t',label:'window position',min:0,max:100,v:0}],draw);
+  playBtn=player(st,'t',()=>dims().n-1,draw);b.append(playBtn,v);
+  function dims(){const pad=st.W1+2*st.P,num=pad-st.F;const W2=num<0?0:Math.floor(num/st.S)+1;return{pad,num,W2,n:W2*W2}}
+  function draw(){
+    const d=dims(),{pad,num,W2}=d;
+    st.$.t.inp.max=Math.max(0,d.n-1);if(st.t>d.n-1)st.$.t.set(Math.max(0,d.n-1));
+    const t=st.t,r=Math.floor(t/Math.max(W2,1)),c=t%Math.max(W2,1);
+    const cs=Math.min(26,300/pad),os=Math.min(26,210/Math.max(W2,1));
+    let g=`<svg class="pl" viewBox="0 0 ${pad*cs+4} ${pad*cs+4}" style="max-width:340px">`;
+    for(let i=0;i<pad;i++)for(let j=0;j<pad;j++){const isp=i<st.P||j<st.P||i>=pad-st.P||j>=pad-st.P;
+      g+=`<rect x="${2+j*cs}" y="${2+i*cs}" width="${cs}" height="${cs}" style="fill:${isp?'var(--bg-hover)':'var(--tint-strong)'};stroke:var(--rule-soft)"/>`}
+    if(W2>0)g+=`<rect x="${2+c*st.S*cs}" y="${2+r*st.S*cs}" width="${st.F*cs}" height="${st.F*cs}" style="fill:rgba(220,38,38,.18);stroke:#dc2626;stroke-width:2.5"/>`;
+    g+='</svg>';
+    let o=`<svg class="pl" viewBox="0 0 ${Math.max(W2,1)*os+4} ${Math.max(W2,1)*os+4}" style="max-width:240px">`;
+    for(let i=0;i<W2;i++)for(let j=0;j<W2;j++){const k=i*W2+j;
+      o+=`<rect x="${2+j*os}" y="${2+i*os}" width="${os}" height="${os}" style="fill:${k<t?'var(--tint-strong)':k==t?'#dc2626':'var(--bg)'};stroke:var(--rule-soft)"/>`}
+    o+='</svg>';
+    v.firstChild.innerHTML=`<div class="cap">padded input (${pad}×${pad}) — grey = zero padding</div>${g}<div class="cap">output feature map (${W2}×${W2})</div>${o}`;
+    const params=st.K*(st.F*st.F*st.D+1);
+    v.lastChild.innerHTML=num<0?`<b>Invalid:</b> kernel F=${st.F} is larger than the padded input ${pad}.`:
+`W₂ = ⌊(W₁ − F + 2P)/S⌋ + 1<br>   = ⌊(${st.W1} − ${st.F} + ${2*st.P})/${st.S}⌋ + 1 = ⌊${num}/${st.S}⌋ + 1 = <b>${W2}</b>${num%st.S?`<br><span class="warn">(${num} is not divisible by ${st.S}: the last ${num%st.S} column(s) are never covered)</span>`:''}<br>
+Output volume: <b>${W2} × ${W2} × ${st.K}</b><br><br>
+Parameters = K·(F·F·D + 1)<br>   = ${st.K}·(${st.F}·${st.F}·${st.D} + 1) = <b>${params.toLocaleString()}</b><br>
+<span class="mut">(${(st.K*st.F*st.F*st.D).toLocaleString()} weights + ${st.K} biases; independent of W₁, H₁)</span><br><br>
+Window ${t+1} of ${d.n}: row ${r}, column ${c} → top-left at (${r*st.S}, ${c*st.S}) in the padded input.<br>
+<span class="mut">Presets: <a href="#" data-p="1">AlexNet CONV1</a> · <a href="#" data-p="2">same padding</a></span>`;
+    v.lastChild.querySelectorAll('a[data-p]').forEach(a=>a.onclick=e=>{e.preventDefault();
+      st.set(a.dataset.p==='1'?{W1:227,F:11,S:4,P:0,K:96,D:3,t:0}:{W1:8,F:3,S:1,P:1,K:4,D:1,t:0});});
+  }
+  st.$.W1.inp.max=227;st.set({W1:5,K:8,D:3},true);draw();
+};
+
+/* =========================================================
+   2. Perceptron / logic gates playground
+   ========================================================= */
+W.gates=b=>{
+  const T={OR:(a,c)=>a|c,AND:(a,c)=>a&c,NAND:(a,c)=>+!(a&c),NOR:(a,c)=>+!(a|c),XOR:(a,c)=>a^c,'OR(AND(x1,x2),x2)':(a,c)=>c};
+  const P={OR:[1,1,-.5],AND:[1,1,-1.5],NAND:[-1,-1,1.5],NOR:[-1,-1,.5],XOR:null,'OR(AND(x1,x2),x2)':[0,1,-.5]};
+  const v=el('<div class="row2"><div class="viz"></div><div class="ro"></div></div>');
+  const st=controls(b,[{k:'g',label:'target gate',opts:Object.keys(T).map(k=>[k,k]),v:'OR'},
+    {k:'w1',label:'w₁',min:-2,max:2,step:.1,v:1},{k:'w2',label:'w₂',min:-2,max:2,step:.1,v:1},{k:'b',label:'bias β',min:-2.5,max:2.5,step:.1,v:-.5}],draw);
+  b.append(btn('Load known solution',()=>{const p=P[st.g];if(!p){alert('XOR is not linearly separable: no single perceptron can do it. Use 2 layers.');return}st.set({w1:p[0],w2:p[1],b:p[2]})}),v);
+  function draw(k){
+    if(k==='g'&&P[st.g])st.set({w1:P[st.g][0],w2:P[st.g][1],b:P[st.g][2]},true);
+    const fn=T[st.g],pts=[[0,0],[0,1],[1,0],[1,1]];
+    const p=plot(300,260,-.5,1.5,-.5,1.5,{nt:4,xl:'x₁',m:{l:34}});
+    const w1=st.w1,w2=st.w2,bb=st.b;
+    if(Math.abs(w2)>1e-9)p.path(x=>-(bb+w1*x)/w2,-.5,1.5,40,BLUE);else if(Math.abs(w1)>1e-9)p.vline(-bb/w1,BLUE);
+    const nrm=Math.hypot(w1,w2);
+    if(nrm>1e-9){let cx,cy;if(Math.abs(w2)>1e-9){cx=.5;cy=-(bb+w1*.5)/w2}else{cx=-bb/w1;cy=.5}
+      p.add(`<line x1="${p.X(cx)}" y1="${p.Y(cy)}" x2="${p.X(cx+w1/nrm*.3)}" y2="${p.Y(cy+w2/nrm*.3)}" style="stroke:var(--blueprint);stroke-width:2" marker-end="url(#ah)"/>`)}
+    pts.forEach(q=>{const out=+(w1*q[0]+w2*q[1]+bb>=0),ok=out===fn(q[0],q[1]);
+      p.dot(q[0],q[1],fn(q[0],q[1])?'#16a34a':'#dc2626',8);
+      if(!ok)p.add(`<circle cx="${p.X(q[0])}" cy="${p.Y(q[1])}" r="13" style="fill:none;stroke:#dc2626;stroke-width:2;stroke-dasharray:3 2"/>`)});
+    v.firstChild.innerHTML=p.svg().replace('<svg class="pl"','<svg class="pl" style="max-width:340px"').replace('</svg>','<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" style="fill:var(--blueprint)"/></marker></defs></svg>')+'<div class="cap">green = target 1, red = target 0; dashed ring = misclassified; arrow = side where y = 1</div>';
+    let rows='',all=true;
+    pts.forEach(q=>{const net=w1*q[0]+w2*q[1]+bb,out=+(net>=0),t=fn(q[0],q[1]),ok=out===t;all=all&&ok;
+      rows+=`<tr><td>${q[0]}</td><td>${q[1]}</td><td>${nf(net)}</td><td>${out}</td><td>${t}</td><td>${ok?'✓':'✗'}</td></tr>`});
+    v.lastChild.innerHTML=`y = 1 if w₁x₁ + w₂x₂ + β ≥ 0<br>= 1 if ${nf(w1)}·x₁ + ${nf(w2)}·x₂ + ${nf(bb)} ≥ 0
+<table class="mini"><thead><tr><th>x₁</th><th>x₂</th><th>net</th><th>y</th><th>target</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+${all?'<b class="ok">All four rows correct ✓</b>':(st.g==='XOR'?'<b class="warn">XOR: no (w₁, w₂, β) classifies all 4 points – the classes are not linearly separable. Try it!</b>':'<b class="warn">Not yet – adjust the sliders or load the known solution.</b>')}`;
+  }
+  draw();
+};
+
+/* =========================================================
+   3. Back-propagation stepper (2-2-1 network)
+   ========================================================= */
+W.bp=(b,a)=>{
+  const v=el('<div class="row2"><div class="viz"></div><div class="ro"></div></div>');
+  const st=controls(b,[
+    {k:'loss',label:'loss function',opts:[['abs','absolute error |t−y₅|'],['mse','MSE ½(t−y₅)²']],v:a.loss||'mse'},
+    {k:'t',label:'target t',min:.05,max:.95,step:.01,v:parseFloat(a.t)||.35,fmt:f2},
+    {k:'lr',label:'learning rate η',min:.001,max:2,step:.001,v:parseFloat(a.lr)||.01,fmt:x=>x.toFixed(3)},
+    {k:'N',label:'epochs N',min:1,max:2000,v:parseInt(a.n)||2},
+    {k:'e',label:'view epoch',min:1,max:2,v:1}],draw);
+  const pr=el('<div class="btns"></div>');
+  pr.append(btn('Paper A: |error|, t = 0.37',()=>st.set({loss:'abs',t:.37,lr:.01,N:2,e:1})),btn('Paper B: MSE, t = 0.35',()=>st.set({loss:'mse',t:.35,lr:.01,N:2,e:1})),btn('Train hard (η=1, 1500 epochs)',()=>st.set({lr:1,N:1500,e:1})));
+  b.append(pr,v);
+  function run(){
+    const M=Math.max(st.N,80),H=[];let w={w11:.2,w21:.2,w12:.3,w22:.3,w13:.3,w23:.9};const x1=.35,x2=.7;
+    for(let e=0;e<M;e++){
+      const y3=sig(w.w11*x1+w.w21*x2),y4=sig(w.w12*x1+w.w22*x2),y5=sig(w.w13*y3+w.w23*y4);
+      const L=st.loss==='abs'?Math.abs(st.t-y5):.5*(st.t-y5)**2;
+      const dy=st.loss==='abs'?Math.sign(y5-st.t):(y5-st.t);
+      const d5=dy*y5*(1-y5),d3=d5*w.w13*y3*(1-y3),d4=d5*w.w23*y4*(1-y4);
+      const g={w13:d5*y3,w23:d5*y4,w11:d3*x1,w21:d3*x2,w12:d4*x1,w22:d4*x2};
+      const before={...w};for(const k in w)w[k]-=st.lr*g[k];
+      H.push({y3,y4,y5,L,d5,d3,d4,g,before,after:{...w}});
+    }
+    return H;
+  }
+  function draw(){
+    st.$.e.inp.max=st.N;if(st.e>st.N)st.$.e.set(st.N);
+    const H=run(),h=H[st.e-1],fin=H[st.N-1];
+    const f3s=x=>x.toFixed(5);
+    const sv=`<svg class="pl" viewBox="0 0 400 210" style="max-width:420px"><defs><marker id="ar${uid}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" style="fill:var(--ink-soft)"/></marker></defs>
+${[[40,50,'x₁','0.35'],[40,160,'x₂','0.70']].map(n=>`<circle cx="${n[0]}" cy="${n[1]}" r="24" style="fill:var(--tint);stroke:#16a34a;stroke-width:2"/><text x="${n[0]}" y="${n[1]-3}" text-anchor="middle" style="font-weight:700">${n[2]}</text><text x="${n[0]}" y="${n[1]+11}" text-anchor="middle">${n[3]}</text>`).join('')}
+${[[200,50,'h₁ (y₃)',h.y3],[200,160,'h₂ (y₄)',h.y4],[360,105,'o₃ (y₅)',h.y5]].map(n=>`<circle cx="${n[0]}" cy="${n[1]}" r="28" style="fill:var(--tint-strong);stroke:var(--blueprint);stroke-width:2"/><text x="${n[0]}" y="${n[1]-4}" text-anchor="middle" style="font-weight:700">${n[2]}</text><text x="${n[0]}" y="${n[1]+11}" text-anchor="middle">${n[3].toFixed(4)}</text>`).join('')}
+${[[64,50,172,50,'w₁₁',h.before.w11,118,40],[62,60,174,150,'w₂₁',h.before.w21,92,98],[62,150,174,60,'w₁₂',h.before.w12,138,112],[64,160,172,160,'w₂₂',h.before.w22,118,176],[228,57,334,95,'w₁₃',h.before.w13,296,68],[228,153,334,115,'w₂₃',h.before.w23,296,148]].map(e=>`<line x1="${e[0]}" y1="${e[1]}" x2="${e[2]}" y2="${e[3]}" style="stroke:var(--ink-soft);stroke-width:1.3" marker-end="url(#ar${uid})"/><text x="${e[6]}" y="${e[7]}" text-anchor="middle" style="fill:#16a34a;font-size:9.5px;paint-order:stroke;stroke:var(--bg);stroke-width:3px">${e[4]}=${e[5].toFixed(4)}</text>`).join('')}</svg>`;
+    const pl=plot(420,200,0,H.length,Math.min(st.t,...H.map(x=>x.y5))-.03,Math.max(st.t,...H.map(x=>x.y5))+.03,{m:{l:46},xl:'epoch',yf:x=>x.toFixed(2)});
+    pl.hline(st.t,'stroke:#d97706;stroke-width:1.5;stroke-dasharray:5 3');
+    pl.poly(H.map((x,i)=>[i+1,x.y5]),BLUE);pl.vline(st.e,GRY);pl.vline(st.N,'stroke:#dc2626;stroke-width:1.5;stroke-dasharray:2 3');
+    pl.text(H.length*.5,st.t,'target '+f2(st.t),'fill:#d97706');
+    v.firstChild.innerHTML=sv+'<div class="cap">weights shown are those used in the forward pass of the viewed epoch</div>'+pl.svg()+'<div class="cap">y₅ per epoch (blue), target (amber), viewed epoch (grey), N (red dotted)</div>';
+    const upd=Object.keys(h.g).map(k=>`<tr><td>${k.replace('w','w<sub>')+'</sub>'}</td><td>${f3s(h.g[k])}</td><td>${f3s(h.before[k])}</td><td>${f3s(h.after[k])}</td></tr>`).join('');
+    v.lastChild.innerHTML=`<b>Epoch ${st.e}</b> forward: y₃ = σ(w₁₁x₁+w₂₁x₂) = <b>${f3s(h.y3)}</b>, y₄ = <b>${f3s(h.y4)}</b>, y₅ = <b>${f3s(h.y5)}</b><br>
+loss = ${st.loss==='abs'?'|t − y₅|':'½(t − y₅)²'} = <b>${f3s(h.L)}</b><br>
+δ₅ = ${st.loss==='abs'?'sign(y₅−t)':'(y₅−t)'}·y₅(1−y₅) = ${f3s(h.d5)}<br>
+δ₃ = δ₅·w₁₃·y₃(1−y₃) = ${f3s(h.d3)}, δ₄ = δ₅·w₂₃·y₄(1−y₄) = ${f3s(h.d4)}
+<table class="mini"><thead><tr><th>weight</th><th>∂L/∂w</th><th>before</th><th>after</th></tr></thead><tbody>${upd}</tbody></table>
+<b>After ${st.N} epoch(s)</b> (weights after update ${st.N}), re-run forward:<br>
+y₃ = <b>${f3s(sig(fin.after.w11*.35+fin.after.w21*.7))}</b>, y₄ = <b>${f3s(sig(fin.after.w12*.35+fin.after.w22*.7))}</b>, y₅ = <b>${f3s(sig(fin.after.w13*sig(fin.after.w11*.35+fin.after.w21*.7)+fin.after.w23*sig(fin.after.w12*.35+fin.after.w22*.7)))}</b>`;
+  }
+  draw();
+};
+
+/* =========================================================
+   4. Bias–variance
+   ========================================================= */
+W.biasvar=b=>{
+  const v=el('<div class="row2"><div class="viz"></div><div class="ro"></div></div>');
+  const st=controls(b,[{k:'c',label:'model complexity',min:0,max:10,step:.1,v:2,fmt:f2},{k:'s',label:'noise σ² (irreducible)',min:0,max:1,step:.05,v:.3,fmt:f2}],draw);
+  b.append(v);
+  const B2=c=>3*Math.exp(-.45*c)+.1,VA=c=>.03*Math.exp(.4*c)+.05;
+  function draw(){
+    const T=c=>B2(c)+VA(c)+st.s;let best=0,bv=1e9;for(let c=0;c<=10;c+=.05)if(T(c)<bv){bv=T(c);best=c}
+    const p=plot(430,260,0,10,0,3.4,{xl:'model complexity →',m:{l:38}});
+    p.path(B2,0,10,100,BLUE);p.path(VA,0,10,100,RED);p.path(()=>st.s,0,10,2,GRY);p.path(T,0,10,100,BLK);
+    p.vline(best,'stroke:#16a34a;stroke-width:1.5;stroke-dasharray:5 3');p.vline(st.c,'stroke:var(--ink);stroke-width:1');
+    p.dot(st.c,T(st.c),'var(--blueprint)',6);
+    p.text(.2,3.15,'Bias²','fill:var(--blueprint);font-weight:700');p.text(7.4,3.15,'Variance','fill:#dc2626;font-weight:700');p.text(best+.15,.2,'optimum','fill:#16a34a');
+    v.firstChild.innerHTML=p.svg()+'<div class="cap">black = total error, dotted = irreducible noise</div>';
+    const regime=st.c<best-1?'<b class="warn">under-fitting: high bias, low variance</b>':st.c>best+1?'<b class="warn">over-fitting: low bias, high variance</b>':'<b class="ok">near the sweet spot</b>';
+    v.lastChild.innerHTML=`Complexity <b>${f2(st.c)}</b><br>Bias² = <b>${f3(B2(st.c))}</b><br>Variance = <b>${f3(VA(st.c))}</b><br>σ² = <b>${f3(st.s)}</b><br>
+Err = Bias² + Var + σ² = <b>${f3(T(st.c))}</b><br><br>${regime}<br><span class="mut">Minimum total error ${f3(bv)} at complexity ≈ ${f2(best)}.</span>`;
+  }
+  draw();
+};
+
+/* =========================================================
+   5. Activation functions
+   ========================================================= */
+W.act=b=>{
+  const F={sigmoid:[sig,z=>sig(z)*(1-sig(z)),'σ(z) = 1/(1+e⁻ᶻ)','σ′ = σ(1−σ) ≤ 0.25'],tanh:[Math.tanh,z=>1-Math.tanh(z)**2,'tanh(z)','tanh′ = 1 − tanh² ≤ 1'],relu:[z=>Math.max(0,z),z=>+(z>0),'max(0, z)','ReLU′ = 1 for z > 0, else 0']};
+  const v=el('<div class="row2"><div class="viz"></div><div class="ro"></div></div>');
+  const st=controls(b,[{k:'f',label:'function',opts:[['sigmoid','sigmoid'],['tanh','tanh'],['relu','ReLU']],v:'sigmoid'},{k:'z',label:'pre-activation z',min:-8,max:8,step:.1,v:1,fmt:f2}],draw);
+  b.append(v);
+  function draw(){
+    const [f,d,tf,td]=F[st.f];const yr=st.f==='sigmoid'?[-.05,1.05]:st.f==='tanh'?[-1.1,1.1]:[-.5,4];
+    const p=plot(430,250,-8,8,yr[0],yr[1],{xl:'z'});
+    p.path(f,-8,8,160,BLUE);p.path(d,-8,8,160,RED);p.vline(st.z,GRY);p.dot(st.z,f(st.z),'var(--blueprint)',6);p.dot(st.z,d(st.z),'#dc2626',6);
+    v.firstChild.innerHTML=p.svg()+'<div class="cap">blue = f(z), red = f′(z)</div>';
+    const g=d(st.z);
+    v.lastChild.innerHTML=`${tf}<br>${td}<br><br>z = <b>${f2(st.z)}</b><br>f(z) = <b>${f4(f(st.z))}</b><br>f′(z) = <b>${f4(g)}</b><br><br>
+${st.f==='sigmoid'?(g<.02?'<b class="warn">Saturated: gradient ≈ 0 → learning stalls (vanishing gradient).</b>':'Max slope 0.25 at z = 0; output is never zero-centred.'):''}
+${st.f==='tanh'?(g<.02?'<b class="warn">Saturated: gradient ≈ 0.</b>':'Zero-centred, slope up to 1 at z = 0.'):''}
+${st.f==='relu'?(st.z<=0?'<b class="warn">Inactive (“dead”) for z ≤ 0: gradient 0.</b>':'Active: gradient exactly 1, no shrinking.'):''}`;
+  }
+  draw();
+};
+
+/* =========================================================
+   6. Vanishing gradient
+   ========================================================= */
+W.vanish=b=>{
+  const v=el('<div class="row2"><div class="viz"></div><div class="ro"></div></div>');
+  const st=controls(b,[{k:'a',label:'activation',opts:[['0.25','sigmoid (σ′ ≤ 0.25)'],['1','tanh / ReLU (f′ ≈ 1)']],v:'0.25'},
+    {k:'w',label:'typical |weight| w',min:.3,max:4,step:.05,v:1,fmt:f2},{k:'L',label:'layers L',min:1,max:30,v:10}],draw);
+  b.append(v);
+  function draw(){
+    const r=parseFloat(st.a)*st.w,lg=n=>n*Math.log10(r);
+    const p=plot(430,250,0,30,Math.min(-12,Math.floor(lg(30))),Math.max(2,Math.ceil(lg(30))),{xl:'layers the gradient passes',nt:6,yf:y=>'1e'+Math.round(y)});
+    p.path(n=>lg(n),0,30,60,BLUE);p.hline(0,GRY);p.vline(st.L,GRY);p.dot(st.L,lg(st.L),'var(--blueprint)',6);
+    v.firstChild.innerHTML=p.svg()+'<div class="cap">log₁₀ of the gradient factor (σ′·w)ᴸ</div>';
+    const val=Math.pow(r,st.L);
+    v.lastChild.innerHTML=`per-layer factor = f′·w = ${nf(parseFloat(st.a))}·${f2(st.w)} = <b>${f3(r)}</b><br>after L = ${st.L} layers: (${f3(r)})<sup>${st.L}</sup> = <b>${val.toExponential(2)}</b><br><br>
+${r<1?'<b class="warn">factor &lt; 1 → gradient vanishes towards the early layers.</b>':r>1?'<b class="warn">factor &gt; 1 → gradient explodes.</b>':'<b class="ok">factor = 1 → stable.</b>'}<br>
+<span class="mut">Fixes: ReLU, residual connections (the “+1” path), batch-norm, He/Xavier initialisation.</span>`;
+  }
+  draw();
+};
+
+/* =========================================================
+   7. Optimisers
+   ========================================================= */
+W.optim=b=>{
+  const v=el('<div class="row2"><div class="viz"></div><div class="ro"></div></div>');
+  const st=controls(b,[{k:'lr',label:'learning rate η',min:.02,max:.78,step:.01,v:.18,fmt:f2},{k:'g',label:'momentum γ',min:0,max:.98,step:.01,v:.9,fmt:f2},{k:'t',label:'step t',min:0,max:80,v:80}],draw);
+  b.append(player(st,'t',()=>80,draw,120),v);
+  const gr=p=>[p[0]*.1,p[1]*2.5],fv=p=>.5*(.1*p[0]*p[0]+2.5*p[1]*p[1]);
+  function draw(){
+    const N=80;let p0=[-9,1.5];
+    const sgd=[p0],mom=[p0],nag=[p0];
+    let p=p0.slice(),m=p0.slice(),vm=[0,0],n=p0.slice(),vn=[0,0];
+    for(let i=0;i<N;i++){
+      let g=gr(p);p=[p[0]-st.lr*g[0],p[1]-st.lr*g[1]];sgd.push(p);
+      g=gr(m);vm=[st.g*vm[0]+st.lr*g[0],st.g*vm[1]+st.lr*g[1]];m=[m[0]-vm[0],m[1]-vm[1]];mom.push(m);
+      g=gr([n[0]-st.g*vn[0],n[1]-st.g*vn[1]]);vn=[st.g*vn[0]+st.lr*g[0],st.g*vn[1]+st.lr*g[1]];n=[n[0]-vn[0],n[1]-vn[1]];nag.push(n);
+    }
+    const pl=plot(460,260,-10,3,-2.2,2.2,{nt:4,m:{l:36}});
+    [.25,.5,1,2,3.2,4].forEach(c=>{pl.add(`<ellipse cx="${pl.X(0)}" cy="${pl.Y(0)}" rx="${Math.abs(pl.X(Math.sqrt(20*c))-pl.X(0))}" ry="${Math.abs(pl.Y(Math.sqrt(.8*c))-pl.Y(0))}" style="fill:none;stroke:var(--rule-soft)"/>`)});
+    [[sgd,'stroke:#64748b;stroke-width:2'],[mom,BLUE],[nag,GRN]].forEach(([t,s])=>{pl.poly(t.slice(0,st.t+1),s);const q=t[st.t];pl.dot(q[0],q[1],s.match(/#\w+|var\(--blueprint\)/)[0],4.5)});
+    pl.add(`<text x="${pl.X(0)-4}" y="${pl.Y(0)-8}" style="font-size:14px;fill:var(--ink)">★</text>`);
+    v.firstChild.innerHTML=pl.svg()+'<div class="cap">loss ½(0.1x² + 2.5y²): a long, narrow valley. Start (−9, 1.5), minimum ★ at (0, 0)</div>';
+    const fmt=q=>fv(q[st.t]).toExponential(2);
+    v.lastChild.innerHTML=`step <b>${st.t}</b><br><span style="color:#64748b">■</span> SGD: w ← w − η∇L<br>loss = <b>${fmt(sgd)}</b><br><br>
+<span style="color:var(--blueprint)">■</span> Momentum: v ← γv + η∇L(w); w ← w − v<br>loss = <b>${fmt(mom)}</b><br><br>
+<span style="color:#16a34a">■</span> NAG: v ← γv + η∇L(<b>w − γv</b>); w ← w − v<br>loss = <b>${fmt(nag)}</b><br><br>
+<span class="mut">Raise η or γ to see momentum overshoot and oscillate; NAG’s look-ahead damps it.</span>`;
+  }
+  draw();
+};
+
+/* =========================================================
+   8. Adam bias correction
+   ========================================================= */
+W.adam=b=>{
+  const v=el('<div class="row2"><div class="viz"></div><div class="ro"></div></div>');
+  const st=controls(b,[{k:'b1',label:'β₁',min:.5,max:.999,step:.001,v:.9,fmt:x=>x.toFixed(3)},{k:'b2',label:'β₂',min:.9,max:.9999,step:.0001,v:.999,fmt:x=>x.toFixed(4)},{k:'t',label:'step t',min:1,max:300,v:10}],draw);
+  b.append(v);
+  function draw(){
+    const p=plot(430,250,0,300,0,1.05,{xl:'step t',nt:6});
+    p.path(t=>1-Math.pow(st.b1,t),1,300,150,BLUE);p.path(t=>1-Math.pow(st.b2,t),1,300,150,RED);p.hline(1,GRY);p.vline(st.t,GRY);
+    p.dot(st.t,1-Math.pow(st.b1,st.t),'var(--blueprint)',5);p.dot(st.t,1-Math.pow(st.b2,st.t),'#dc2626',5);
+    p.text(150,.12,'blue: m̂ before correction (1 − β₁ᵗ)','fill:var(--blueprint)');p.text(150,.04,'red: v before correction (1 − β₂ᵗ)','fill:#dc2626');
+    v.firstChild.innerHTML=p.svg()+'<div class="cap">for a constant gradient g=1 the raw average equals 1 − βᵗ (biased towards 0)</div>';
+    const c1=1-Math.pow(st.b1,st.t),c2=1-Math.pow(st.b2,st.t);
+    v.lastChild.innerHTML=`t = <b>${st.t}</b><br>m<sub>t</sub> (g≡1) = 1 − β₁ᵗ = <b>${f4(c1)}</b> → m̂ = m/(1−β₁ᵗ) = <b>1.0000</b><br>
+v<sub>t</sub> (g≡1) = 1 − β₂ᵗ = <b>${f4(c2)}</b> → v̂ = <b>1.0000</b><br><br>
+correction factor 1/(1−β₁ᵗ) = <b>${f3(1/c1)}</b><br>1/(1−β₂ᵗ) = <b>${f3(1/c2)}</b><br><br>
+As t → ∞, βᵗ → 0 so the factor → 1: the correction <b>disappears by itself</b>.<br>
+<span class="mut">β₁ᵗ &lt; 1% when t &gt; ${Math.ceil(Math.log(.01)/Math.log(st.b1))}; β₂ᵗ &lt; 1% when t &gt; ${Math.ceil(Math.log(.01)/Math.log(st.b2))}.</span>`;
+  }
+  draw();
+};
+
+/* =========================================================
+   9. BCE vs MSE
+   ========================================================= */
+W.bce=b=>{
+  const v=el('<div class="row2"><div class="viz"></div><div class="ro"></div></div>');
+  const st=controls(b,[{k:'y',label:'true label y',opts:[['1','1 (sweet)'],['0','0 (not sweet)']],v:'0'},{k:'p',label:"prediction y′",min:.01,max:.99,step:.01,v:.9,fmt:f2}],draw);
+  const calc=el('<div class="calc">Total cost J for a dataset – Y: <input type="text" value="1, 0, 0" size="10"> Y′: <input type="text" value="0.1, 0.2, 0.7" size="14"> <span class="res"></span></div>');
+  b.append(v,calc);
+  const bce=(y,p)=>-(y*Math.log(p)+(1-y)*Math.log(1-p));
+  function dataset(){
+    const Y=calc.querySelectorAll('input')[0].value.split(/[ ,]+/).filter(Boolean).map(Number),Q=calc.querySelectorAll('input')[1].value.split(/[ ,]+/).filter(Boolean).map(Number);
+    const r=calc.querySelector('.res');
+    if(!Y.length||Y.length!==Q.length||[...Y,...Q].some(isNaN)||Q.some(q=>q<=0||q>=1)){r.innerHTML='<span class="warn">need equal-length lists, y′ in (0,1)</span>';return}
+    const ls=Y.map((y,i)=>bce(y,Q[i]));r.innerHTML='= −(1/m)Σ[...] = ('+ls.map(f4).join(' + ')+')/'+Y.length+' = <b>'+f4(ls.reduce((a,c)=>a+c,0)/Y.length)+'</b>';
+  }
+  calc.querySelectorAll('input').forEach(i=>i.oninput=dataset);
+  function draw(){
+    const y=+st.y,p=st.p;
+    const L1=plot(250,200,0,1,0,5,{m:{l:30},xl:"y′",nt:4}),pp=y?(q=>q):(q=>1-q);
+    L1.path(q=>bce(y,Math.min(Math.max(q,.001),.999)),.001,.999,120,RED);L1.path(q=>(y-q)**2,0,1,60,BLUE);L1.vline(p,GRY);
+    const G=plot(250,200,-6,6,-1.1,1.1,{m:{l:30},xl:'logit z',nt:4});
+    G.path(z=>sig(z)-y,-6,6,120,RED);G.path(z=>2*(sig(z)-y)*sig(z)*(1-sig(z)),-6,6,120,BLUE);
+    const z0=Math.log(p/(1-p));if(Math.abs(z0)<=6)G.vline(z0,GRY);
+    v.firstChild.innerHTML=`<div class="two"><div>${L1.svg()}<div class="cap">loss vs y′ (red BCE, blue MSE)</div></div><div>${G.svg()}<div class="cap">∂L/∂z (red BCE, blue MSE)</div></div></div>`;
+    const dB=p-y,dM=2*(p-y)*p*(1-p);
+    v.lastChild.innerHTML=`y = <b>${y}</b>, y′ = <b>${f2(p)}</b><br>BCE = −[y ln y′ + (1−y) ln(1−y′)] = <b>${f4(bce(y,p))}</b><br>
+${y?`= −ln(${f2(p)})`:`= −ln(1 − ${f2(p)}) = −ln(${f2(1-p)})`}<br>MSE = (y − y′)² = <b>${f4((y-p)**2)}</b><br><br>
+gradient wrt logit: BCE = y′ − y = <b>${f4(dB)}</b><br>MSE = 2(y′−y)y′(1−y′) = <b>${f4(dM)}</b><br>
+${Math.abs(dM)<.1*Math.abs(dB)?'<b class="warn">MSE gradient is tiny although the prediction is badly wrong → slow learning.</b>':''}
+<span class="mut">Q: y = 0, y′ = 0.9 → loss = −ln(0.1) = 2.3026.</span>`;
+  }
+  draw();dataset();
+};
+
+/* =========================================================
+   10. Convolution + max-pool explorer (Q6a)
+   ========================================================= */
+W.q6=b=>{
+  const A0=[[1,2,3,4,0,6],[3,0,5,2,1,8],[1,1,7,3,8,1],[0,2,0,3,4,0],[1,3,0,5,2,1],[0,2,1,0,3,0]],K0=[[1,2,1],[0,0,0],[-1,-2,-1]];
+  const st=controls(b,[{k:'P',label:'padding P',min:0,max:2,v:0},{k:'S',label:'stride S',min:1,max:2,v:1},{k:'ps',label:'pool size',min:2,max:3,v:2},{k:'pst',label:'pool stride',min:1,max:3,v:1},{k:'flip',label:'kernel',opts:[['0','cross-correlation (CNN)'],['1','true convolution (flipped)']],v:'0'}],calc);
+  const grid=(n,m,cls)=>{let h=`<table class="gx ${cls}">`;for(let i=0;i<n;i++){h+='<tr>';for(let j=0;j<m;j++)h+=`<td data-i="${i}" data-j="${j}"></td>`;h+='</tr>'}return h+'</table>'};
+  const v=el(`<div class="q6"><div><div class="cap">input (editable)</div>${grid(6,6,'in')}</div><div><div class="cap">filter (editable)</div>${grid(3,3,'kf')}</div><div><div class="cap">conv output (hover)</div><div class="co"></div></div><div><div class="cap">max-pool output (hover)</div><div class="po"></div></div></div>`);
+  b.append(v,btn('Reset to paper values',()=>{fill();st.set({P:0,S:1,ps:2,pst:1,flip:'0'})}));
+  const ro=el('<div class="ro"></div>');b.append(ro);
+  const A=A0.map(r=>r.slice()),K=K0.map(r=>r.slice());
+  function mkInputs(sel,M){v.querySelectorAll(sel+' td').forEach(td=>{const i=+td.dataset.i,j=+td.dataset.j;const inp=el(`<input type="number" value="${M[i][j]}">`);inp.oninput=()=>{M[i][j]=parseFloat(inp.value)||0;calc()};td.append(inp)})}
+  mkInputs('.in',A);mkInputs('.kf',K);
+  function fill(){A0.forEach((r,i)=>r.forEach((x,j)=>{A[i][j]=x}));K0.forEach((r,i)=>r.forEach((x,j)=>{K[i][j]=x}));v.querySelectorAll('.in input').forEach((e,k)=>e.value=A[Math.floor(k/6)][k%6]);v.querySelectorAll('.kf input').forEach((e,k)=>e.value=K[Math.floor(k/3)][k%3])}
+  let C=[];
+  function hl(cells){v.querySelectorAll('.in td').forEach(td=>td.classList.remove('hl'));cells.forEach(([i,j])=>{const t=v.querySelector(`.in td[data-i="${i}"][data-j="${j}"]`);t&&t.classList.add('hl')})}
+  function calc(){
+    const P=st.P,S=st.S,n=6,k=3,flip=st.flip==='1';
+    const get=(i,j)=>{i-=P;j-=P;return(i<0||j<0||i>=n||j>=n)?0:A[i][j]};
+    const m=Math.floor((n+2*P-k)/S)+1;C=[];
+    for(let i=0;i<m;i++){C.push([]);for(let j=0;j<m;j++){let s=0;for(let a=0;a<k;a++)for(let c=0;c<k;c++)s+=get(i*S+a,j*S+c)*(flip?K[k-1-a][k-1-c]:K[a][c]);C[i].push(s)}}
+    const ps=st.ps,pst=st.pst,q=Math.floor((m-ps)/pst)+1;const Pm=[];
+    for(let i=0;i<q;i++){Pm.push([]);for(let j=0;j<q;j++){let mx=-1e9;for(let a=0;a<ps;a++)for(let c=0;c<ps;c++)mx=Math.max(mx,C[i*pst+a][j*pst+c]);Pm[i].push(mx)}}
+    const tab=(M,cls)=>M.length?`<table class="gx ${cls}">${M.map((r,i)=>'<tr>'+r.map((x,j)=>`<td data-i="${i}" data-j="${j}">${x}</td>`).join('')+'</tr>').join('')}</table>`:'<i>(empty)</i>';
+    v.querySelector('.co').innerHTML=tab(C,'cc');v.querySelector('.po').innerHTML=tab(Pm,'pp');
+    v.querySelectorAll('.cc td').forEach(td=>{td.onmouseenter=()=>{const i=+td.dataset.i,j=+td.dataset.j,cells=[];for(let a=0;a<k;a++)for(let c=0;c<k;c++)cells.push([i*S+a-P,j*S+c-P]);hl(cells)};td.onmouseleave=()=>hl([])});
+    v.querySelectorAll('.pp td').forEach(td=>{td.onmouseenter=()=>{const i=+td.dataset.i,j=+td.dataset.j;v.querySelectorAll('.cc td').forEach(c=>{const a=+c.dataset.i,d=+c.dataset.j;if(a>=i*pst&&a<i*pst+ps&&d>=j*pst&&d<j*pst+ps)c.classList.add('hl')})};td.onmouseleave=()=>v.querySelectorAll('.cc td').forEach(c=>c.classList.remove('hl'))});
+    ro.innerHTML=`conv size = (6 − 3 + 2·${P})/${S} + 1 = <b>${m}×${m}</b> &nbsp;|&nbsp; pool size = (${m} − ${ps})/${pst} + 1 = <b>${q}×${q}</b><br>
+To keep the <b>6×6</b> size with a 3×3 filter and stride 1: (6 − 3 + 2P)/1 + 1 = 6 ⇒ <b>P = 1</b>. To restore a 4×4 convolved image to 6×6, pad 1 on each side as well.`;
+  }
+  calc();
+};
+
+/* =========================================================
+   11. Architecture explorers
+   ========================================================= */
+const ARCH={
+ lenet:{title:'LeNet-5',layers:[
+  {n:'INPUT',t:'in',o:[32,32,1]},{n:'C1',t:'conv',F:5,S:1,P:0,K:6},{n:'S2',t:'pool',F:2,S:2},{n:'C3',t:'conv',F:5,S:1,P:0,K:16},{n:'S4',t:'pool',F:2,S:2},{n:'C5',t:'conv',F:5,S:1,P:0,K:120},{n:'F6',t:'fc',N:84},{n:'OUTPUT',t:'fc',N:10}]},
+ alexnet:{title:'AlexNet',layers:[
+  {n:'INPUT',t:'in',o:[227,227,3]},{n:'CONV1',t:'conv',F:11,S:4,P:0,K:96},{n:'POOL1',t:'pool',F:3,S:2},{n:'CONV2',t:'conv',F:5,S:1,P:2,K:256,din:48},{n:'POOL2',t:'pool',F:3,S:2},{n:'CONV3',t:'conv',F:3,S:1,P:1,K:384},{n:'CONV4',t:'conv',F:3,S:1,P:1,K:384,din:192},{n:'CONV5',t:'conv',F:3,S:1,P:1,K:256,din:192},{n:'POOL3',t:'pool',F:3,S:2},{n:'FC6',t:'fc',N:4096},{n:'FC7',t:'fc',N:4096},{n:'FC8',t:'fc',N:1000}]},
+ vgg:{title:'VGG16',layers:(()=>{const L=[{n:'INPUT',t:'in',o:[224,224,3]}];[[64,2],[128,2],[256,3],[512,3],[512,3]].forEach(([k,r],bi)=>{for(let i=1;i<=r;i++)L.push({n:`conv${bi+1}_${i}`,t:'conv',F:3,S:1,P:1,K:k});L.push({n:`pool${bi+1}`,t:'pool',F:2,S:2})});L.push({n:'fc6',t:'fc',N:4096},{n:'fc7',t:'fc',N:4096},{n:'fc8',t:'fc',N:1000});return L})()}
+};
+function archBuild(cfg){
+  let prev=null;const out=[];
+  cfg.layers.forEach(L=>{
+    const l={...L,msg:'',par:0};
+    if(L.t==='in'){l.out=L.o}
+    else if(L.t==='conv'){const [h,,c]=prev.out,din=L.din||c;const ho=Math.floor((h-L.F+2*L.P)/L.S)+1;l.out=[ho,ho,L.K];l.par=L.K*(L.F*L.F*din+1);
+      l.f1=`H₂ = (${h} − ${L.F} + 2·${L.P})/${L.S} + 1 = ${ho}`;l.f2=`params = K(F²·D + 1) = ${L.K}·(${L.F}²·${din} + 1) = ${l.par.toLocaleString()}`;}
+    else if(L.t==='pool'){const [h,,c]=prev.out;const ho=Math.floor((h-L.F)/L.S)+1;l.out=[ho,ho,c];l.f1=`H₂ = (${h} − ${L.F})/${L.S} + 1 = ${ho}`;l.f2='params = 0 (no weights)'}
+    else{const nin=prev.out.length===3?prev.out[0]*prev.out[1]*prev.out[2]:prev.out[0];l.out=[L.N];l.par=(nin+1)*L.N;l.f1=prev.out.length===3?`flatten ${prev.out.join('×')} = ${nin.toLocaleString()}`:`inputs = ${nin}`;l.f2=`params = (n_in + 1)·N = (${nin.toLocaleString()} + 1)·${L.N} = ${l.par.toLocaleString()}`}
+    out.push(l);prev=l;
+  });return out;
+}
+['lenet','alexnet','vgg'].forEach(key=>{
+  W[key]=b=>{
+    const cfg=ARCH[key],L=archBuild(cfg);let sel=1;
+    const v=el('<div><div class="strip"></div><div class="ro det"></div><div class="pbar"></div></div>');b.append(v);
+    const total=L.reduce((a,l)=>a+l.par,0),conv=L.filter(l=>l.t==='conv').reduce((a,l)=>a+l.par,0),fc=L.filter(l=>l.t==='fc').reduce((a,l)=>a+l.par,0);
+    const col={in:'#fde68a',conv:'#93c5fd',pool:'#fca5a5',fc:'#86efac'};
+    function draw(){
+      const bw=key==='vgg'?26:key==='alexnet'?38:50,gap=key==='vgg'?8:12,H=220,Wd=L.length*(bw+gap)+gap;
+      let s=`<svg class="pl" viewBox="0 0 ${Wd} ${H}">`;
+      L.forEach((l,i)=>{
+        const x=gap+i*(bw+gap),sz=l.t==='fc'?30+Math.min(95,Math.log2(l.out[0])*9):28+Math.min(140,l.out[0]/L[0].out[0]*140+ (l.out[2]?Math.log2(l.out[2]+1)*3:0));
+        const h=Math.min(150,sz);
+        s+=`<g data-i="${i}" style="cursor:pointer"><rect x="${x}" y="${150-h+14}" width="${bw}" height="${h}" style="fill:${col[l.t]};stroke:${i===sel?'var(--ink)':'var(--rule-soft)'};stroke-width:${i===sel?3:1.2}"/>
+<text x="${x+bw/2}" y="${150+30}" text-anchor="middle" style="font-size:${key==='vgg'?7.5:9}px;font-weight:700">${l.n}</text><text x="${x+bw/2}" y="${150+42}" text-anchor="middle" style="font-size:${key==='vgg'?6.5:8}px">${l.out.length===3?l.out[0]+'×'+l.out[1]:l.out[0]}</text><text x="${x+bw/2}" y="${150+53}" text-anchor="middle" style="font-size:${key==='vgg'?6.5:8}px">${l.out.length===3?'×'+l.out[2]:''}</text></g>`;
+      });
+      s+='</svg>';v.querySelector('.strip').innerHTML=s;
+      v.querySelectorAll('g[data-i]').forEach(g=>{g.onmouseenter=()=>{sel=+g.dataset.i;draw()};g.onclick=()=>{sel=+g.dataset.i;draw()}});
+      const l=L[sel],prev=L[sel-1];
+      v.querySelector('.det').innerHTML=`<b>${l.n}</b> — ${{in:'input image',conv:'convolution + ReLU',pool:'pooling',fc:'fully connected'}[l.t]}${l.t==='conv'||l.t==='pool'?` (${l.F}×${l.F}, stride ${l.S}${l.t==='conv'?`, pad ${l.P}, ${l.K} filters`:''})`:''}<br>
+output: <b>${l.out.join(' × ')}</b>${prev?`   (input ${prev.out.join(' × ')})`:''}<br>${l.f1?l.f1+'<br>':''}${l.f2||''}<br>
+<span class="mut">hover or click a layer · blue = conv, red = pool, green = FC</span>`;
+      const pc=conv/total*100,pf=fc/total*100;
+      v.querySelector('.pbar').innerHTML=`<div class="cap">Parameter budget — total <b>${total.toLocaleString()}</b></div><div class="bar"><span style="width:${Math.max(pc,.5)}%;background:#93c5fd" title="conv"></span><span style="width:${pf}%;background:#86efac" title="FC"></span></div>
+<div class="cap">conv layers ${conv.toLocaleString()} (${pc.toFixed(1)} %) · FC layers ${fc.toLocaleString()} (${pf.toFixed(1)} %)${l.par?` · selected layer: ${l.par.toLocaleString()} (${(l.par/total*100).toFixed(2)} %)`:''}</div>`;
+    }
+    draw();
+  };
+});
+
+/* =========================================================
+   12. XOR (3 variables) and McCulloch–Pitts
+   ========================================================= */
+W.xor3=b=>{
+  const x=[0,0,0];const v=el('<div class="row2"><div class="viz"></div><div class="ro"></div></div>');
+  const tg=el('<div class="btns"></div>');
+  [0,1,2].forEach(i=>{const t=btn(`x${i+1} = 0`,()=>{x[i]^=1;draw()});t.id='t'+i;tg.append(t)});
+  b.append(tg,v);
+  function draw(){
+    const s=x[0]+x[1]+x[2],h=[1,2,3].map(i=>+(s>=i)),net=h[0]-h[1]+h[2]-.5,y=+(net>=0);
+    tg.querySelectorAll('button').forEach((t,i)=>{t.textContent=`x${i+1} = ${x[i]}`;t.classList.toggle('on',!!x[i])});
+    const C=a=>a?'fill:#3553ff;stroke:var(--ink)':'fill:var(--bg);stroke:var(--ink)',TC=a=>a?'fill:#fff':'fill:var(--ink)';
+    const xs=[[40,40],[40,120],[40,200]],hs=[[200,40],[200,120],[200,200]],o=[360,120];
+    let g='<svg class="pl" viewBox="0 0 420 240" style="max-width:460px">';
+    xs.forEach(a=>hs.forEach(c=>{g+=`<line x1="${a[0]+20}" y1="${a[1]}" x2="${c[0]-22}" y2="${c[1]}" style="stroke:var(--rule-soft)"/>`}));
+    hs.forEach((c,i)=>{g+=`<line x1="${c[0]+22}" y1="${c[1]}" x2="${o[0]-24}" y2="${o[1]}" style="stroke:${h[i]?'#3553ff':'var(--rule-soft)'};stroke-width:2"/><text x="${(c[0]+o[0])/2+8}" y="${(c[1]+o[1])/2+(i-1)*-10-4}" style="font-weight:700">${['+1','−1','+1'][i]}</text>`});
+    xs.forEach((a,i)=>g+=`<circle cx="${a[0]}" cy="${a[1]}" r="20" style="${C(x[i])}"/><text x="${a[0]}" y="${a[1]+4}" text-anchor="middle" style="${TC(x[i])};font-weight:700">x${i+1}=${x[i]}</text>`);
+    hs.forEach((c,i)=>g+=`<circle cx="${c[0]}" cy="${c[1]}" r="22" style="${C(h[i])}"/><text x="${c[0]}" y="${c[1]-1}" text-anchor="middle" style="${TC(h[i])};font-weight:700">h${i+1}=${h[i]}</text><text x="${c[0]}" y="${c[1]+11}" text-anchor="middle" style="${TC(h[i])};font-size:8px">θ=${i+1}</text>`);
+    g+=`<circle cx="${o[0]}" cy="${o[1]}" r="24" style="${C(y)}"/><text x="${o[0]}" y="${o[1]+4}" text-anchor="middle" style="${TC(y)};font-weight:700">y=${y}</text></svg>`;
+    v.firstChild.innerHTML=g;
+    let rows='';for(let m=0;m<8;m++){const a=[m>>2&1,m>>1&1,m&1],ss=a[0]+a[1]+a[2],hh=[1,2,3].map(i=>+(ss>=i)),yy=+(hh[0]-hh[1]+hh[2]-.5>=0),cur=a.every((q,i)=>q===x[i]);
+      rows+=`<tr class="${cur?'cur':''}"><td>${a.join(' ')}</td><td>${ss}</td><td>${hh.join(' ')}</td><td>${yy}</td><td>${a.reduce((p,q)=>p^q)}</td></tr>`}
+    v.lastChild.innerHTML=`Σx = ${s} → h = (${h.join(', ')})<br>net = h₁ − h₂ + h₃ − 0.5 = <b>${nf(net)}</b> → <b>y = ${y}</b>
+<table class="mini"><thead><tr><th>x₁x₂x₃</th><th>Σ</th><th>h₁h₂h₃</th><th>y</th><th>XOR</th></tr></thead><tbody>${rows}</tbody></table><b>3 hidden + 1 output = 4 perceptrons</b>`;
+  }
+  draw();
+};
+W.mp=b=>{
+  const x=[1,1,1];const v=el('<div class="row2"><div class="viz"></div><div class="ro"></div></div>');
+  const tg=el('<div class="btns"></div>');[0,1,2].forEach(i=>tg.append(btn('',()=>{x[i]^=1;draw()})));
+  const st=controls(b,[{k:'th',label:'threshold θ',min:1,max:3,v:3}],draw);
+  b.append(tg,v);
+  function draw(){
+    const s=x[0]+x[1]+x[2],y=+(s>=st.th);
+    tg.querySelectorAll('button').forEach((t,i)=>{t.textContent=`x${i+1} = ${x[i]}`;t.classList.toggle('on',!!x[i])});
+    let g='<svg class="pl" viewBox="0 0 340 200" style="max-width:360px">';
+    [40,100,160].forEach((yy,i)=>g+=`<line x1="62" y1="${yy}" x2="218" y2="100" style="stroke:${x[i]?'#3553ff':'var(--rule-soft)'};stroke-width:2"/><circle cx="42" cy="${yy}" r="20" style="fill:${x[i]?'#3553ff':'var(--bg)'};stroke:var(--ink)"/><text x="42" y="${yy+4}" text-anchor="middle" style="fill:${x[i]?'#fff':'var(--ink)'};font-weight:700">x${i+1}</text>`);
+    g+=`<circle cx="245" cy="100" r="30" style="fill:${y?'#3553ff':'var(--bg)'};stroke:var(--ink)"/><text x="245" y="96" text-anchor="middle" style="fill:${y?'#fff':'var(--ink)'};font-weight:700">Σ=${s}</text><text x="245" y="110" text-anchor="middle" style="fill:${y?'#fff':'var(--ink)'};font-size:9px">≥ ${st.th}?</text><line x1="275" y1="100" x2="310" y2="100" style="stroke:var(--ink)"/><text x="322" y="104" style="font-weight:700">y=${y}</text></svg>`;
+    v.firstChild.innerHTML=g;
+    v.lastChild.innerHTML=`All weights +1. y = 1 iff x₁ + x₂ + x₃ ≥ θ.<br>θ = ${st.th} → <b>${{1:'3-input OR',2:'majority (2 of 3)',3:'3-bit AND ✓ (the question)'}[st.th]}</b><br>Σ = ${s} → <b>y = ${y}</b>`;
+  }
+  draw();
+};
+
+/* =========================================================
+   13. Regularisation
+   ========================================================= */
+W.reg=b=>{
+  const v=el('<div class="row2"><div class="viz"></div><div class="viz2"></div></div>');
+  const st=controls(b,[{k:'lam',label:'λ (penalty strength)',min:0,max:2,step:.05,v:.5,fmt:f2},{k:'w0',label:'unregularised optimum w₀',min:-3,max:3,step:.1,v:1.5,fmt:f2},{k:'ep',label:'stop at epoch',min:1,max:60,v:35}],draw);
+  b.append(v,el('<div class="ro rr"></div>'));
+  const tr=e=>2/Math.sqrt(e)+.05,va=e=>e<20?2/Math.sqrt(e)+.25:2/Math.sqrt(20)+.25+.0006*(e-20)**2;
+  function draw(){
+    const l2=w=>w/(1+2*st.lam),l1=w=>Math.sign(w)*Math.max(Math.abs(w)-st.lam,0);
+    const p=plot(300,250,-3,3,-3,3,{xl:'w₀ (no penalty)',m:{l:34}});
+    p.path(w=>w,-3,3,2,GRY);p.path(l2,-3,3,60,GRN);p.path(l1,-3,3,120,RED);p.vline(st.w0,'stroke:var(--ink);stroke-width:1');p.dot(st.w0,l2(st.w0),'#16a34a',5);p.dot(st.w0,l1(st.w0),'#dc2626',5);
+    v.firstChild.innerHTML=p.svg()+'<div class="cap">optimal weight vs unpenalised optimum: green L2 (shrinks), red L1 (shrinks &amp; hits exactly 0), dashed = none</div>';
+    const q=plot(300,250,0,60,0,2.5,{xl:'epoch',m:{l:34}});
+    q.path(e=>tr(Math.max(e,1)),1,60,59,BLUE);q.path(e=>va(Math.max(e,1)),1,60,59,RED);q.vline(20,'stroke:#16a34a;stroke-width:1.5;stroke-dasharray:5 3');q.vline(st.ep,GRY);q.dot(st.ep,va(st.ep),'#dc2626',5);q.dot(st.ep,tr(st.ep),'var(--blueprint)',5);
+    v.lastChild.innerHTML=q.svg()+'<div class="cap">early stopping: validation loss (red) is lowest at epoch 20 (green)</div>';
+    $('.rr',b).innerHTML=`L2: w* = w₀/(1 + 2λ) = <b>${f3(l2(st.w0))}</b> &nbsp;|&nbsp; L1: w* = sign(w₀)·max(|w₀| − λ, 0) = <b>${f3(l1(st.w0))}</b> ${Math.abs(l1(st.w0))<1e-9?'<span class="ok">(exactly 0 → sparse)</span>':''}<br>
+Early stopping at epoch ${st.ep}: val loss = <b>${f3(va(st.ep))}</b> ${st.ep<20?'(under-trained)':st.ep>20?'<span class="warn">(over-fitting: val loss rising)</span>':'<span class="ok">(optimum)</span>'}`;
+  }
+  draw();
+};
+
+/* ---------- registry: image filename → widget ---------- */
+const META={
+ conv:'Convolution size & parameters',gates:'Perceptron gate playground',bp:'Back-propagation stepper',biasvar:'Bias–variance trade-off',act:'Activation functions',vanish:'Vanishing gradient',optim:'Optimiser race',adam:'Adam bias correction',bce:'BCE vs MSE',q6:'Convolution & max-pool explorer',lenet:'LeNet-5 explorer',alexnet:'AlexNet explorer',vgg:'VGG16 explorer',xor3:'3-variable XOR network',mp:'McCulloch–Pitts neuron',reg:'Regularisation'
+};
+document.querySelectorAll('div.w[data-w]').forEach(d=>{
+  const k=d.dataset.w,cap=d.dataset.cap||'';
+  d.className='wid';d.innerHTML=`<div class="wbar"><span>Interactive</span><span>${META[k]||k}</span></div><div class="wbody"></div>${cap?`<div class="wcap">${cap}</div>`:''}`;
+  try{W[k]($('.wbody',d),{...d.dataset})}catch(e){d.dataset.err=String(e&&e.stack||e);console.error(k,e);$('.wbody',d).innerHTML='<span class="warn">Widget failed to load: '+e+'</span>'}
+});
+})();
+
 </script>
 </body>
 </html>
