@@ -12,6 +12,7 @@
 | [**Paper A**](#paper-a) | `PYQ/…130619 … 130959 … 131047` (4 images) | Q1 – Q5 (conv size, back-prop, dropout, GD variants, gradients, bias-variance, AlexNet, VGG16, vanishing gradient) |
 | [**Paper B**](#paper-b) | `PYQ/…131329 … 131348 … 131429 … 131454` (4 images) | Q1 – Q5 (CO/BL tagged: perceptron gates, LeNet-5, back-prop MSE, 1×1 / n×n conv, AlexNet conv1) |
 | [**Paper C**](#paper-c) | `PYQ/…131608 … 131656 … 131739 … 131757` (4 images) | Q1 – Q6 (MP neuron, optimisers, CNN params, RNN/LSTM/GRU, BCE, guided back-prop, regularisation) |
+| [**Paper D**](#paper-d) | `assets/pyq/d1.png` + later screenshots | Q1 – Q16 (cross-entropy, MP OR neuron, Adam/NAG, sequential learning, bias-variance T/F, CNN block, LSTM, perceptron convergence, ReLU, LeNet, XOR3, gradient proof, back-prop, transfer learning, skip connections, encoder-decoder, positional encoding, GAN/DCGAN/CycleGAN, U-Net, Q-learning, autoencoders, scaled attention, GRU, RNN step, AlexNet vs GoogLeNet, feature-map sizes, supervised vs unsupervised, perceptron circuits, GD variants, confusion matrix, bias-variance derivation, metrics/ROC, optimizers, L1/L2, conv1 params) |
 | [**Quick formula sheet**](#formula-sheet) | – | All key formulas on one page |
 
 ---
@@ -51,57 +52,202 @@ $$
 
 ![Network](assets/f_bp_net.png)
 
-**Given:** $x_1=0.35,\;x_2=0.7$; $w_{11}=0.2,\;w_{21}=0.2,\;w_{12}=0.3,\;w_{22}=0.3,\;w_{13}=0.3,\;w_{23}=0.9$; target $t=0.37$; $\eta=0.01$; loss $L=|t-y_5|$; 2 epochs; no bias terms.
+We solve this by **forward propagation + back-propagation for 2 epochs**, showing every calculation.
 
-**Forward pass (epoch 1)**
+The network has 2 input nodes $x_1, x_2$, 2 hidden nodes $h_1, h_2$ (outputs $y_3, y_4$) and 1 output node $o_3$ (output $y_5$). Activation: **sigmoid**. Loss: **Absolute Error**.
 
-$$
-y_3=\sigma(w_{11}x_1+w_{21}x_2)=\sigma(0.2\cdot0.35+0.2\cdot0.7)=\sigma(0.21)=0.55231
-$$
+#### 1 Given data
 
-$$
-y_4=\sigma(w_{12}x_1+w_{22}x_2)=\sigma(0.3\cdot0.35+0.3\cdot0.7)=\sigma(0.315)=0.57811
-$$
+| Parameter | Value |
+|---|---|
+| $x_1$ | 0.35 |
+| $x_2$ | 0.70 |
+| Target output $t$ | 0.37 |
+| Learning rate $\eta$ | 0.01 |
+| Epochs | 2 |
 
-$$
-y_5=\sigma(w_{13}y_3+w_{23}y_4)=\sigma(0.3\cdot0.55231+0.9\cdot0.57811)=\sigma(0.68599)=0.66507
-$$
+Initial weights:
 
-$$
-L=|0.37-0.66507|=0.29507
-$$
+| Connection | Weight |
+|---|---|
+| $x_1 \to h_1$ ($w_{11}$) | 0.2 |
+| $x_2 \to h_1$ ($w_{21}$) | 0.2 |
+| $x_1 \to h_2$ ($w_{12}$) | 0.3 |
+| $x_2 \to h_2$ ($w_{22}$) | 0.3 |
+| $h_1 \to o_3$ ($w_{13}$) | 0.3 |
+| $h_2 \to o_3$ ($w_{23}$) | 0.9 |
 
-**Backward pass.** For absolute error $\dfrac{\partial L}{\partial y_5}=\operatorname{sign}(y_5-t)=+1$ (since $y_5>t$). Using $\sigma'=y(1-y)$:
+No bias terms are used because none are shown in the figure.
 
-$$
-\delta_5=1\cdot y_5(1-y_5)=0.66507\cdot0.33493=0.22275
-$$
+#### 2 Formulas used
 
-$$
-\delta_3=\delta_5\,w_{13}\,y_3(1-y_3)=0.22275\cdot0.3\cdot0.24727=0.01652,\qquad
-\delta_4=\delta_5\,w_{23}\,y_4(1-y_4)=0.22275\cdot0.9\cdot0.24390=0.04890
-$$
+$$\sigma(z)=\frac{1}{1+e^{-z}},\qquad \sigma'(z)=\sigma(z)\,\big(1-\sigma(z)\big)$$
 
-Gradients $\partial L/\partial w=\delta\cdot(\text{input to that weight})$ and update $w\leftarrow w-\eta\,\partial L/\partial w$:
+$$E=\lvert t-y_5\rvert,\qquad \frac{\partial E}{\partial y_5}=\operatorname{sign}(y_5-t)=\begin{cases}+1 & y_5>t\\-1 & y_5<t\end{cases}$$
 
-| Weight | Gradient (epoch 1) | New value after epoch 1 | Gradient (epoch 2) | New value after epoch 2 |
-|---|---|---|---|---|
-| $w_{13}$ ($\delta_5y_3$) | 0.123027 | 0.298770 | 0.123082 | 0.297539 |
-| $w_{23}$ ($\delta_5y_4$) | 0.128773 | 0.898712 | 0.128821 | 0.897424 |
-| $w_{11}$ ($\delta_3x_1$) | 0.005783 | 0.199942 | 0.005762 | 0.199885 |
-| $w_{21}$ ($\delta_3x_2$) | 0.011566 | 0.199884 | 0.011525 | 0.199769 |
-| $w_{12}$ ($\delta_4x_1$) | 0.017114 | 0.299829 | 0.017098 | 0.299658 |
-| $w_{22}$ ($\delta_4x_2$) | 0.034227 | 0.299658 | 0.034197 | 0.299316 |
+$$\delta_o=\frac{\partial E}{\partial y_5}\cdot y_5(1-y_5)=\operatorname{sign}(y_5-t)\,y_5(1-y_5)$$
 
-**Results**
+$$\delta_{h_1}=y_3(1-y_3)\,\delta_o\,w_{13},\qquad \delta_{h_2}=y_4(1-y_4)\,\delta_o\,w_{23}$$
 
-| | $y_3$ | $y_4$ | $y_5$ | Loss $\lvert t-y_5\rvert$ |
-|---|---|---|---|---|
-| Epoch 1 (forward, initial weights) | 0.55231 | 0.57811 | 0.66507 | 0.29507 |
-| Epoch 2 (forward, after 1 update) | 0.55228 | 0.57803 | 0.66474 | 0.29474 |
-| **After 2 epochs (final)** | **0.55226** | **0.57796** | **0.66441** | 0.29441 |
+$$\frac{\partial E}{\partial w_{13}}=\delta_o\,y_3,\quad \frac{\partial E}{\partial w_{23}}=\delta_o\,y_4,\quad \frac{\partial E}{\partial w_{11}}=\delta_{h_1}x_1,\quad \frac{\partial E}{\partial w_{21}}=\delta_{h_1}x_2,\quad \frac{\partial E}{\partial w_{12}}=\delta_{h_2}x_1,\quad \frac{\partial E}{\partial w_{22}}=\delta_{h_2}x_2$$
 
-So after two epochs the outputs are $y_3\approx0.5523,\;y_4\approx0.5780,\;y_5\approx0.6644$. With $\eta=0.01$ the network barely moves toward the target 0.37 (it is still far away), because the learning rate is tiny and the sigmoid slope is small.
+$$w_{new}=w_{old}-\eta\,\frac{\partial E}{\partial w}$$
+
+> The hidden deltas use the **old** output weights $w_{13}, w_{23}$ (the values used in the forward pass), not the freshly updated ones. All six weights are updated together at the end of the epoch.
+
+#### 3 Epoch 1: forward propagation
+
+**Step 1 – hidden node $h_1$ (output $y_3$)**
+
+$$Net_{h_1}=x_1w_{11}+x_2w_{21}=0.35(0.200000)+0.7(0.200000)=0.070000+0.140000=0.210000$$
+
+$$y_3=\frac{1}{1+e^{-0.210000}}\;\Rightarrow\;\boxed{y_3=0.552308}$$
+
+**Step 2 – hidden node $h_2$ (output $y_4$)**
+
+$$Net_{h_2}=x_1w_{12}+x_2w_{22}=0.35(0.300000)+0.7(0.300000)=0.105000+0.210000=0.315000$$
+
+$$y_4=\frac{1}{1+e^{-0.315000}}\;\Rightarrow\;\boxed{y_4=0.578105}$$
+
+**Step 3 – output node $o_3$ (output $y_5$)**
+
+$$Net_{o_3}=y_3w_{13}+y_4w_{23}=0.552308(0.300000)+0.578105(0.900000)=0.165692+0.520295=0.685987$$
+
+$$y_5=\frac{1}{1+e^{-0.685987}}\;\Rightarrow\;\boxed{y_5=0.665074}$$
+
+**Step 4 – error**
+
+$$E=\lvert t-y_5\rvert=\lvert 0.37-0.665074\rvert\;\Rightarrow\;\boxed{E=0.295074}$$
+
+#### 4 Epoch 1: back-propagation and weight update
+
+**Step 1 – output delta**
+
+Since $y_5 > t$ (0.665074 > 0.37), $\operatorname{sign}(y_5-t)=+1$:
+
+$$\delta_o=+1\cdot y_5(1-y_5)=+1\cdot 0.665074\,(1-0.665074)\;\Rightarrow\;\boxed{\delta_o=0.222751}$$
+
+**Step 2 – update the output-layer weights**
+
+$$\frac{\partial E}{\partial w_{13}}=\delta_oy_3=0.222751\times0.552308=0.123027$$
+
+$$w_{13}^{new}=w_{13}-\eta\,\delta_oy_3=0.300000-0.01(0.123027)\;\Rightarrow\;\boxed{w_{13}=0.298770}$$
+
+$$\frac{\partial E}{\partial w_{23}}=\delta_oy_4=0.222751\times0.578105=0.128773$$
+
+$$w_{23}^{new}=w_{23}-\eta\,\delta_oy_4=0.900000-0.01(0.128773)\;\Rightarrow\;\boxed{w_{23}=0.898712}$$
+
+**Step 3 – hidden deltas** (using the old $w_{13}, w_{23}$)
+
+$$\delta_{h_1}=y_3(1-y_3)\,\delta_o\,w_{13}=0.552308(1-0.552308)(0.222751)(0.300000)\;\Rightarrow\;\boxed{\delta_{h_1}=0.016523}$$
+
+$$\delta_{h_2}=y_4(1-y_4)\,\delta_o\,w_{23}=0.578105(1-0.578105)(0.222751)(0.900000)\;\Rightarrow\;\boxed{\delta_{h_2}=0.048896}$$
+
+**Step 4 – update the input-to-hidden weights**
+
+$$w_{11}^{new}=w_{11}-\eta\,\delta_{h_1}\,x_1=0.200000-0.01(0.016523)(0.35)\;\Rightarrow\;\boxed{w_{11}=0.199942}$$
+
+$$w_{21}^{new}=w_{21}-\eta\,\delta_{h_1}\,x_2=0.200000-0.01(0.016523)(0.7)\;\Rightarrow\;\boxed{w_{21}=0.199884}$$
+
+$$w_{12}^{new}=w_{12}-\eta\,\delta_{h_2}\,x_1=0.300000-0.01(0.048896)(0.35)\;\Rightarrow\;\boxed{w_{12}=0.299829}$$
+
+$$w_{22}^{new}=w_{22}-\eta\,\delta_{h_2}\,x_2=0.300000-0.01(0.048896)(0.7)\;\Rightarrow\;\boxed{w_{22}=0.299658}$$
+
+#### 5 Epoch 2: forward propagation
+
+Use the weights updated at the end of epoch 1.
+
+**Step 1 – hidden node $h_1$ (output $y_3$)**
+
+$$Net_{h_1}=x_1w_{11}+x_2w_{21}=0.35(0.199942)+0.7(0.199884)=0.069980+0.139919=0.209899$$
+
+$$y_3=\frac{1}{1+e^{-0.209899}}\;\Rightarrow\;\boxed{y_3=0.552283}$$
+
+**Step 2 – hidden node $h_2$ (output $y_4$)**
+
+$$Net_{h_2}=x_1w_{12}+x_2w_{22}=0.35(0.299829)+0.7(0.299658)=0.104940+0.209760=0.314701$$
+
+$$y_4=\frac{1}{1+e^{-0.314701}}\;\Rightarrow\;\boxed{y_4=0.578032}$$
+
+**Step 3 – output node $o_3$ (output $y_5$)**
+
+$$Net_{o_3}=y_3w_{13}+y_4w_{23}=0.552283(0.298770)+0.578032(0.898712)=0.165005+0.519485=0.684490$$
+
+$$y_5=\frac{1}{1+e^{-0.684490}}\;\Rightarrow\;\boxed{y_5=0.664740}$$
+
+**Step 4 – error**
+
+$$E=\lvert t-y_5\rvert=\lvert 0.37-0.664740\rvert\;\Rightarrow\;\boxed{E=0.294740}$$
+
+#### 6 Epoch 2: back-propagation and weight update
+
+**Step 1 – output delta**
+
+Since $y_5 > t$ (0.664740 > 0.37), $\operatorname{sign}(y_5-t)=+1$:
+
+$$\delta_o=+1\cdot y_5(1-y_5)=+1\cdot 0.664740\,(1-0.664740)\;\Rightarrow\;\boxed{\delta_o=0.222861}$$
+
+**Step 2 – update the output-layer weights**
+
+$$\frac{\partial E}{\partial w_{13}}=\delta_oy_3=0.222861\times0.552283=0.123082$$
+
+$$w_{13}^{new}=w_{13}-\eta\,\delta_oy_3=0.298770-0.01(0.123082)\;\Rightarrow\;\boxed{w_{13}=0.297539}$$
+
+$$\frac{\partial E}{\partial w_{23}}=\delta_oy_4=0.222861\times0.578032=0.128821$$
+
+$$w_{23}^{new}=w_{23}-\eta\,\delta_oy_4=0.898712-0.01(0.128821)\;\Rightarrow\;\boxed{w_{23}=0.897424}$$
+
+**Step 3 – hidden deltas** (using the old $w_{13}, w_{23}$)
+
+$$\delta_{h_1}=y_3(1-y_3)\,\delta_o\,w_{13}=0.552283(1-0.552283)(0.222861)(0.298770)\;\Rightarrow\;\boxed{\delta_{h_1}=0.016464}$$
+
+$$\delta_{h_2}=y_4(1-y_4)\,\delta_o\,w_{23}=0.578032(1-0.578032)(0.222861)(0.898712)\;\Rightarrow\;\boxed{\delta_{h_2}=0.048852}$$
+
+**Step 4 – update the input-to-hidden weights**
+
+$$w_{11}^{new}=w_{11}-\eta\,\delta_{h_1}\,x_1=0.199942-0.01(0.016464)(0.35)\;\Rightarrow\;\boxed{w_{11}=0.199885}$$
+
+$$w_{21}^{new}=w_{21}-\eta\,\delta_{h_1}\,x_2=0.199884-0.01(0.016464)(0.7)\;\Rightarrow\;\boxed{w_{21}=0.199769}$$
+
+$$w_{12}^{new}=w_{12}-\eta\,\delta_{h_2}\,x_1=0.299829-0.01(0.048852)(0.35)\;\Rightarrow\;\boxed{w_{12}=0.299658}$$
+
+$$w_{22}^{new}=w_{22}-\eta\,\delta_{h_2}\,x_2=0.299658-0.01(0.048852)(0.7)\;\Rightarrow\;\boxed{w_{22}=0.299316}$$
+
+#### 7 Weights after each epoch
+
+| Weight | Initial | After epoch 1 | After epoch 2 |
+|---|---|---|---|
+| $w_{11}$ | 0.2 | 0.199942 | 0.199885 |
+| $w_{21}$ | 0.2 | 0.199884 | 0.199769 |
+| $w_{12}$ | 0.3 | 0.299829 | 0.299658 |
+| $w_{22}$ | 0.3 | 0.299658 | 0.299316 |
+| $w_{13}$ | 0.3 | 0.298770 | 0.297539 |
+| $w_{23}$ | 0.9 | 0.898712 | 0.897424 |
+
+#### 8 Final answer
+
+| | Epoch 1 forward pass | Epoch 2 forward pass | Fresh forward pass with the final weights (after epoch 2 update) |
+|---|---|---|---|
+| $y_3$ (hidden $h_1$) | 0.552308 | 0.552283 | 0.552258 |
+| $y_4$ (hidden $h_2$) | 0.578105 | 0.578032 | 0.577959 |
+| $y_5$ (output $o_3$) | 0.665074 | 0.664740 | 0.664406 |
+| Error $E$ | 0.295074 | 0.294740 | 0.294406 |
+
+**Answer (outputs of the second epoch's forward pass):** $y_3\approx0.5523$, $y_4\approx0.5780$, $y_5\approx0.6647$, error after epoch 2 $E=0.294740$.
+
+If the question means "after training for 2 epochs" (i.e. re-run the network with the final weights), then $y_3\approx0.5523$, $y_4\approx0.5780$, $y_5\approx0.6644$. State which interpretation you use.
+
+The error falls from 0.295074 to 0.294740, so the network is learning, but with $\eta=0.01$ it moves toward the target $t=0.37$ very slowly.
+
+#### 9 Exam checklist
+
+1. Net input of each hidden node = weighted sum of the inputs; apply sigmoid to get $y_3, y_4$.
+2. Net input of the output node from $y_3, y_4$; apply sigmoid to get $y_5$.
+3. Compute the error.
+4. Output delta $\delta_o$ (sign of $(y_5-t)$ times $y_5(1-y_5)$).
+5. Hidden deltas from $\delta_o$ and the **old** output weights.
+6. Update all six weights with $w_{new}=w_{old}-\eta\,\delta\cdot(\text{input of that weight})$.
+7. Repeat the whole process for epoch 2 with the new weights.
 
 ---
 
@@ -446,44 +592,202 @@ Activation: tanh/sigmoid (classic), output RBF/softmax. Flow: $32\times32\to28\t
 
 ### B-Q2 (b) – Back-propagation (sigmoid, MSE, target 0.35)
 
-Same network and initial weights as A-Q1 (B) (Figure 1), now with target $t=0.35$ and $L=\tfrac12(t-y_5)^2$ (if the convention $L=(t-y_5)^2$ is used, every gradient below is simply doubled).
-
-**Forward pass (epoch 1)** – identical to A-Q1 (B): $y_3=0.55231,\;y_4=0.57811,\;y_5=0.66507$.
-
-$$
-L=\tfrac12(0.35-0.66507)^2=0.04964
-$$
-
-**Backward pass**
-
-$$
-\frac{\partial L}{\partial y_5}=y_5-t=0.31507,\qquad
-\delta_5=(y_5-t)\,y_5(1-y_5)=0.31507\cdot0.22275=0.07018
-$$
-
-$$
-\delta_3=\delta_5\,w_{13}\,y_3(1-y_3)=0.07018\cdot0.3\cdot0.24727=0.00521,\qquad
-\delta_4=\delta_5\,w_{23}\,y_4(1-y_4)=0.07018\cdot0.9\cdot0.24390=0.01541
-$$
-
-| Weight | Gradient (epoch 1) | After epoch 1 | Gradient (epoch 2) | After epoch 2 |
-|---|---|---|---|---|
-| $w_{13}$ | 0.038763 | 0.299612 | 0.038755 | 0.299225 |
-| $w_{23}$ | 0.040573 | 0.899594 | 0.040564 | 0.899189 |
-| $w_{11}$ | 0.001822 | 0.199982 | 0.001819 | 0.199964 |
-| $w_{21}$ | 0.003644 | 0.199964 | 0.003639 | 0.199927 |
-| $w_{12}$ | 0.005392 | 0.299946 | 0.005389 | 0.299892 |
-| $w_{22}$ | 0.010784 | 0.299892 | 0.010777 | 0.299784 |
-
-| | $y_3$ | $y_4$ | $y_5$ | Loss |
-|---|---|---|---|---|
-| Epoch 1 forward | 0.55231 | 0.57811 | 0.66507 | 0.04964 |
-| Epoch 2 forward | 0.55230 | 0.57808 | 0.66497 | 0.04960 |
-| **After 2 epochs** | **0.55229** | **0.57806** | **0.66486** | 0.04957 |
+Same network and initial weights as A-Q1 (B) (Figure 1). Only the target ($t=0.35$) and the loss ($E=\tfrac12(t-y_5)^2$) change. If your course defines MSE without the $\tfrac12$, every gradient and delta below is simply **doubled**.
 
 ![Output moves slowly toward the target](assets/f_bp_curve.png)
 
-The graph (run for many epochs with $\eta=0.01$) shows that the output creeps toward the target very slowly – two epochs hardly change it.
+We solve this by **forward propagation + back-propagation for 2 epochs**, showing every calculation.
+
+The network has 2 input nodes $x_1, x_2$, 2 hidden nodes $h_1, h_2$ (outputs $y_3, y_4$) and 1 output node $o_3$ (output $y_5$). Activation: **sigmoid**. Loss: **Mean Squared Error (MSE)**.
+
+#### 1 Given data
+
+| Parameter | Value |
+|---|---|
+| $x_1$ | 0.35 |
+| $x_2$ | 0.70 |
+| Target output $t$ | 0.35 |
+| Learning rate $\eta$ | 0.01 |
+| Epochs | 2 |
+
+Initial weights:
+
+| Connection | Weight |
+|---|---|
+| $x_1 \to h_1$ ($w_{11}$) | 0.2 |
+| $x_2 \to h_1$ ($w_{21}$) | 0.2 |
+| $x_1 \to h_2$ ($w_{12}$) | 0.3 |
+| $x_2 \to h_2$ ($w_{22}$) | 0.3 |
+| $h_1 \to o_3$ ($w_{13}$) | 0.3 |
+| $h_2 \to o_3$ ($w_{23}$) | 0.9 |
+
+No bias terms are used because none are shown in the figure.
+
+#### 2 Formulas used
+
+$$\sigma(z)=\frac{1}{1+e^{-z}},\qquad \sigma'(z)=\sigma(z)\,\big(1-\sigma(z)\big)$$
+
+$$E=\tfrac12\,(t-y_5)^2,\qquad \frac{\partial E}{\partial y_5}=y_5-t$$
+
+$$\delta_o=(y_5-t)\;y_5(1-y_5)$$
+
+$$\delta_{h_1}=y_3(1-y_3)\,\delta_o\,w_{13},\qquad \delta_{h_2}=y_4(1-y_4)\,\delta_o\,w_{23}$$
+
+$$\frac{\partial E}{\partial w_{13}}=\delta_o\,y_3,\quad \frac{\partial E}{\partial w_{23}}=\delta_o\,y_4,\quad \frac{\partial E}{\partial w_{11}}=\delta_{h_1}x_1,\quad \frac{\partial E}{\partial w_{21}}=\delta_{h_1}x_2,\quad \frac{\partial E}{\partial w_{12}}=\delta_{h_2}x_1,\quad \frac{\partial E}{\partial w_{22}}=\delta_{h_2}x_2$$
+
+$$w_{new}=w_{old}-\eta\,\frac{\partial E}{\partial w}$$
+
+> The hidden deltas use the **old** output weights $w_{13}, w_{23}$ (the values used in the forward pass), not the freshly updated ones. All six weights are updated together at the end of the epoch.
+
+#### 3 Epoch 1: forward propagation
+
+**Step 1 – hidden node $h_1$ (output $y_3$)**
+
+$$Net_{h_1}=x_1w_{11}+x_2w_{21}=0.35(0.200000)+0.7(0.200000)=0.070000+0.140000=0.210000$$
+
+$$y_3=\frac{1}{1+e^{-0.210000}}\;\Rightarrow\;\boxed{y_3=0.552308}$$
+
+**Step 2 – hidden node $h_2$ (output $y_4$)**
+
+$$Net_{h_2}=x_1w_{12}+x_2w_{22}=0.35(0.300000)+0.7(0.300000)=0.105000+0.210000=0.315000$$
+
+$$y_4=\frac{1}{1+e^{-0.315000}}\;\Rightarrow\;\boxed{y_4=0.578105}$$
+
+**Step 3 – output node $o_3$ (output $y_5$)**
+
+$$Net_{o_3}=y_3w_{13}+y_4w_{23}=0.552308(0.300000)+0.578105(0.900000)=0.165692+0.520295=0.685987$$
+
+$$y_5=\frac{1}{1+e^{-0.685987}}\;\Rightarrow\;\boxed{y_5=0.665074}$$
+
+**Step 4 – error**
+
+$$E=\tfrac12(t-y_5)^2=\tfrac12(0.35-0.665074)^2=\tfrac12(-0.315074)^2\;\Rightarrow\;\boxed{E=0.049636}$$
+
+#### 4 Epoch 1: back-propagation and weight update
+
+**Step 1 – output delta**
+
+$$\delta_o=(y_5-t)\,y_5(1-y_5)=(0.665074-0.35)(0.665074)(1-0.665074)=0.315074\times0.222751\;\Rightarrow\;\boxed{\delta_o=0.070183}$$
+
+**Step 2 – update the output-layer weights**
+
+$$\frac{\partial E}{\partial w_{13}}=\delta_oy_3=0.070183\times0.552308=0.038763$$
+
+$$w_{13}^{new}=w_{13}-\eta\,\delta_oy_3=0.300000-0.01(0.038763)\;\Rightarrow\;\boxed{w_{13}=0.299612}$$
+
+$$\frac{\partial E}{\partial w_{23}}=\delta_oy_4=0.070183\times0.578105=0.040573$$
+
+$$w_{23}^{new}=w_{23}-\eta\,\delta_oy_4=0.900000-0.01(0.040573)\;\Rightarrow\;\boxed{w_{23}=0.899594}$$
+
+**Step 3 – hidden deltas** (using the old $w_{13}, w_{23}$)
+
+$$\delta_{h_1}=y_3(1-y_3)\,\delta_o\,w_{13}=0.552308(1-0.552308)(0.070183)(0.300000)\;\Rightarrow\;\boxed{\delta_{h_1}=0.005206}$$
+
+$$\delta_{h_2}=y_4(1-y_4)\,\delta_o\,w_{23}=0.578105(1-0.578105)(0.070183)(0.900000)\;\Rightarrow\;\boxed{\delta_{h_2}=0.015406}$$
+
+**Step 4 – update the input-to-hidden weights**
+
+$$w_{11}^{new}=w_{11}-\eta\,\delta_{h_1}\,x_1=0.200000-0.01(0.005206)(0.35)\;\Rightarrow\;\boxed{w_{11}=0.199982}$$
+
+$$w_{21}^{new}=w_{21}-\eta\,\delta_{h_1}\,x_2=0.200000-0.01(0.005206)(0.7)\;\Rightarrow\;\boxed{w_{21}=0.199964}$$
+
+$$w_{12}^{new}=w_{12}-\eta\,\delta_{h_2}\,x_1=0.300000-0.01(0.015406)(0.35)\;\Rightarrow\;\boxed{w_{12}=0.299946}$$
+
+$$w_{22}^{new}=w_{22}-\eta\,\delta_{h_2}\,x_2=0.300000-0.01(0.015406)(0.7)\;\Rightarrow\;\boxed{w_{22}=0.299892}$$
+
+#### 5 Epoch 2: forward propagation
+
+Use the weights updated at the end of epoch 1.
+
+**Step 1 – hidden node $h_1$ (output $y_3$)**
+
+$$Net_{h_1}=x_1w_{11}+x_2w_{21}=0.35(0.199982)+0.7(0.199964)=0.069994+0.139974=0.209968$$
+
+$$y_3=\frac{1}{1+e^{-0.209968}}\;\Rightarrow\;\boxed{y_3=0.552300}$$
+
+**Step 2 – hidden node $h_2$ (output $y_4$)**
+
+$$Net_{h_2}=x_1w_{12}+x_2w_{22}=0.35(0.299946)+0.7(0.299892)=0.104981+0.209925=0.314906$$
+
+$$y_4=\frac{1}{1+e^{-0.314906}}\;\Rightarrow\;\boxed{y_4=0.578082}$$
+
+**Step 3 – output node $o_3$ (output $y_5$)**
+
+$$Net_{o_3}=y_3w_{13}+y_4w_{23}=0.552300(0.299612)+0.578082(0.899594)=0.165476+0.520039=0.685515$$
+
+$$y_5=\frac{1}{1+e^{-0.685515}}\;\Rightarrow\;\boxed{y_5=0.664969}$$
+
+**Step 4 – error**
+
+$$E=\tfrac12(t-y_5)^2=\tfrac12(0.35-0.664969)^2=\tfrac12(-0.314969)^2\;\Rightarrow\;\boxed{E=0.049603}$$
+
+#### 6 Epoch 2: back-propagation and weight update
+
+**Step 1 – output delta**
+
+$$\delta_o=(y_5-t)\,y_5(1-y_5)=(0.664969-0.35)(0.664969)(1-0.664969)=0.314969\times0.222785\;\Rightarrow\;\boxed{\delta_o=0.070170}$$
+
+**Step 2 – update the output-layer weights**
+
+$$\frac{\partial E}{\partial w_{13}}=\delta_oy_3=0.070170\times0.552300=0.038755$$
+
+$$w_{13}^{new}=w_{13}-\eta\,\delta_oy_3=0.299612-0.01(0.038755)\;\Rightarrow\;\boxed{w_{13}=0.299225}$$
+
+$$\frac{\partial E}{\partial w_{23}}=\delta_oy_4=0.070170\times0.578082=0.040564$$
+
+$$w_{23}^{new}=w_{23}-\eta\,\delta_oy_4=0.899594-0.01(0.040564)\;\Rightarrow\;\boxed{w_{23}=0.899189}$$
+
+**Step 3 – hidden deltas** (using the old $w_{13}, w_{23}$)
+
+$$\delta_{h_1}=y_3(1-y_3)\,\delta_o\,w_{13}=0.552300(1-0.552300)(0.070170)(0.299612)\;\Rightarrow\;\boxed{\delta_{h_1}=0.005198}$$
+
+$$\delta_{h_2}=y_4(1-y_4)\,\delta_o\,w_{23}=0.578082(1-0.578082)(0.070170)(0.899594)\;\Rightarrow\;\boxed{\delta_{h_2}=0.015396}$$
+
+**Step 4 – update the input-to-hidden weights**
+
+$$w_{11}^{new}=w_{11}-\eta\,\delta_{h_1}\,x_1=0.199982-0.01(0.005198)(0.35)\;\Rightarrow\;\boxed{w_{11}=0.199964}$$
+
+$$w_{21}^{new}=w_{21}-\eta\,\delta_{h_1}\,x_2=0.199964-0.01(0.005198)(0.7)\;\Rightarrow\;\boxed{w_{21}=0.199927}$$
+
+$$w_{12}^{new}=w_{12}-\eta\,\delta_{h_2}\,x_1=0.299946-0.01(0.015396)(0.35)\;\Rightarrow\;\boxed{w_{12}=0.299892}$$
+
+$$w_{22}^{new}=w_{22}-\eta\,\delta_{h_2}\,x_2=0.299892-0.01(0.015396)(0.7)\;\Rightarrow\;\boxed{w_{22}=0.299784}$$
+
+#### 7 Weights after each epoch
+
+| Weight | Initial | After epoch 1 | After epoch 2 |
+|---|---|---|---|
+| $w_{11}$ | 0.2 | 0.199982 | 0.199964 |
+| $w_{21}$ | 0.2 | 0.199964 | 0.199927 |
+| $w_{12}$ | 0.3 | 0.299946 | 0.299892 |
+| $w_{22}$ | 0.3 | 0.299892 | 0.299784 |
+| $w_{13}$ | 0.3 | 0.299612 | 0.299225 |
+| $w_{23}$ | 0.9 | 0.899594 | 0.899189 |
+
+#### 8 Final answer
+
+| | Epoch 1 forward pass | Epoch 2 forward pass | Fresh forward pass with the final weights (after epoch 2 update) |
+|---|---|---|---|
+| $y_3$ (hidden $h_1$) | 0.552308 | 0.552300 | 0.552292 |
+| $y_4$ (hidden $h_2$) | 0.578105 | 0.578082 | 0.578059 |
+| $y_5$ (output $o_3$) | 0.665074 | 0.664969 | 0.664863 |
+| Error $E$ | 0.049636 | 0.049603 | 0.049570 |
+
+**Answer (outputs of the second epoch's forward pass):** $y_3\approx0.5523$, $y_4\approx0.5781$, $y_5\approx0.6650$, error after epoch 2 $E=0.049603$.
+
+If the question means "after training for 2 epochs" (i.e. re-run the network with the final weights), then $y_3\approx0.5523$, $y_4\approx0.5781$, $y_5\approx0.6649$. State which interpretation you use.
+
+The error falls from 0.049636 to 0.049603, so the network is learning, but with $\eta=0.01$ it moves toward the target $t=0.35$ very slowly.
+
+#### 9 Exam checklist
+
+1. Net input of each hidden node = weighted sum of the inputs; apply sigmoid to get $y_3, y_4$.
+2. Net input of the output node from $y_3, y_4$; apply sigmoid to get $y_5$.
+3. Compute the error.
+4. Output delta $\delta_o$ ($(y_5-t)$ times $y_5(1-y_5)$).
+5. Hidden deltas from $\delta_o$ and the **old** output weights.
+6. Update all six weights with $w_{new}=w_{old}-\eta\,\delta\cdot(\text{input of that weight})$.
+7. Repeat the whole process for epoch 2 with the new weights.
 
 ---
 
@@ -1020,6 +1324,904 @@ $$
 
 ---
 
+<a id="paper-d"></a>
+# Paper D
+
+## D-Q1
+
+![D Q1–Q2 – original questions](assets/pyq/d1.png)
+
+### D-Q1 (a) – Loss function for classification (with definition)
+
+The standard loss for classification is the **cross-entropy loss** (log loss), the negative log-likelihood of the true class.
+
+**Binary** (label $y\in\{0,1\}$, predicted probability $\hat y=\sigma(z)$):
+
+$$
+\boxed{L(y,\hat y)=-\big[\,y\log\hat y+(1-y)\log(1-\hat y)\,\big]}
+$$
+
+**Multi-class** ($K$ classes, one-hot $y$, softmax output $\hat y_k=\dfrac{e^{z_k}}{\sum_j e^{z_j}}$):
+
+$$
+\boxed{L=-\sum_{k=1}^{K}y_k\log\hat y_k}
+$$
+
+**Cost over $N$ examples:** $J=\dfrac1N\sum_{i=1}^{N}L\big(y^{(i)},\hat y^{(i)}\big)$.
+
+Why it is used: it is the maximum-likelihood loss for a Bernoulli/categorical output, it heavily penalises confident wrong predictions ($\hat y\to0$ when $y=1$ gives $L\to\infty$), and with sigmoid/softmax its gradient is simply $\partial L/\partial z=\hat y-y$ (no vanishing factor, unlike MSE).
+
+### D-Q1 (b) – McCulloch–Pitts neuron for 3-bit OR
+
+MP neuron: binary inputs, all excitatory weights $=+1$, output $y=1$ iff $\sum x_i\ge\theta$. OR fires when **at least one** input is 1, so $\theta=1$.
+
+![MP neuron](assets/f_mp.png)
+
+$$
+y=\begin{cases}1&x_1+x_2+x_3\ge1\0&\text{otherwise}\end{cases}\qquad(w_1=w_2=w_3=1,\ \theta=1)
+$$
+
+| $x_1x_2x_3$ | 000 | 001 | 010 | 011 | 100 | 101 | 110 | 111 |
+|---|---|---|---|---|---|---|---|---|
+| $\sum$ | 0 | 1 | 1 | 2 | 1 | 2 | 2 | 3 |
+| $y$ | **0** | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+
+(The figure above shows $\theta=3$ for AND; for OR simply change the threshold to 1.)
+
+### D-Q1 (c) – Weight-update equations
+
+Let $g_t=\nabla_wL(w_t)$, learning rate $\eta$, $\epsilon\approx10^{-8}$.
+
+**i) Adam** (momentum + RMSProp with bias correction; $\beta_1\approx0.9,\ \beta_2\approx0.999$)
+
+$$
+m_t=\beta_1m_{t-1}+(1-\beta_1)g_t,\qquad v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^{2},\qquad m_0=v_0=0
+$$
+
+$$
+\hat m_t=\frac{m_t}{1-\beta_1^{\,t}},\qquad \hat v_t=\frac{v_t}{1-\beta_2^{\,t}},\qquad
+\boxed{w_{t+1}=w_t-\frac{\eta}{\sqrt{\hat v_t}+\epsilon}\,\hat m_t}
+$$
+
+* $m_t$ = running mean of gradients (direction / momentum); $v_t$ = running mean of squared gradients (per-weight adaptive step size).
+* Bias correction fixes the start-up bias towards 0; it tends to 1 as $t\to\infty$.
+
+**ii) NAG – Nesterov Accelerated Gradient** (look-ahead momentum; $\gamma\approx0.9$)
+
+$$
+v_t=\gamma v_{t-1}+\eta\,\nabla_wL\big(w_t-\gamma v_{t-1}\big),\qquad
+\boxed{w_{t+1}=w_t-v_t}
+$$
+
+* First take the momentum step to the look-ahead point $w_t-\gamma v_{t-1}$, **then** compute the gradient there and correct. This anticipates where the weights are going, reduces overshoot/oscillation and converges faster than plain momentum.
+
+### D-Q1 (d) – Characteristics of a sequential learning problem
+
+1. **Order matters** – data are ordered (time series, text, speech, DNA); shuffling inside a sequence destroys information.
+2. **Temporal / long-range dependence** – output at step $t$ depends on the current *and past* inputs, so memory/state is required.
+3. **Variable-length** inputs and/or outputs (padding / masking needed).
+4. **Parameter sharing across time** – the same weights are applied at every time step.
+5. **Samples are not i.i.d.** (neighbours are correlated); trained with back-propagation through time.
+6. Modes: one-to-many, many-to-one, many-to-many.
+
+---
+
+## D-Q2
+
+### D-Q2 (a) – Which statements are true?
+
+| # | Statement | Verdict | Reason |
+|---|---|---|---|
+| a | Complex models have high bias and low variance. | **False** | Complex models have **low bias and high variance** (they over-fit). High bias / low variance belongs to *simple* models. |
+| b | In overfitting train error is low while test error is high. | **True** | The model memorises the training data (low train error) but does not generalise (high test error). |
+| c | Both bias and variance contribute to error. | **True** | $\mathrm{Err}=\mathrm{Bias}^2+\mathrm{Variance}+\sigma^2$ (irreducible noise). |
+| d | Pooling is used to detect edges. | **False** | Edges are detected by **convolution filters** (e.g. Sobel-like kernels). Pooling **down-samples** the feature map, reduces computation and gives small translation invariance. |
+
+**Answer: b and c are true.**
+
+### D-Q2 (b) – CNN block on a $128\times128\times16$ input
+
+Notation $(H,W,C)$; convolutions use stride 1 (not stated), padding 0.
+
+**i) CONV4-32** (32 filters, $4\times4$)
+
+$$
+H_2=W_2=\frac{128-4+0}{1}+1=125,\quad C_2=32\;\Rightarrow\;\boxed{(125,125,32)}
+$$
+
+$$
+\text{Params}=(4\cdot4\cdot16+1)\cdot32=257\cdot32=\boxed{8{,}224}\quad(8{,}192\ \text{weights}+32\ \text{biases})
+$$
+
+**ii) POOL4** ($4\times4$ max-pool, stride 2, padding 0) on $(125,125,32)$
+
+$$
+H=W=\left\lfloor\frac{125-4}{2}\right\rfloor+1=\lfloor60.5\rfloor+1=61\;\Rightarrow\;\boxed{(61,61,32)},\qquad\text{Params}=\boxed{0}
+$$
+
+(pooling has no learnable parameters; channels unchanged.)
+
+**iii) CONV2-16** (16 filters, $2\times2$) on $(61,61,32)$
+
+$$
+H_2=W_2=\frac{61-2+0}{1}+1=60,\quad C_2=16\;\Rightarrow\;\boxed{(60,60,16)}
+$$
+
+$$
+\text{Params}=(2\cdot2\cdot32+1)\cdot16=129\cdot16=\boxed{2{,}064}\quad(2{,}048\ \text{weights}+16\ \text{biases})
+$$
+
+| Layer | Output | Parameters |
+|---|---|---|
+| Input | (128, 128, 16) | 0 |
+| CONV4-32 | (125, 125, 32) | 8,224 |
+| POOL4 | (61, 61, 32) | 0 |
+| CONV2-16 | (60, 60, 16) | 2,064 |
+| **Total** | | **10,288** |
+
+---
+
+## D-Q3
+
+### D-Q3 (a) – Short note on LSTM, with the gate equations
+
+An **LSTM** (Long Short-Term Memory) is an RNN cell with a separate **cell state** $c_t$ (a "conveyor belt") that is changed only by additive, gated updates. This lets gradients flow over many time steps, so it mitigates the vanishing-gradient problem of a plain RNN and learns long-range dependencies.
+
+![LSTM cell](assets/f_lstm.png)
+
+Let $z_t=[h_{t-1},x_t]$ (concatenation), $\sigma$ = sigmoid, $\odot$ = element-wise product.
+
+| Gate | Equation | Function |
+|---|---|---|
+| **Forget gate** | $f_t=\sigma(W_fz_t+b_f)$ | how much of the old cell state $c_{t-1}$ to keep |
+| **Input gate** | $i_t=\sigma(W_iz_t+b_i)$ | how much of the new candidate to write |
+| **Candidate state** | $\tilde c_t=\tanh(W_cz_t+b_c)$ | new information proposal |
+| **Output gate** | $o_t=\sigma(W_oz_t+b_o)$ | how much of the cell to expose as $h_t$ |
+
+$$
+c_t=f_t\odot c_{t-1}+i_t\odot\tilde c_t,\qquad h_t=o_t\odot\tanh(c_t)
+$$
+
+Because $\partial c_t/\partial c_{t-1}=f_t$ (no repeated squashing by $W$ and $\tanh'$), gradients do not vanish when $f_t\approx1$. Uses: language modelling, translation, speech, time series.
+
+### D-Q3 (b) – Perceptron convergence theorem
+
+**Claim.** If $P$ (positive) and $N$ (negative) are finite and linearly separable, the perceptron algorithm updates $w_t$ only a finite number of times.
+
+**Setup.** Replace every $x\in N$ by $-x$ and let $P'=P\cup N^-$. Now we need $w$ with $w\cdot x>0$ for all $x\in P'$. Let $R=\max\lVert x\rVert$ (finite set). Algorithm: if $w_t\cdot x\le0$ for some $x\in P'$, set $w_{t+1}=w_t+x$ (start $w_0=0$).
+
+Since the sets are linearly separable, there is a unit vector $w^*$ and margin $\gamma>0$ with $w^*\cdot x\ge\gamma$ for all $x\in P'$.
+
+**Step 1 – the projection on $w^*$ grows linearly.** After $k$ updates
+
+$$
+w_{k}\cdot w^*=w_{k-1}\cdot w^*+x\cdot w^*\;\ge\;w_{k-1}\cdot w^*+\gamma\;\Rightarrow\;w_k\cdot w^*\ge k\gamma
+$$
+
+**Step 2 – the norm grows at most like $\sqrt k$.** An update only happens when $w_{k-1}\cdot x\le0$:
+
+$$
+\lVert w_k\rVert^2=\lVert w_{k-1}\rVert^2+2\,w_{k-1}\cdot x+\lVert x\rVert^2\;\le\;\lVert w_{k-1}\rVert^2+R^2\;\Rightarrow\;\lVert w_k\rVert^2\le kR^2
+$$
+
+**Step 3 – combine** (Cauchy–Schwarz, $\lVert w^*\rVert=1$):
+
+$$
+k\gamma\le w_k\cdot w^*\le\lVert w_k\rVert\le\sqrt k\,R\;\Rightarrow\;\boxed{k\le\frac{R^2}{\gamma^2}}
+$$
+
+So the number of updates is bounded by $R^2/\gamma^2$ – **finite**. After the last update every point is classified correctly, i.e. $P$ and $N$ are separated. $\blacksquare$
+
+---
+
+## D-Q4
+
+### D-Q4 (a) – ReLU, its derivative, the problem, and Leaky ReLU
+
+**ReLU:** $f(x)=\max(0,x)$.
+
+$$
+f'(x)=\begin{cases}1&x>0\\0&x<0\end{cases}\qquad(\text{at }x=0\text{ undefined; taken as }0\text{ or }1)
+$$
+
+Advantages: cheap, no saturation for $x>0$ (gradient is exactly 1, so no vanishing gradient), sparse activations, fast convergence.
+
+**Problem – dying ReLU.** For $x<0$ the output **and gradient are 0**. If a large update (e.g. a big learning rate) pushes a neuron's pre-activation negative for all inputs, then $\partial L/\partial w=0$ for it, its weights never change again and the neuron is permanently "dead". Also the output is not zero-centred.
+
+**Leaky ReLU** keeps a small slope for negative inputs:
+
+$$
+f(x)=\begin{cases}x&x>0\\\alpha x&x\le0\end{cases},\qquad f'(x)=\begin{cases}1&x>0\\\alpha&x\le0\end{cases}\quad(\alpha\approx0.01)
+$$
+
+Since the gradient for $x<0$ is $\alpha\neq0$, the weights of such a neuron still get (small) updates and it can recover – no dead neurons. (Parametric ReLU learns $\alpha$.)
+
+### D-Q4 (b)
+
+**i) Parameters (6 inputs, 1 hidden layer of 5 neurons, 2 outputs, bias at each neuron) [2]**
+
+$$
+\text{Hidden: }(6+1)\cdot5=35,\qquad \text{Output: }(5+1)\cdot2=12,\qquad \boxed{\text{Total}=35+12=47}
+$$
+
+(weights $6\cdot5+5\cdot2=40$, biases $5+2=7$.)
+
+**ii) How train / validation / test splitting reveals overfitting [2]**
+
+* **Train set** – used to learn the weights.
+* **Validation set** – used during training to tune hyper-parameters and monitor generalisation (early stopping).
+* **Test set** – touched once at the end for an unbiased estimate of the final performance.
+
+Plot train and validation loss against epochs: if the **training error keeps falling but the validation (test) error starts to rise** (large train–validation gap), the model is memorising the training data → **overfitting**. Training error alone always looks good, so a single set cannot show this. Remedies: more data, regularisation, dropout, early stopping, simpler model.
+
+**iii) Step function $f(x)=1$ if $x\ge0$, else $0$ as the non-linearity with SGD [2]**
+
+**No, I would not follow the advice.** SGD updates weights using gradients obtained by back-propagation, which needs $f'(x)$. For the step function
+
+$$
+f'(x)=0\ \ \text{for all }x\neq0\ \ (\text{undefined at }0)
+$$
+
+so the gradient passed to every earlier layer is $0$, i.e. $\partial L/\partial w=0$: the weights never change and **the network cannot learn** (the surface is flat and gives no direction that reduces the loss). It also gives only a binary output with no notion of "how far". Use ReLU / Leaky ReLU (or sigmoid/tanh) instead – differentiable (almost everywhere) with a useful non-zero gradient.
+
+---
+
+## D-Q5
+
+### D-Q5 (a) – Architecture of LeNet-5 with hyper-parameters
+
+![LeNet-5](assets/f_lenet.png)
+
+Input: $32\times32\times1$ grayscale image (MNIST padded). $F$ = filter size, $S$ = stride, $P$ = padding, $K$ = number of filters.
+
+| Layer | Type | Hyper-parameters | Output | Parameters |
+|---|---|---|---|---|
+| INPUT | image | – | 32×32×1 | 0 |
+| C1 | Conv | $K=6,\ F=5,\ S=1,\ P=0$, tanh | 28×28×6 | 156 |
+| S2 | Avg-pool | $F=2,\ S=2$ | 14×14×6 | 0 (12 in original) |
+| C3 | Conv | $K=16,\ F=5,\ S=1,\ P=0$, tanh | 10×10×16 | 2,416 (1,516 sparse) |
+| S4 | Avg-pool | $F=2,\ S=2$ | 5×5×16 | 0 |
+| C5 | Conv (=FC) | $K=120,\ F=5,\ S=1$ | 1×1×120 | 48,120 |
+| F6 | FC | 84 units, tanh | 84 | 10,164 |
+| OUTPUT | FC | 10 units, softmax/RBF | 10 | 850 |
+| **Total** | | | | **≈ 61,706** |
+
+Flow: $32\times32\to28\times28\to14\times14\to10\times10\to5\times5\to1\times1\to84\to10$, using $W_2=\frac{W_1-F+2P}{S}+1$ and conv params $K(F^2D+1)$.
+
+### D-Q5 (b) – MLP for 3-variable XOR with one hidden layer
+
+3-bit XOR (parity) $=1$ when an **odd** number of inputs are 1; it is not linearly separable, so a hidden layer is required.
+
+Hidden unit $h_i$ fires when at least $i$ inputs are on:
+
+$$
+h_i=\mathbb 1\big[x_1+x_2+x_3\ge i\big],\quad i=1,2,3\qquad(\text{weights }1,1,1;\ \text{thresholds }1,2,3)
+$$
+
+Output: $y=\mathbb 1\big[h_1-h_2+h_3-0.5\ge0\big]$ (weights $+1,-1,+1$, bias $-0.5$).
+
+![XOR3 network](assets/f_xor3.png)
+
+| $\sum x_i$ | $h_1h_2h_3$ | $h_1-h_2+h_3$ | $y$ |
+|---|---|---|---|
+| 0 | 0 0 0 | 0 | 0 |
+| 1 | 1 0 0 | 1 | 1 |
+| 2 | 1 1 0 | 0 | 0 |
+| 3 | 1 1 1 | 1 | 1 |
+
+**Network:** 3 inputs → 3 hidden perceptrons → 1 output perceptron.
+
+### D-Q5 (c) – Why moving against the gradient minimises the function; back-propagation
+
+**Proof.** Take a small step of size $\eta$ in a unit direction $u$ from $w$. By the first-order Taylor expansion
+
+$$
+L(w+\eta u)\approx L(w)+\eta\,\nabla L(w)\cdot u
+$$
+
+The change in loss is $\eta\,\nabla L\cdot u=\eta\lVert\nabla L\rVert\cos\theta$, where $\theta$ is the angle between $u$ and $\nabla L$. It is **most negative when $\cos\theta=-1$**, i.e. $u=-\nabla L/\lVert\nabla L\rVert$ (the direction opposite to the gradient). Hence the update
+
+$$
+\boxed{w_{t+1}=w_t-\eta\,\nabla L(w_t)}\ \Rightarrow\ L(w_{t+1})\approx L(w_t)-\eta\lVert\nabla L(w_t)\rVert^2\le L(w_t)
+$$
+
+so the loss decreases for small $\eta>0$ (until $\nabla L=0$, a minimum). $\blacksquare$
+
+**Back-propagation with the gradient-descent rule.**
+
+1. **Forward pass:** for layer $l$: $z^{(l)}=W^{(l)}a^{(l-1)}+b^{(l)}$, $a^{(l)}=f(z^{(l)})$; compute the loss $L$ at the output.
+2. **Output error:** $\delta^{(L)}=\dfrac{\partial L}{\partial a^{(L)}}\odot f'(z^{(L)})$ (sigmoid + MSE: $\delta=(y-t)\,y(1-y)$).
+3. **Propagate backwards (chain rule):** $\delta^{(l)}=\big(W^{(l+1)T}\delta^{(l+1)}\big)\odot f'(z^{(l)})$.
+4. **Gradients:** $\dfrac{\partial L}{\partial W^{(l)}}=\delta^{(l)}\,a^{(l-1)T},\qquad \dfrac{\partial L}{\partial b^{(l)}}=\delta^{(l)}$.
+5. **Gradient-descent update:** $W^{(l)}\leftarrow W^{(l)}-\eta\,\delta^{(l)}a^{(l-1)T},\quad b^{(l)}\leftarrow b^{(l)}-\eta\,\delta^{(l)}$.
+6. Repeat over mini-batches/epochs until the loss converges.
+
+Back-propagation is the chain rule applied layer by layer from the output, re-using the $\delta$ of the next layer, so all gradients come from one backward sweep.
+
+---
+
+## D-Q6
+
+(Question number not visible in the screenshot; parts (b) and (c) are numbered here as Q6.)
+
+### D-Q6 (b) – Transfer learning and its cases [3]
+
+**Transfer learning** means re-using the knowledge (learned weights/features) of a model trained on a large **source** task/dataset (e.g. ImageNet) to solve a different but related **target** task, usually with little data. Early layers learn generic features (edges, textures) that are useful across tasks, so we do not train from scratch. Benefits: less data, less training time, better accuracy, less over-fitting.
+
+**Cases** (depend on the size of the target dataset and its similarity to the source):
+
+| Case | Target data | Similarity to source | What to do |
+|---|---|---|---|
+| 1 | Small | High (similar) | Freeze all conv layers, use the network as a **fixed feature extractor**, train only a new classifier (linear/softmax) on top. Fine-tuning would over-fit. |
+| 2 | Small | Low (different) | Take features from **earlier/generic layers** only (later layers are source-specific), train a new classifier (e.g. SVM) on them; or use heavy augmentation. |
+| 3 | Large | High (similar) | **Fine-tune** the whole network (or most layers) starting from the pre-trained weights, with a small learning rate. |
+| 4 | Large | Low (different) | Pre-trained weights are only used as **initialisation**; fine-tune/retrain the whole network (or train from scratch). |
+
+Other common forms: **feature extraction** (freeze) vs **fine-tuning** (unfreeze some/all layers); by task type – *inductive* (target labelled), *transductive* (same task, different domain – domain adaptation), *unsupervised* transfer.
+
+Typical procedure: load pre-trained model → remove the last layer → add a new layer for the target classes → freeze early layers → train → optionally unfreeze deeper layers and fine-tune with a low learning rate.
+
+### D-Q6 (c) – Advantages of skip connections
+
+A **skip (shortcut) connection** adds the input of a block to its output, e.g. in ResNet $y=\mathcal F(x,\{W_i\})+x$, or concatenates earlier feature maps (DenseNet, U-Net).
+
+1. **Mitigates vanishing gradients:** $\dfrac{\partial y}{\partial x}=\dfrac{\partial\mathcal F}{\partial x}+1$, so the gradient always has an identity path back to earlier layers and does not shrink to zero – very deep networks (50–1000 layers) can be trained.
+2. **Solves the degradation problem:** a deeper plain net can have higher training error; with skip connections a block can learn the identity ($\mathcal F\to0$) easily, so extra layers do not hurt.
+3. **Easier optimisation / faster convergence:** the block only learns the *residual* $\mathcal F(x)=H(x)-x$, which is easier than learning the full mapping; the loss surface is smoother.
+4. **Feature re-use and information flow:** low-level (fine, spatial) features are passed directly to later layers; in U-Net skips restore spatial detail lost by down-sampling.
+5. **Better accuracy / generalisation** with no extra parameters and almost no extra computation (the identity shortcut is parameter-free).
+
+---
+
+## D-Q7
+
+(Numbered 4(a), 4(b) in the newest screenshot; shown here as D-Q7.)
+
+### D-Q7 (a) – Encoder–Decoder (seq2seq) architecture
+
+**Idea.** Two networks (RNN/LSTM/GRU, or Transformer blocks) joined by a fixed-size summary:
+
+* **Encoder** reads the input sequence $x_1,\dots,x_T$ one token at a time and compresses it into a **context vector** $c$ (the final hidden state): $h_t=f(h_{t-1},x_t),\ c=h_T$.
+* **Decoder** is initialised with $c$ and generates the output sequence $y_1,\dots,y_{T'}$ one token at a time: $s_t=g(s_{t-1},y_{t-1},c),\ P(y_t\mid y_{<t},x)=\text{softmax}(W s_t)$, starting from a `<sos>` token and stopping when it emits `<eos>`.
+
+$$
+P(y_1,\dots,y_{T'}\mid x_1,\dots,x_T)=\prod_{t=1}^{T'}P(y_t\mid y_{<t},c)
+$$
+
+**Variable-length input and output.** The encoder loops for as many steps as the input has tokens (any $T$) and always ends with a fixed-size vector $c$; the decoder loops until it produces `<eos>` (any $T'$). Input and output lengths are therefore independent ($T\ne T'$ is fine). In batches, sequences are padded to the same length and masked. **Attention** removes the fixed-vector bottleneck: at each step the decoder uses $c_t=\sum_i\alpha_{ti}h_i$ with weights $\alpha_{ti}=\text{softmax}(\text{score}(s_{t-1},h_i))$, which helps for long sentences.
+
+**Example – machine translation (English → French):**
+
+| | |
+|---|---|
+| Input | "I love deep learning" (4 tokens) |
+| Encoder | processes `I`, `love`, `deep`, `learning` → context $c$ |
+| Decoder | `<sos>` → "J'" → "aime" → "l'apprentissage" → "profond" → `<eos>` |
+| Output | "J'aime l'apprentissage profond" (different length, different word order) |
+
+Other uses: summarisation, speech recognition, image captioning (CNN encoder + RNN decoder), chatbots.
+
+### D-Q7 (b) – Positional encoding in Transformers
+
+**Role.** Positional encoding injects information about the **order/position** of each token into its embedding, so the model knows *where* a word is: $\text{input}_t=\text{embedding}(x_t)+PE(t)$.
+
+**Why self-attention alone cannot see order.** Self-attention $\text{softmax}\!\big(QK^T/\sqrt{d_k}\big)V$ treats the input as an unordered **set**: it is *permutation-equivariant* – if the tokens are shuffled, the outputs are just shuffled in the same way, and each token's output (a weighted sum over all tokens) does not depend on where the others sit. Unlike an RNN (which reads left-to-right) or a CNN (local windows), nothing in it encodes position. Hence "dog bites man" and "man bites dog" would get the same bag of representations.
+
+**Sinusoidal encoding** (Vaswani et al.), position $pos$, dimension index $i$:
+
+$$
+PE_{(pos,2i)}=\sin\!\Big(\frac{pos}{10000^{2i/d}}\Big),\qquad PE_{(pos,2i+1)}=\cos\!\Big(\frac{pos}{10000^{2i/d}}\Big)
+$$
+
+Each position gets a unique vector; different dimensions have different wavelengths; relative offsets $PE_{pos+k}$ are a linear function of $PE_{pos}$ (easy for attention to learn relative position) and it extends to longer sequences. (Learned positional embeddings, relative or rotary encodings are alternatives.)
+
+**Illustration** ($d=4$): for the sentence "The cat sat",
+
+| pos | $\sin(pos/1)$ | $\cos(pos/1)$ | $\sin(pos/100)$ | $\cos(pos/100)$ |
+|---|---|---|---|---|
+| 0 (The) | 0 | 1 | 0 | 1 |
+| 1 (cat) | 0.841 | 0.540 | 0.010 | 1.000 |
+| 2 (sat) | 0.909 | −0.416 | 0.020 | 1.000 |
+
+Without PE, "cat sat The" would produce the same set of vectors; with PE the three words get different position-dependent vectors, so the order "The cat sat" is distinguishable from "sat cat The".
+
+---
+
+## D-Q8
+
+### D-Q8 (a) – GAN architecture, limitations of vanilla GAN, DCGAN and CycleGAN
+
+**Architecture.** Two networks play a minimax game:
+
+* **Generator $G(z)$** – maps random noise $z\sim p_z$ to a fake sample.
+* **Discriminator $D(x)$** – outputs the probability that $x$ is real (from the data) rather than generated.
+
+$$
+\min_G\max_D\ V(D,G)=\mathbb E_{x\sim p_{data}}[\log D(x)]+\mathbb E_{z\sim p_z}[\log(1-D(G(z)))]
+$$
+
+Training alternates: update $D$ to tell real from fake, update $G$ to fool $D$ (in practice maximise $\log D(G(z))$). At the optimum $p_g=p_{data}$ and $D(x)=\tfrac12$.
+
+**Limitations of the vanilla GAN**
+
+1. **Training instability / non-convergence** – the two players oscillate; no stable equilibrium.
+2. **Mode collapse** – $G$ produces only a few kinds of samples.
+3. **Vanishing gradients** – if $D$ becomes too good, $\log(1-D(G(z)))$ saturates and $G$ gets no gradient.
+4. **No useful loss metric** and hard evaluation; sensitive to hyper-parameters.
+5. Uses fully-connected layers → poor, blurry images; needs *paired/unpaired control* for translation (none).
+
+**DCGAN (Deep Convolutional GAN)** – stabilises training by architecture guidelines: replace pooling by **strided convolutions** (D) and **transposed (fractional-strided) convolutions** (G); use **batch normalisation** in both; remove fully-connected hidden layers; **ReLU** in $G$ (tanh at output), **LeakyReLU** in $D$. Result: stable training, sharper high-quality images, meaningful latent-space arithmetic.
+
+**CycleGAN** – image-to-image translation with **unpaired** data (e.g. horse ↔ zebra, photo ↔ painting). Two generators $G:X\to Y$, $F:Y\to X$ and two discriminators $D_Y,D_X$, plus a **cycle-consistency loss** that forces a translated image to come back:
+
+$$
+\mathcal L_{cyc}=\mathbb E_x\lVert F(G(x))-x\rVert_1+\mathbb E_y\lVert G(F(y))-y\rVert_1,\qquad
+\mathcal L=\mathcal L_{GAN}(G,D_Y)+\mathcal L_{GAN}(F,D_X)+\lambda\mathcal L_{cyc}
+$$
+
+This removes the need for paired images, and the cycle constraint reduces mode collapse (the mapping must preserve content).
+
+### D-Q8 (b) – U-Net, and the Bellman equation in Q-learning
+
+**U-Net architecture (biomedical image segmentation).** A fully convolutional encoder–decoder shaped like a "U", trained with few images (heavy augmentation):
+
+* **Contracting path (encoder, left):** repeated blocks of two $3\times3$ convolutions + ReLU, followed by $2\times2$ max-pooling (stride 2); the number of channels doubles at each level (64→128→256→512→1024) – captures *context* (what is in the image).
+* **Bottleneck:** two $3\times3$ convs at the lowest resolution.
+* **Expanding path (decoder, right):** $2\times2$ up-convolution (transposed conv) that halves the channels, **concatenation with the cropped feature map from the same level of the encoder (skip connection)**, then two $3\times3$ convs + ReLU – recovers *localisation* (where).
+* **Output:** a $1\times1$ convolution maps each pixel's feature vector to the class scores (e.g. cell / background), giving a **pixel-wise segmentation map** (softmax + cross-entropy or Dice loss).
+
+The skip connections give the decoder the fine spatial detail lost by pooling, so boundaries are precise even with small training sets; the overlap-tile strategy handles large images. Used for cells, tumours, organs, etc.
+
+**Bellman equation in Q-learning.** In reinforcement learning an agent in state $s$ takes action $a$, receives reward $r$ and moves to $s'$. The action-value $Q(s,a)$ is the expected discounted return when taking $a$ in $s$ and acting optimally afterwards. The **Bellman optimality equation** expresses it recursively:
+
+$$
+Q^*(s,a)=\mathbb E\Big[\,r+\gamma\max_{a'}Q^*(s',a')\ \Big|\ s,a\Big]
+$$
+
+with discount factor $0\le\gamma\le1$. Q-learning turns this into an iterative **temporal-difference update** from each observed transition $(s,a,r,s')$:
+
+$$
+\boxed{Q(s,a)\leftarrow Q(s,a)+\alpha\Big[\underbrace{r+\gamma\max_{a'}Q(s',a')}_{\text{Bellman target}}-Q(s,a)\Big]}
+$$
+
+($\alpha$ = learning rate; the bracket is the TD error.) Actions are chosen with an $\varepsilon$-greedy policy (explore/exploit). Repeating the update makes $Q$ converge to $Q^*$, and the optimal policy is $\pi^*(s)=\arg\max_aQ^*(s,a)$. In **Deep Q-Networks (DQN)** a neural network approximates $Q(s,a;\theta)$ and minimises $\big(r+\gamma\max_{a'}Q(s',a';\theta^-)-Q(s,a;\theta)\big)^2$ using experience replay and a target network.
+
+---
+
+## D-Q9
+
+(Newest screenshots, numbered 1, 2, 3 in the paper; shown here as D-Q9 to D-Q11.)
+
+### D-Q9 (a) – Autoencoder, denoising autoencoder, noise-robust features
+
+**Autoencoder.** An unsupervised neural network trained to **reconstruct its own input** through a narrow bottleneck:
+
+* **Encoder** $h=f(Wx+b)$ compresses $x$ to a low-dimensional **code** $h$;
+* **Decoder** $\hat x=g(W'h+b')$ reconstructs the input;
+* **Loss:** $L=\lVert x-\hat x\rVert^2$ (MSE) or cross-entropy for binary data.
+
+Because the code is smaller than the input, the network must learn the most informative features (non-linear generalisation of PCA). Uses: dimensionality reduction, feature learning, anomaly detection, pre-training.
+
+**Denoising autoencoder (DAE) vs vanilla autoencoder**
+
+| | Vanilla AE | Denoising AE |
+|---|---|---|
+| Input to encoder | clean $x$ | **corrupted** $\tilde x$ (Gaussian noise, masking/dropout of some pixels) |
+| Target of the loss | $x$ | the **original clean** $x$ |
+| Loss | $\lVert x-g(f(x))\rVert^2$ | $\lVert x-g(f(\tilde x))\rVert^2$ |
+| Risk | may learn the **identity** (copy input), especially if the code is large | cannot just copy – it must remove noise, so it learns the structure of the data |
+| Features | can be fragile | **robust** to noise and small perturbations |
+
+**Noise-robust feature learning.** Since the network is trained to map many different noisy versions of $x$ back to the same clean $x$, the code $h$ keeps only the stable, high-level structure (shapes, edges, correlations) and ignores random noise. These features are used for image/audio denoising, inpainting of missing parts, robust pre-training of classifiers (stacked DAE), and anomaly detection (large reconstruction error).
+
+### D-Q9 (b) – Scaled dot-product attention (numerical)
+
+Given $Q=[1,2]$, keys $k_1=[1,0],\ k_2=[0,2]$, values $v_1=[1,1],\ v_2=[3,1]$, $d_k=2$.
+
+$$
+\text{Attention}(Q,K,V)=\text{softmax}\!\Big(\frac{QK^T}{\sqrt{d_k}}\Big)V
+$$
+
+**1. Dot-product scores**
+
+$$
+Q\cdot k_1=1\cdot1+2\cdot0=1,\qquad Q\cdot k_2=1\cdot0+2\cdot2=4\ \Rightarrow\ \boxed{[1,\ 4]}
+$$
+
+**2. Scaled scores** (divide by $\sqrt{d_k}=\sqrt2\approx1.414$)
+
+$$
+\Big[\tfrac{1}{1.414},\ \tfrac{4}{1.414}\Big]=\boxed{[0.707,\ 2.828]}
+$$
+
+**3. Softmax attention weights**
+
+$$
+e^{0.707}=2.028,\quad e^{2.828}=16.919,\quad \text{sum}=18.947
+$$
+
+$$
+\alpha_1=\frac{2.028}{18.947}=0.107,\qquad \alpha_2=\frac{16.919}{18.947}=0.893\ \Rightarrow\ \boxed{[0.107,\ 0.893]}
+$$
+
+**4. Final output** (weighted sum of the values)
+
+$$
+\text{out}=0.107\,[1,1]+0.893\,[3,1]=[0.107+2.679,\ 0.107+0.893]=\boxed{[2.786,\ 1.000]}
+$$
+
+The query is much closer to $k_2$, so the output is dominated by $v_2$.
+
+---
+
+## D-Q10
+
+### D-Q10 (a) – GRU architecture, vanishing gradient, GRU vs simple RNN
+
+**GRU** (Cho et al., 2014) is a simplified LSTM with **two gates** and no separate cell state. Gates act on $x_t$ and $h_{t-1}$:
+
+$$
+\begin{aligned}
+\text{update gate: }&u_t=\sigma(W_ux_t+U_uh_{t-1}+b_u)\\
+\text{reset gate: }&r_t=\sigma(W_rx_t+U_rh_{t-1}+b_r)\\
+\text{candidate: }&\tilde h_t=\tanh\big(W_hx_t+U_h(r_t\odot h_{t-1})+b_h\big)\\
+\text{new state: }&h_t=(1-u_t)\odot h_{t-1}+u_t\odot\tilde h_t
+\end{aligned}
+$$
+
+* **Update gate** $u_t$: how much of the old state to keep vs replace by the new candidate (acts like LSTM's forget + input gates).
+* **Reset gate** $r_t$: how much of the past to use when forming the candidate ($r_t\to0$ ignores history).
+
+**How it mitigates vanishing gradients.** The state update is **additive/convex**: $\partial h_t/\partial h_{t-1}\approx(1-u_t)+\dots$. When $u_t\approx0$, $h_t\approx h_{t-1}$ and the gradient passes through unchanged (like the LSTM cell-state highway), instead of being multiplied by $W^T\,\text{diag}(\tanh')$ at every step as in a simple RNN. The gates are learned, so the network decides when to keep information over long spans.
+
+| | Simple RNN | GRU |
+|---|---|---|
+| Update | $h_t=\tanh(Wx_t+Uh_{t-1}+b)$ – overwritten completely every step | $h_t=(1-u_t)\odot h_{t-1}+u_t\odot\tilde h_t$ – selective |
+| Gates | none | update and reset |
+| Memory retention | short-term only; old information is washed out | can **retain information for long** (update gate ≈ 0), can also forget (reset) |
+| Gradient | vanishes/explodes (repeated product) | additive path → much more stable |
+| Parameters | $1$ weight block | $3$ weight blocks (≈3× RNN, fewer than LSTM's 4) |
+
+### D-Q10 (b)(i) – Simple RNN step
+
+Reading the matrices row-wise: $W=\begin{bmatrix}0.1&-0.2\\0.4&0.3\end{bmatrix},\ U=\begin{bmatrix}0.3&0.1\\-0.2&0.2\end{bmatrix}$, $b=0$.
+
+$$
+h_t=\tanh(Wx_t+Uh_{t-1}+b)
+$$
+
+$$
+Wx_t=\begin{bmatrix}0.1(0.2)-0.2(-0.4)\\0.4(0.2)+0.3(-0.4)\end{bmatrix}=\begin{bmatrix}0.02+0.08\\0.08-0.12\end{bmatrix}=\begin{bmatrix}0.10\\-0.04\end{bmatrix}
+$$
+
+$$
+Uh_{t-1}=\begin{bmatrix}0.3(0.3)+0.1(0.5)\\-0.2(0.3)+0.2(0.5)\end{bmatrix}=\begin{bmatrix}0.09+0.05\\-0.06+0.10\end{bmatrix}=\begin{bmatrix}0.14\\0.04\end{bmatrix}
+$$
+
+$$
+Wx_t+Uh_{t-1}=\begin{bmatrix}0.24\\0.00\end{bmatrix}\ \Rightarrow\ \boxed{h_t=\begin{bmatrix}\tanh(0.24)\\\tanh(0)\end{bmatrix}\approx\begin{bmatrix}0.2355\\0\end{bmatrix}}
+$$
+
+---
+
+## D-Q11
+
+### D-Q11 (a) – AlexNet vs GoogLeNet; why Inception modules
+
+| Aspect | AlexNet (2012) | GoogLeNet / Inception-v1 (2014) |
+|---|---|---|
+| Layer design | 8 weight layers: 5 conv + 3 FC; large filters (11×11, 5×5), sequential stack; ReLU, dropout, LRN | 22 layers with **9 Inception modules** stacked; parallel 1×1, 3×3, 5×5 convs + pooling; auxiliary classifiers |
+| Parameters | ≈ **60 M** (most in the 3 FC layers, ~4096-wide) | ≈ **6–7 M** (≈ 9× fewer): no big FC layers, **global average pooling** + one FC |
+| Computation | ≈ 0.7 GFLOPs | ≈ 1.5 GFLOPs (but far fewer params) |
+| Feature extraction | one filter size per layer – the designer must choose it | **multi-scale** features in every module (small and large receptive fields concatenated) |
+| Dimension reduction | none | **1×1 "bottleneck" convolutions** before 3×3/5×5 |
+| Depth / efficiency | shallow, memory heavy, over-fitting prone (needs dropout) | deeper yet efficient, less over-fitting; top-5 error 6.7 % vs 15.3 % |
+
+**Why Inception modules?**
+
+1. Objects appear at **different scales**; a single filter size fits poorly. The module applies 1×1, 3×3, 5×5 convolutions and 3×3 max-pooling **in parallel** and concatenates the outputs, so the network picks the useful scale itself.
+2. **1×1 convolutions reduce channels** first (e.g. 192→16 before a 5×5), cutting computation and parameters massively while adding extra non-linearity.
+3. Approximates a **sparse** network with dense, hardware-friendly blocks → deeper/wider networks within a fixed compute budget.
+4. Global average pooling replaces FC layers → far fewer parameters, less over-fitting.
+
+### D-Q11 (b) – Feature-map sizes
+
+Input $64\times64\times3$. Formula $W_2=\dfrac{W_1-F+2P}{S}+1$.
+
+**Layer 1 – Conv, 32 filters $5\times5$, $S=1$, $P=2$**
+
+$$
+\frac{64-5+2\cdot2}{1}+1=64\ \Rightarrow\ \boxed{64\times64\times32},\qquad\text{Params}=(5\cdot5\cdot3+1)\cdot32=2{,}432
+$$
+
+**Layer 2 – Max-pool $2\times2$, $S=2$**
+
+$$
+\frac{64-2}{2}+1=32\ \Rightarrow\ \boxed{32\times32\times32},\qquad\text{Params}=0
+$$
+
+**Layer 3 – Conv, 64 filters $3\times3$, $S=1$, $P=1$**
+
+$$
+\frac{32-3+2\cdot1}{1}+1=32\ \Rightarrow\ \boxed{32\times32\times64},\qquad\text{Params}=(3\cdot3\cdot32+1)\cdot64=18{,}496
+$$
+
+| Layer | Output | Parameters |
+|---|---|---|
+| Input | 64×64×3 | 0 |
+| Conv 5×5, 32 (P=2) | 64×64×32 | 2,432 |
+| MaxPool 2×2, S=2 | 32×32×32 | 0 |
+| Conv 3×3, 64 (P=1) | 32×32×64 | 18,496 |
+
+(Both convolutions use "same" padding, so only the pooling layer reduces the spatial size.)
+
+---
+
+## D-Q12
+
+(Newest screenshots: paper with CO/BL tags; numbered 1(a)–5(b) there, shown here as D-Q12 to D-Q16.)
+
+### D-Q12 (a) – Supervised vs unsupervised learning [5]
+
+| | Supervised learning | Unsupervised learning |
+|---|---|---|
+| Data | **labelled**: $D=\{(x_i,y_i):i\le N\}$ – each input $x_i$ has a target $y_i$ | **unlabelled**: $D=\{x_i:i\le N\}$ – no targets |
+| Goal | learn a mapping $f:x\to y$ that predicts $y$ for new $x$ | discover hidden structure / distribution of $x$ |
+| Learning signal | error between prediction $\hat y_i=f(x_i;w)$ and $y_i$ | no explicit error; uses similarity, reconstruction, likelihood |
+| Typical tasks | classification, regression | clustering, dimensionality reduction, density estimation, auto-encoding |
+| Examples | perceptron, MLP, CNN, SVM | k-means, PCA, autoencoder, GAN |
+
+**Supervised scheme on $D=\{(x_i,y_i)\}$.** Choose a model $f(x;w)$ and a loss $L$, and minimise the empirical risk
+
+$$
+w^*=\arg\min_w\ \frac1N\sum_{i=1}^{N}L\big(f(x_i;w),\,y_i\big)
+$$
+
+(e.g. squared loss for regression $y_i\in\mathbb R$, cross-entropy for classification $y_i\in\{1..K\}$) by gradient descent; generalisation is checked on unseen data.
+
+**Unsupervised scheme on $D=\{x_i\}$.** There is no $y_i$; we learn $w$ by optimising an objective defined on the inputs only, e.g. clustering $\min\sum_i\lVert x_i-\mu_{c(i)}\rVert^2$ (k-means), or reconstruction $\min\sum_i\lVert x_i-g(f(x_i))\rVert^2$ (autoencoder), or maximum likelihood $\max\sum_i\log p(x_i;w)$.
+
+### D-Q12 (b) – Single-layer perceptron for logic circuits [5]
+
+Perceptron: $y=\mathbb 1\big[w_1x_1+w_2x_2+\beta\ge0\big]$.
+
+**i) OR gate:** $W=(1,\,1),\ \beta=-0.5$
+
+**ii) AND gate:** $W=(1,\,1),\ \beta=-1.5$
+
+| $x_1x_2$ | OR: $x_1+x_2-0.5$ | OR $y$ | AND: $x_1+x_2-1.5$ | AND $y$ |
+|---|---|---|---|---|
+| 00 | −0.5 | 0 | −1.5 | 0 |
+| 01 | 0.5 | 1 | −0.5 | 0 |
+| 10 | 0.5 | 1 | −0.5 | 0 |
+| 11 | 1.5 | 1 | 0.5 | 1 |
+
+(Any $\beta\in(-1,0]$ works for OR and $\beta\in(-2,-1]$ for AND with weights $(1,1)$.)
+
+**iii) Cascade: AND gate first, then an OR gate whose inputs are the AND output and the source input $x_2$.**
+
+* Neuron 1 (AND): $a=\mathbb 1[x_1+x_2-1.5\ge0]$, $W_1=(1,1),\ \beta_1=-1.5$
+* Neuron 2 (OR): $y=\mathbb 1[a+x_2-0.5\ge0]$, $W_2=(1,1)$ on $(a,x_2)$, $\beta_2=-0.5$
+
+![Circuit](assets/f_circuit.png)
+
+| $x_1x_2$ | $a=x_1\wedge x_2$ | $y=a\vee x_2$ |
+|---|---|---|
+| 00 | 0 | 0 |
+| 01 | 0 | 1 |
+| 10 | 0 | 0 |
+| 11 | 1 | 1 |
+
+Output $y=x_1x_2+x_2=x_2$ (absorption law). Two perceptrons in series are needed because the circuit has two gates; the overall function happens to equal $x_2$.
+
+---
+
+## D-Q13
+
+### D-Q13 (a) – Gradient descent and its variants [5]
+
+**Gradient descent (GD)** minimises the training loss $J(w)$ of an ANN by repeatedly moving the weights opposite to the gradient (the direction of steepest descent, see D-Q5 (c)):
+
+$$
+w_{t+1}=w_t-\eta\,\nabla_wJ(w_t)
+$$
+
+The gradients of all layers are obtained by back-propagation.
+
+| Variant | Gradient computed on | Update | Pros | Cons |
+|---|---|---|---|---|
+| **Batch GD** | all $N$ examples | $w\leftarrow w-\eta\frac1N\sum_{i=1}^N\nabla L_i$ | smooth, stable, converges to the minimum (convex) | slow, whole data in memory, one update per epoch |
+| **Stochastic GD (SGD)** | 1 example | $w\leftarrow w-\eta\nabla L_i(w)$ | fast updates, online, can escape local minima | very noisy, zig-zag, no exact convergence |
+| **Mini-batch GD** | $B$ examples (32–256) | $w\leftarrow w-\eta\frac1B\sum_{i\in B}\nabla L_i$ | best trade-off, vectorised on GPU | needs $B$ tuned |
+| **Momentum** | running average of gradients | $v_t=\gamma v_{t-1}+\eta g_t,\ w\leftarrow w-v_t$ | damps oscillations, faster along valleys | may overshoot |
+| **NAG** | gradient at look-ahead point | $v_t=\gamma v_{t-1}+\eta\nabla J(w-\gamma v_{t-1}),\ w\leftarrow w-v_t$ | anticipates, less overshoot | – |
+| **Adagrad** | per-weight accumulated $g^2$ | $G_t=G_{t-1}+g_t^2,\ w\leftarrow w-\frac{\eta}{\sqrt{G_t+\epsilon}}g_t$ | adaptive rates, good for sparse data | rate decays to 0 |
+| **RMSProp** | moving average of $g^2$ | $E_t=\rho E_{t-1}+(1-\rho)g_t^2,\ w\leftarrow w-\frac{\eta}{\sqrt{E_t+\epsilon}}g_t$ | fixes Adagrad decay | – |
+| **Adam** | momentum + RMSProp | $m_t=\beta_1m_{t-1}+(1-\beta_1)g_t,\ v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^2,\ w\leftarrow w-\eta\frac{\hat m_t}{\sqrt{\hat v_t}+\epsilon}$ | fast, robust default | may generalise slightly worse |
+
+### D-Q13 (b) – Confusion matrix for a binary classifier [5]
+
+**Building it.** Run the classifier on a labelled test set; compare each predicted label with the actual label and count the four possible outcomes in a $2\times2$ table (rows = actual, columns = predicted):
+
+| | **Predicted Positive** | **Predicted Negative** |
+|---|---|---|
+| **Actual Positive** | **TP** (true positive) | **FN** (false negative) |
+| **Actual Negative** | **FP** (false positive) | **TN** (true negative) |
+
+* **TP** – actual positive, predicted positive (correct hit), e.g. a sick patient diagnosed sick.
+* **TN** – actual negative, predicted negative (correct rejection), e.g. a healthy patient diagnosed healthy.
+* **FP** – actual negative, predicted positive (**Type I error**, false alarm), e.g. a healthy patient diagnosed sick.
+* **FN** – actual positive, predicted negative (**Type II error**, miss), e.g. a sick patient diagnosed healthy – usually the costliest.
+
+$TP+TN$ = correct predictions; $FP+FN$ = errors; $TP+FP+FN+TN=N$. From it: accuracy $=\frac{TP+TN}{N}$ etc. (see D-Q14 (b)). Steps: threshold the output probability (e.g. 0.5) → predicted class → tally the four counts.
+
+---
+
+## D-Q14
+
+### D-Q14 (a) – Bias–variance trade-off, derivation of expected error [5]
+
+Let the true relation be $y=f(x)+\varepsilon$ with noise $E[\varepsilon]=0,\ \mathrm{Var}(\varepsilon)=\sigma^2$, and $\hat f(x)$ the model learned from a random training set. The expected squared error at a point $x$:
+
+$$
+\begin{aligned}
+E\big[(y-\hat f)^2\big]&=E\big[(f+\varepsilon-\hat f)^2\big]=E\big[(f-\hat f)^2\big]+\sigma^2\quad(\varepsilon\text{ independent, zero mean})\\
+E\big[(f-\hat f)^2\big]&=E\big[(f-E[\hat f]+E[\hat f]-\hat f)^2\big]\\
+&=(f-E[\hat f])^2+E\big[(\hat f-E[\hat f])^2\big]+2(f-E[\hat f])\underbrace{E[E[\hat f]-\hat f]}_{=0}
+\end{aligned}
+$$
+
+$$
+\boxed{\ \text{Err}(x)=\underbrace{\big(E[\hat f(x)]-f(x)\big)^2}_{\text{Bias}^2}+\underbrace{E\big[(\hat f(x)-E[\hat f(x)])^2\big]}_{\text{Variance}}+\underbrace{\sigma^2}_{\text{irreducible error}}\ }
+$$
+
+* **Bias** – error from wrong/too simple assumptions (under-fitting); high for simple models.
+* **Variance** – sensitivity to the particular training set (over-fitting); high for complex models.
+
+![Bias-variance](assets/f_biasvar.png)
+
+**Trade-off.** As model complexity increases, bias falls and variance rises; the total error is U-shaped. The optimum is at the complexity where $\text{Bias}^2+\text{Variance}$ is minimal. Simple model: high bias, low variance (train and test error both high). Complex model: low bias, high variance (train error low, test error high). Control via regularisation, more data, early stopping, model size.
+
+### D-Q14 (b) – Evaluation metrics [5]
+
+Using the confusion matrix (TP, FP, FN, TN):
+
+| Term | Formula | Meaning |
+|---|---|---|
+| **Precision** $p$ | $\dfrac{TP}{TP+FP}$ | of everything predicted positive, the fraction that is really positive |
+| **Recall** $r$ | $\dfrac{TP}{TP+FN}$ | of all actual positives, the fraction found |
+| **F1-score** | $\dfrac{2pr}{p+r}=\dfrac{2TP}{2TP+FP+FN}$ | harmonic mean of precision and recall (balances both) |
+| **Sensitivity** | $\dfrac{TP}{TP+FN}$ | = recall = true-positive rate (TPR) |
+| **Specificity** | $\dfrac{TN}{TN+FP}$ | true-negative rate (TNR) $=1-\text{FPR}$ |
+| **Accuracy** | $\dfrac{TP+TN}{TP+TN+FP+FN}$ | overall fraction correct |
+
+**ROC curve** (Receiver Operating Characteristic): plot **TPR** (sensitivity, y-axis) against **FPR** $=\dfrac{FP}{FP+TN}=1-$specificity (x-axis) while the decision threshold is varied from 1 to 0. The diagonal is a random classifier; the closer the curve to the top-left corner, the better. **AUC** (area under the curve) summarises it: 1 = perfect, 0.5 = random.
+
+```
+ TPR
+ 1 |      ____------ perfect → top-left corner
+   |   .-'  . model
+   | .'  .'
+   |/ .'      diagonal = random (AUC 0.5)
+ 0 +-----------------  FPR
+   0                1
+```
+
+**Example:** TP=40, FP=10, FN=20, TN=30 → $p=0.80,\ r=0.667,\ F1=0.727$, specificity $=0.75$, accuracy $=0.70$.
+
+---
+
+## D-Q15
+
+### D-Q15 (a) – Fixed learning rate and optimizers with time-dependent $\eta_t$ [5]
+
+**Disadvantages of a fixed $\eta$**
+
+1. Too large → loss oscillates/diverges and overshoots the minimum; too small → very slow convergence, may get stuck on plateaus/saddle points.
+2. A constant step never settles: near the minimum, noisy (SGD) updates keep bouncing around it.
+3. The same rate is used for **all** weights, although gradients have different scales (sparse vs dense features, steep vs flat directions).
+4. The best value differs between stages of training (large early, small late) and needs expensive tuning.
+
+**Methods with time-dependent / adaptive $\eta_t$**
+
+| Method | $\eta_t$ / update | Idea |
+|---|---|---|
+| **Step decay** | $\eta_t=\eta_0\,\gamma^{\lfloor t/k\rfloor}$ | drop by factor $\gamma$ every $k$ epochs |
+| **Exponential decay** | $\eta_t=\eta_0e^{-\lambda t}$ | smooth decay |
+| **Inverse-time ($1/t$)** | $\eta_t=\dfrac{\eta_0}{1+\lambda t}$ | decay satisfying $\sum\eta_t=\infty,\sum\eta_t^2<\infty$ |
+| **Cosine annealing / warm restarts** | $\eta_t=\eta_{min}+\tfrac12(\eta_0-\eta_{min})\big(1+\cos\frac{\pi t}{T}\big)$ | smooth decay, periodic restarts |
+| **Adagrad** | $\eta_t=\dfrac{\eta}{\sqrt{G_t+\epsilon}},\ G_t=\sum_{\tau\le t}g_\tau^2$ | per-parameter, shrinks for frequently-updated weights; decays to 0 |
+| **RMSProp** | $\eta_t=\dfrac{\eta}{\sqrt{E_t+\epsilon}},\ E_t=\rho E_{t-1}+(1-\rho)g_t^2$ | exponential average – no vanishing rate |
+| **Adam** | $w_{t+1}=w_t-\dfrac{\eta}{\sqrt{\hat v_t}+\epsilon}\hat m_t$ | momentum + RMSProp + bias correction |
+
+Compare: schedules (step/exp/cosine) change the **global** rate with time and are model-independent; Adagrad/RMSProp/Adam adapt **per-parameter** from gradient history – Adagrad is good for sparse data but its rate dies, RMSProp fixes this, Adam adds momentum and is the usual default (often combined with a schedule).
+
+### D-Q15 (b) – Assertion: 10 % of layers do the core computation, 90 % redundant [5]
+
+**Conclusion: FALSE** (both statements).
+
+**Reasons**
+
+1. Layers are **not independent**: the output of layer $l$ is the input to layer $l+1$, and in deep nets every layer contributes to the hierarchical representation (edges → parts → objects). A layer that looks "redundant" after training was needed during training to *learn* those features; we cannot know in advance which 10 % to keep.
+2. **Back-propagation affects all layers.** The chain rule
+
+$$
+\frac{\partial L}{\partial w^{(l)}}=\delta^{(l)}a^{(l-1)T},\qquad \delta^{(l)}=\big(W^{(l+1)T}\delta^{(l+1)}\big)\odot f'(z^{(l)})
+$$
+
+passes the error through every layer, so each layer's weights are updated. Removing 90 % of the layers changes the function, the gradient flow and the loss – the claim that back-propagation will "not have a major impact" on the remaining layers is wrong (they must re-adapt, and accuracy generally drops).
+
+3. What **is** true: networks are often **over-parameterised**, so after training they can be compressed – *pruning*, quantisation, knowledge distillation, lottery-ticket sub-networks, dropout – with little accuracy loss. This needs the full network to be trained first (or careful re-training/fine-tuning); simply "using only 10 % of the layers" is not an efficient design. Efficiency is better obtained by architecture design (depth-wise convs, bottlenecks, skip connections) rather than deleting layers.
+
+---
+
+## D-Q16
+
+### D-Q16 (a) – Role of regularisers; L1 and L2 [5]
+
+**Role.** A regulariser adds a **penalty on the weights** to the loss to discourage over-complex models (large weights) → lower variance, **less over-fitting**, better generalisation:
+
+$$
+J(w)=L_{data}(w)+\lambda\,\Omega(w),\qquad\lambda\ge0\ \text{(regularisation strength)}
+$$
+
+**L2 regularisation (weight decay / ridge)**
+
+$$
+\Omega(w)=\lVert w\rVert_2^2=\sum_jw_j^2,\qquad J=L+\frac\lambda2\sum_jw_j^2
+$$
+
+Gradient and update:
+
+$$
+\frac{\partial J}{\partial w_j}=\frac{\partial L}{\partial w_j}+\lambda w_j,\qquad
+w_j\leftarrow(1-\eta\lambda)\,w_j-\eta\frac{\partial L}{\partial w_j}
+$$
+
+Each step first **shrinks** the weight by the factor $(1-\eta\lambda)$ (weight decay). Weights become small and spread out, but rarely exactly zero. Equivalent to a Gaussian prior on the weights.
+
+**L1 regularisation (lasso)**
+
+$$
+\Omega(w)=\lVert w\rVert_1=\sum_j|w_j|,\qquad J=L+\lambda\sum_j|w_j|
+$$
+
+$$
+\frac{\partial J}{\partial w_j}=\frac{\partial L}{\partial w_j}+\lambda\,\mathrm{sign}(w_j),\qquad
+w_j\leftarrow w_j-\eta\frac{\partial L}{\partial w_j}-\eta\lambda\,\mathrm{sign}(w_j)
+$$
+
+It subtracts a **constant** amount toward zero each step, so many weights become **exactly 0** → sparse model / built-in feature selection. Equivalent to a Laplace prior.
+
+| | L1 | L2 |
+|---|---|---|
+| Penalty | $\lambda\sum\lvert w_j\rvert$ | $\frac\lambda2\sum w_j^2$ |
+| Effect | sparse weights (exact zeros) | small, non-zero weights |
+| Gradient of penalty | $\lambda\,\mathrm{sign}(w)$ (constant) | $\lambda w$ (proportional) |
+| Use | feature selection, sparse models | general, smooth; default weight decay |
+| Geometry | diamond constraint – optimum at a corner/axis | circle constraint – no corners |
+
+(Elastic net combines both. Large $\lambda$ → under-fitting; $\lambda=0$ → no regularisation.)
+
+### D-Q16 (b) – Conv1 on a $227\times227\times3$ image, $K=96,\ F=11,\ S=4,\ P=0$ [5]
+
+$$
+W_2=\frac{W_1-F+2P}{S}+1=\frac{227-11+0}{4}+1=\frac{216}{4}+1=55,\qquad H_2=55,\qquad D_2=K=96
+$$
+
+$$
+\boxed{W_2=H_2=55\ \Rightarrow\ \text{output }55\times55\times96}
+$$
+
+**Parameters.** Each filter has $F\cdot F\cdot D=11\cdot11\cdot3=363$ weights $+1$ bias:
+
+$$
+\text{Params}=(11\cdot11\cdot3+1)\cdot96=364\cdot96=\boxed{34{,}944}\quad(34{,}848\ \text{weights}+96\ \text{biases})
+$$
+
+(This is the first layer of AlexNet; the output has $55\cdot55\cdot96=290{,}400$ activations.)
+
+---
 <a id="formula-sheet"></a>
 # Quick formula sheet
 

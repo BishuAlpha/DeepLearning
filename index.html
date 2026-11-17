@@ -192,7 +192,7 @@ table.gx.cc td:hover,table.gx.pp td:hover{background:var(--tint-strong);cursor:c
 <header class="site-header"><div class="header-inner">
   <button id="menu" aria-label="Collapse or expand sidebar" title="Collapse / expand sidebar">≡</button>
   <a href="#top-of-page" class="logo"><i></i>DEEP LEARNING / PYQ</a>
-  <nav class="header-nav"><a href="#paper-a">Paper A</a><a href="#paper-b">Paper B</a><a href="#paper-c">Paper C</a><a href="#quick-formula-sheet">Cheat sheet</a></nav>
+  <nav class="header-nav"><a href="#paper-a">Paper A</a><a href="#paper-b">Paper B</a><a href="#paper-c">Paper C</a><a href="#paper-d">Paper D</a><a href="#quick-formula-sheet">Cheat sheet</a></nav>
   <button id="theme" aria-label="Toggle theme"><span id="ti">N</span></button>
 </div></header>
 <aside id="side">
@@ -233,6 +233,11 @@ All numerical answers were re-computed in Python (NumPy) and cross-checked.</p>
 <td>Q1 – Q6 (MP neuron, optimisers, CNN params, RNN/LSTM/GRU, BCE, guided back-prop, regularisation)</td>
 </tr>
 <tr>
+<td><a href="#paper-d"><strong>Paper D</strong></a></td>
+<td><code>assets/pyq/d1.png</code> + later screenshots</td>
+<td>Q1 – Q16 (cross-entropy, MP OR neuron, Adam/NAG, sequential learning, bias-variance T/F, CNN block, LSTM, perceptron convergence, ReLU, LeNet, XOR3, gradient proof, back-prop, transfer learning, skip connections, encoder-decoder, positional encoding, GAN/DCGAN/CycleGAN, U-Net, Q-learning, autoencoders, scaled attention, GRU, RNN step, AlexNet vs GoogLeNet, feature-map sizes, supervised vs unsupervised, perceptron circuits, GD variants, confusion matrix, bias-variance derivation, metrics/ROC, optimizers, L1/L2, conv1 params)</td>
+</tr>
+<tr>
 <td><a href="#formula-sheet"><strong>Quick formula sheet</strong></a></td>
 <td>–</td>
 <td>All key formulas on one page</td>
@@ -263,120 +268,243 @@ D_2=K
 <h3 id="a-q1-b-back-propagation-numerical-sigmoid-absolute-error-target-037">A-Q1 (B) – Back-propagation numerical (sigmoid, absolute error, target 0.37)</h3>
 <div class="w" data-w="bp" data-loss="abs" data-t="0.37" data-lr="0.01" data-n="2" data-cap="Network"></div>
 
-<p><strong>Given:</strong> <span class="arithmatex">\(x_1=0.35,\;x_2=0.7\)</span>; <span class="arithmatex">\(w_{11}=0.2,\;w_{21}=0.2,\;w_{12}=0.3,\;w_{22}=0.3,\;w_{13}=0.3,\;w_{23}=0.9\)</span>; target <span class="arithmatex">\(t=0.37\)</span>; <span class="arithmatex">\(\eta=0.01\)</span>; loss <span class="arithmatex">\(L=|t-y_5|\)</span>; 2 epochs; no bias terms.</p>
-<p><strong>Forward pass (epoch 1)</strong></p>
-<div class="arithmatex">\[
-y_3=\sigma(w_{11}x_1+w_{21}x_2)=\sigma(0.2\cdot0.35+0.2\cdot0.7)=\sigma(0.21)=0.55231
-\]</div>
-<div class="arithmatex">\[
-y_4=\sigma(w_{12}x_1+w_{22}x_2)=\sigma(0.3\cdot0.35+0.3\cdot0.7)=\sigma(0.315)=0.57811
-\]</div>
-<div class="arithmatex">\[
-y_5=\sigma(w_{13}y_3+w_{23}y_4)=\sigma(0.3\cdot0.55231+0.9\cdot0.57811)=\sigma(0.68599)=0.66507
-\]</div>
-<div class="arithmatex">\[
-L=|0.37-0.66507|=0.29507
-\]</div>
-<p><strong>Backward pass.</strong> For absolute error <span class="arithmatex">\(\dfrac{\partial L}{\partial y_5}=\operatorname{sign}(y_5-t)=+1\)</span> (since <span class="arithmatex">\(y_5&gt;t\)</span>). Using <span class="arithmatex">\(\sigma'=y(1-y)\)</span>:</p>
-<div class="arithmatex">\[
-\delta_5=1\cdot y_5(1-y_5)=0.66507\cdot0.33493=0.22275
-\]</div>
-<div class="arithmatex">\[
-\delta_3=\delta_5\,w_{13}\,y_3(1-y_3)=0.22275\cdot0.3\cdot0.24727=0.01652,\qquad
-\delta_4=\delta_5\,w_{23}\,y_4(1-y_4)=0.22275\cdot0.9\cdot0.24390=0.04890
-\]</div>
-<p>Gradients <span class="arithmatex">\(\partial L/\partial w=\delta\cdot(\text{input to that weight})\)</span> and update <span class="arithmatex">\(w\leftarrow w-\eta\,\partial L/\partial w\)</span>:</p>
+<p>We solve this by <strong>forward propagation + back-propagation for 2 epochs</strong>, showing every calculation.</p>
+<p>The network has 2 input nodes <span class="arithmatex">\(x_1, x_2\)</span>, 2 hidden nodes <span class="arithmatex">\(h_1, h_2\)</span> (outputs <span class="arithmatex">\(y_3, y_4\)</span>) and 1 output node <span class="arithmatex">\(o_3\)</span> (output <span class="arithmatex">\(y_5\)</span>). Activation: <strong>sigmoid</strong>. Loss: <strong>Absolute Error</strong>.</p>
+<h4 id="1-given-data">1 Given data</h4>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(x_1\)</span></td>
+<td>0.35</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(x_2\)</span></td>
+<td>0.70</td>
+</tr>
+<tr>
+<td>Target output <span class="arithmatex">\(t\)</span></td>
+<td>0.37</td>
+</tr>
+<tr>
+<td>Learning rate <span class="arithmatex">\(\eta\)</span></td>
+<td>0.01</td>
+</tr>
+<tr>
+<td>Epochs</td>
+<td>2</td>
+</tr>
+</tbody>
+</table></div>
+<p>Initial weights:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Connection</th>
+<th>Weight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(x_1 \to h_1\)</span> (<span class="arithmatex">\(w_{11}\)</span>)</td>
+<td>0.2</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(x_2 \to h_1\)</span> (<span class="arithmatex">\(w_{21}\)</span>)</td>
+<td>0.2</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(x_1 \to h_2\)</span> (<span class="arithmatex">\(w_{12}\)</span>)</td>
+<td>0.3</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(x_2 \to h_2\)</span> (<span class="arithmatex">\(w_{22}\)</span>)</td>
+<td>0.3</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(h_1 \to o_3\)</span> (<span class="arithmatex">\(w_{13}\)</span>)</td>
+<td>0.3</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(h_2 \to o_3\)</span> (<span class="arithmatex">\(w_{23}\)</span>)</td>
+<td>0.9</td>
+</tr>
+</tbody>
+</table></div>
+<p>No bias terms are used because none are shown in the figure.</p>
+<h4 id="2-formulas-used">2 Formulas used</h4>
+<div class="arithmatex">\[\sigma(z)=\frac{1}{1+e^{-z}},\qquad \sigma'(z)=\sigma(z)\,\big(1-\sigma(z)\big)\]</div>
+<div class="arithmatex">\[E=\lvert t-y_5\rvert,\qquad \frac{\partial E}{\partial y_5}=\operatorname{sign}(y_5-t)=\begin{cases}+1 &amp; y_5&gt;t\\-1 &amp; y_5&lt;t\end{cases}\]</div>
+<div class="arithmatex">\[\delta_o=\frac{\partial E}{\partial y_5}\cdot y_5(1-y_5)=\operatorname{sign}(y_5-t)\,y_5(1-y_5)\]</div>
+<div class="arithmatex">\[\delta_{h_1}=y_3(1-y_3)\,\delta_o\,w_{13},\qquad \delta_{h_2}=y_4(1-y_4)\,\delta_o\,w_{23}\]</div>
+<div class="arithmatex">\[\frac{\partial E}{\partial w_{13}}=\delta_o\,y_3,\quad \frac{\partial E}{\partial w_{23}}=\delta_o\,y_4,\quad \frac{\partial E}{\partial w_{11}}=\delta_{h_1}x_1,\quad \frac{\partial E}{\partial w_{21}}=\delta_{h_1}x_2,\quad \frac{\partial E}{\partial w_{12}}=\delta_{h_2}x_1,\quad \frac{\partial E}{\partial w_{22}}=\delta_{h_2}x_2\]</div>
+<div class="arithmatex">\[w_{new}=w_{old}-\eta\,\frac{\partial E}{\partial w}\]</div>
+<blockquote>
+<p>The hidden deltas use the <strong>old</strong> output weights <span class="arithmatex">\(w_{13}, w_{23}\)</span> (the values used in the forward pass), not the freshly updated ones. All six weights are updated together at the end of the epoch.</p>
+</blockquote>
+<h4 id="3-epoch-1-forward-propagation">3 Epoch 1: forward propagation</h4>
+<p><strong>Step 1 – hidden node <span class="arithmatex">\(h_1\)</span> (output <span class="arithmatex">\(y_3\)</span>)</strong></p>
+<div class="arithmatex">\[Net_{h_1}=x_1w_{11}+x_2w_{21}=0.35(0.200000)+0.7(0.200000)=0.070000+0.140000=0.210000\]</div>
+<div class="arithmatex">\[y_3=\frac{1}{1+e^{-0.210000}}\;\Rightarrow\;\boxed{y_3=0.552308}\]</div>
+<p><strong>Step 2 – hidden node <span class="arithmatex">\(h_2\)</span> (output <span class="arithmatex">\(y_4\)</span>)</strong></p>
+<div class="arithmatex">\[Net_{h_2}=x_1w_{12}+x_2w_{22}=0.35(0.300000)+0.7(0.300000)=0.105000+0.210000=0.315000\]</div>
+<div class="arithmatex">\[y_4=\frac{1}{1+e^{-0.315000}}\;\Rightarrow\;\boxed{y_4=0.578105}\]</div>
+<p><strong>Step 3 – output node <span class="arithmatex">\(o_3\)</span> (output <span class="arithmatex">\(y_5\)</span>)</strong></p>
+<div class="arithmatex">\[Net_{o_3}=y_3w_{13}+y_4w_{23}=0.552308(0.300000)+0.578105(0.900000)=0.165692+0.520295=0.685987\]</div>
+<div class="arithmatex">\[y_5=\frac{1}{1+e^{-0.685987}}\;\Rightarrow\;\boxed{y_5=0.665074}\]</div>
+<p><strong>Step 4 – error</strong></p>
+<div class="arithmatex">\[E=\lvert t-y_5\rvert=\lvert 0.37-0.665074\rvert\;\Rightarrow\;\boxed{E=0.295074}\]</div>
+<h4 id="4-epoch-1-back-propagation-and-weight-update">4 Epoch 1: back-propagation and weight update</h4>
+<p><strong>Step 1 – output delta</strong></p>
+<p>Since <span class="arithmatex">\(y_5 &gt; t\)</span> (0.665074 &gt; 0.37), <span class="arithmatex">\(\operatorname{sign}(y_5-t)=+1\)</span>:</p>
+<div class="arithmatex">\[\delta_o=+1\cdot y_5(1-y_5)=+1\cdot 0.665074\,(1-0.665074)\;\Rightarrow\;\boxed{\delta_o=0.222751}\]</div>
+<p><strong>Step 2 – update the output-layer weights</strong></p>
+<div class="arithmatex">\[\frac{\partial E}{\partial w_{13}}=\delta_oy_3=0.222751\times0.552308=0.123027\]</div>
+<div class="arithmatex">\[w_{13}^{new}=w_{13}-\eta\,\delta_oy_3=0.300000-0.01(0.123027)\;\Rightarrow\;\boxed{w_{13}=0.298770}\]</div>
+<div class="arithmatex">\[\frac{\partial E}{\partial w_{23}}=\delta_oy_4=0.222751\times0.578105=0.128773\]</div>
+<div class="arithmatex">\[w_{23}^{new}=w_{23}-\eta\,\delta_oy_4=0.900000-0.01(0.128773)\;\Rightarrow\;\boxed{w_{23}=0.898712}\]</div>
+<p><strong>Step 3 – hidden deltas</strong> (using the old <span class="arithmatex">\(w_{13}, w_{23}\)</span>)</p>
+<div class="arithmatex">\[\delta_{h_1}=y_3(1-y_3)\,\delta_o\,w_{13}=0.552308(1-0.552308)(0.222751)(0.300000)\;\Rightarrow\;\boxed{\delta_{h_1}=0.016523}\]</div>
+<div class="arithmatex">\[\delta_{h_2}=y_4(1-y_4)\,\delta_o\,w_{23}=0.578105(1-0.578105)(0.222751)(0.900000)\;\Rightarrow\;\boxed{\delta_{h_2}=0.048896}\]</div>
+<p><strong>Step 4 – update the input-to-hidden weights</strong></p>
+<div class="arithmatex">\[w_{11}^{new}=w_{11}-\eta\,\delta_{h_1}\,x_1=0.200000-0.01(0.016523)(0.35)\;\Rightarrow\;\boxed{w_{11}=0.199942}\]</div>
+<div class="arithmatex">\[w_{21}^{new}=w_{21}-\eta\,\delta_{h_1}\,x_2=0.200000-0.01(0.016523)(0.7)\;\Rightarrow\;\boxed{w_{21}=0.199884}\]</div>
+<div class="arithmatex">\[w_{12}^{new}=w_{12}-\eta\,\delta_{h_2}\,x_1=0.300000-0.01(0.048896)(0.35)\;\Rightarrow\;\boxed{w_{12}=0.299829}\]</div>
+<div class="arithmatex">\[w_{22}^{new}=w_{22}-\eta\,\delta_{h_2}\,x_2=0.300000-0.01(0.048896)(0.7)\;\Rightarrow\;\boxed{w_{22}=0.299658}\]</div>
+<h4 id="5-epoch-2-forward-propagation">5 Epoch 2: forward propagation</h4>
+<p>Use the weights updated at the end of epoch 1.</p>
+<p><strong>Step 1 – hidden node <span class="arithmatex">\(h_1\)</span> (output <span class="arithmatex">\(y_3\)</span>)</strong></p>
+<div class="arithmatex">\[Net_{h_1}=x_1w_{11}+x_2w_{21}=0.35(0.199942)+0.7(0.199884)=0.069980+0.139919=0.209899\]</div>
+<div class="arithmatex">\[y_3=\frac{1}{1+e^{-0.209899}}\;\Rightarrow\;\boxed{y_3=0.552283}\]</div>
+<p><strong>Step 2 – hidden node <span class="arithmatex">\(h_2\)</span> (output <span class="arithmatex">\(y_4\)</span>)</strong></p>
+<div class="arithmatex">\[Net_{h_2}=x_1w_{12}+x_2w_{22}=0.35(0.299829)+0.7(0.299658)=0.104940+0.209760=0.314701\]</div>
+<div class="arithmatex">\[y_4=\frac{1}{1+e^{-0.314701}}\;\Rightarrow\;\boxed{y_4=0.578032}\]</div>
+<p><strong>Step 3 – output node <span class="arithmatex">\(o_3\)</span> (output <span class="arithmatex">\(y_5\)</span>)</strong></p>
+<div class="arithmatex">\[Net_{o_3}=y_3w_{13}+y_4w_{23}=0.552283(0.298770)+0.578032(0.898712)=0.165005+0.519485=0.684490\]</div>
+<div class="arithmatex">\[y_5=\frac{1}{1+e^{-0.684490}}\;\Rightarrow\;\boxed{y_5=0.664740}\]</div>
+<p><strong>Step 4 – error</strong></p>
+<div class="arithmatex">\[E=\lvert t-y_5\rvert=\lvert 0.37-0.664740\rvert\;\Rightarrow\;\boxed{E=0.294740}\]</div>
+<h4 id="6-epoch-2-back-propagation-and-weight-update">6 Epoch 2: back-propagation and weight update</h4>
+<p><strong>Step 1 – output delta</strong></p>
+<p>Since <span class="arithmatex">\(y_5 &gt; t\)</span> (0.664740 &gt; 0.37), <span class="arithmatex">\(\operatorname{sign}(y_5-t)=+1\)</span>:</p>
+<div class="arithmatex">\[\delta_o=+1\cdot y_5(1-y_5)=+1\cdot 0.664740\,(1-0.664740)\;\Rightarrow\;\boxed{\delta_o=0.222861}\]</div>
+<p><strong>Step 2 – update the output-layer weights</strong></p>
+<div class="arithmatex">\[\frac{\partial E}{\partial w_{13}}=\delta_oy_3=0.222861\times0.552283=0.123082\]</div>
+<div class="arithmatex">\[w_{13}^{new}=w_{13}-\eta\,\delta_oy_3=0.298770-0.01(0.123082)\;\Rightarrow\;\boxed{w_{13}=0.297539}\]</div>
+<div class="arithmatex">\[\frac{\partial E}{\partial w_{23}}=\delta_oy_4=0.222861\times0.578032=0.128821\]</div>
+<div class="arithmatex">\[w_{23}^{new}=w_{23}-\eta\,\delta_oy_4=0.898712-0.01(0.128821)\;\Rightarrow\;\boxed{w_{23}=0.897424}\]</div>
+<p><strong>Step 3 – hidden deltas</strong> (using the old <span class="arithmatex">\(w_{13}, w_{23}\)</span>)</p>
+<div class="arithmatex">\[\delta_{h_1}=y_3(1-y_3)\,\delta_o\,w_{13}=0.552283(1-0.552283)(0.222861)(0.298770)\;\Rightarrow\;\boxed{\delta_{h_1}=0.016464}\]</div>
+<div class="arithmatex">\[\delta_{h_2}=y_4(1-y_4)\,\delta_o\,w_{23}=0.578032(1-0.578032)(0.222861)(0.898712)\;\Rightarrow\;\boxed{\delta_{h_2}=0.048852}\]</div>
+<p><strong>Step 4 – update the input-to-hidden weights</strong></p>
+<div class="arithmatex">\[w_{11}^{new}=w_{11}-\eta\,\delta_{h_1}\,x_1=0.199942-0.01(0.016464)(0.35)\;\Rightarrow\;\boxed{w_{11}=0.199885}\]</div>
+<div class="arithmatex">\[w_{21}^{new}=w_{21}-\eta\,\delta_{h_1}\,x_2=0.199884-0.01(0.016464)(0.7)\;\Rightarrow\;\boxed{w_{21}=0.199769}\]</div>
+<div class="arithmatex">\[w_{12}^{new}=w_{12}-\eta\,\delta_{h_2}\,x_1=0.299829-0.01(0.048852)(0.35)\;\Rightarrow\;\boxed{w_{12}=0.299658}\]</div>
+<div class="arithmatex">\[w_{22}^{new}=w_{22}-\eta\,\delta_{h_2}\,x_2=0.299658-0.01(0.048852)(0.7)\;\Rightarrow\;\boxed{w_{22}=0.299316}\]</div>
+<h4 id="7-weights-after-each-epoch">7 Weights after each epoch</h4>
 <div class="tw"><table>
 <thead>
 <tr>
 <th>Weight</th>
-<th>Gradient (epoch 1)</th>
-<th>New value after epoch 1</th>
-<th>Gradient (epoch 2)</th>
-<th>New value after epoch 2</th>
+<th>Initial</th>
+<th>After epoch 1</th>
+<th>After epoch 2</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><span class="arithmatex">\(w_{13}\)</span> (<span class="arithmatex">\(\delta_5y_3\)</span>)</td>
-<td>0.123027</td>
-<td>0.298770</td>
-<td>0.123082</td>
-<td>0.297539</td>
-</tr>
-<tr>
-<td><span class="arithmatex">\(w_{23}\)</span> (<span class="arithmatex">\(\delta_5y_4\)</span>)</td>
-<td>0.128773</td>
-<td>0.898712</td>
-<td>0.128821</td>
-<td>0.897424</td>
-</tr>
-<tr>
-<td><span class="arithmatex">\(w_{11}\)</span> (<span class="arithmatex">\(\delta_3x_1\)</span>)</td>
-<td>0.005783</td>
+<td><span class="arithmatex">\(w_{11}\)</span></td>
+<td>0.2</td>
 <td>0.199942</td>
-<td>0.005762</td>
 <td>0.199885</td>
 </tr>
 <tr>
-<td><span class="arithmatex">\(w_{21}\)</span> (<span class="arithmatex">\(\delta_3x_2\)</span>)</td>
-<td>0.011566</td>
+<td><span class="arithmatex">\(w_{21}\)</span></td>
+<td>0.2</td>
 <td>0.199884</td>
-<td>0.011525</td>
 <td>0.199769</td>
 </tr>
 <tr>
-<td><span class="arithmatex">\(w_{12}\)</span> (<span class="arithmatex">\(\delta_4x_1\)</span>)</td>
-<td>0.017114</td>
+<td><span class="arithmatex">\(w_{12}\)</span></td>
+<td>0.3</td>
 <td>0.299829</td>
-<td>0.017098</td>
 <td>0.299658</td>
 </tr>
 <tr>
-<td><span class="arithmatex">\(w_{22}\)</span> (<span class="arithmatex">\(\delta_4x_2\)</span>)</td>
-<td>0.034227</td>
+<td><span class="arithmatex">\(w_{22}\)</span></td>
+<td>0.3</td>
 <td>0.299658</td>
-<td>0.034197</td>
 <td>0.299316</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(w_{13}\)</span></td>
+<td>0.3</td>
+<td>0.298770</td>
+<td>0.297539</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(w_{23}\)</span></td>
+<td>0.9</td>
+<td>0.898712</td>
+<td>0.897424</td>
 </tr>
 </tbody>
 </table></div>
-<p><strong>Results</strong></p>
+<h4 id="8-final-answer">8 Final answer</h4>
 <div class="tw"><table>
 <thead>
 <tr>
 <th></th>
-<th><span class="arithmatex">\(y_3\)</span></th>
-<th><span class="arithmatex">\(y_4\)</span></th>
-<th><span class="arithmatex">\(y_5\)</span></th>
-<th>Loss <span class="arithmatex">\(\lvert t-y_5\rvert\)</span></th>
+<th>Epoch 1 forward pass</th>
+<th>Epoch 2 forward pass</th>
+<th>Fresh forward pass with the final weights (after epoch 2 update)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Epoch 1 (forward, initial weights)</td>
-<td>0.55231</td>
-<td>0.57811</td>
-<td>0.66507</td>
-<td>0.29507</td>
+<td><span class="arithmatex">\(y_3\)</span> (hidden <span class="arithmatex">\(h_1\)</span>)</td>
+<td>0.552308</td>
+<td>0.552283</td>
+<td>0.552258</td>
 </tr>
 <tr>
-<td>Epoch 2 (forward, after 1 update)</td>
-<td>0.55228</td>
-<td>0.57803</td>
-<td>0.66474</td>
-<td>0.29474</td>
+<td><span class="arithmatex">\(y_4\)</span> (hidden <span class="arithmatex">\(h_2\)</span>)</td>
+<td>0.578105</td>
+<td>0.578032</td>
+<td>0.577959</td>
 </tr>
 <tr>
-<td><strong>After 2 epochs (final)</strong></td>
-<td><strong>0.55226</strong></td>
-<td><strong>0.57796</strong></td>
-<td><strong>0.66441</strong></td>
-<td>0.29441</td>
+<td><span class="arithmatex">\(y_5\)</span> (output <span class="arithmatex">\(o_3\)</span>)</td>
+<td>0.665074</td>
+<td>0.664740</td>
+<td>0.664406</td>
+</tr>
+<tr>
+<td>Error <span class="arithmatex">\(E\)</span></td>
+<td>0.295074</td>
+<td>0.294740</td>
+<td>0.294406</td>
 </tr>
 </tbody>
 </table></div>
-<p>So after two epochs the outputs are <span class="arithmatex">\(y_3\approx0.5523,\;y_4\approx0.5780,\;y_5\approx0.6644\)</span>. With <span class="arithmatex">\(\eta=0.01\)</span> the network barely moves toward the target 0.37 (it is still far away), because the learning rate is tiny and the sigmoid slope is small.</p>
+<p><strong>Answer (outputs of the second epoch's forward pass):</strong> <span class="arithmatex">\(y_3\approx0.5523\)</span>, <span class="arithmatex">\(y_4\approx0.5780\)</span>, <span class="arithmatex">\(y_5\approx0.6647\)</span>, error after epoch 2 <span class="arithmatex">\(E=0.294740\)</span>.</p>
+<p>If the question means "after training for 2 epochs" (i.e. re-run the network with the final weights), then <span class="arithmatex">\(y_3\approx0.5523\)</span>, <span class="arithmatex">\(y_4\approx0.5780\)</span>, <span class="arithmatex">\(y_5\approx0.6644\)</span>. State which interpretation you use.</p>
+<p>The error falls from 0.295074 to 0.294740, so the network is learning, but with <span class="arithmatex">\(\eta=0.01\)</span> it moves toward the target <span class="arithmatex">\(t=0.37\)</span> very slowly.</p>
+<h4 id="9-exam-checklist">9 Exam checklist</h4>
+<ol>
+<li>Net input of each hidden node = weighted sum of the inputs; apply sigmoid to get <span class="arithmatex">\(y_3, y_4\)</span>.</li>
+<li>Net input of the output node from <span class="arithmatex">\(y_3, y_4\)</span>; apply sigmoid to get <span class="arithmatex">\(y_5\)</span>.</li>
+<li>Compute the error.</li>
+<li>Output delta <span class="arithmatex">\(\delta_o\)</span> (sign of <span class="arithmatex">\((y_5-t)\)</span> times <span class="arithmatex">\(y_5(1-y_5)\)</span>).</li>
+<li>Hidden deltas from <span class="arithmatex">\(\delta_o\)</span> and the <strong>old</strong> output weights.</li>
+<li>Update all six weights with <span class="arithmatex">\(w_{new}=w_{old}-\eta\,\delta\cdot(\text{input of that weight})\)</span>.</li>
+<li>Repeat the whole process for epoch 2 with the new weights.</li>
+</ol>
 <hr />
 <h2 id="a-q2-dropout-algorithm-gd-variants">A-Q2 – Dropout algorithm &amp; GD variants</h2>
 <details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="A Q2 – original question" src="assets/pyq/a2.png"></div></details>
@@ -1072,112 +1200,244 @@ W_2=\frac{W_1-F+2P}{S}+1,\quad H_2=\frac{H_1-F+2P}{S}+1,\quad D_2=K,\qquad
 <details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="B Q2(b) – original question" src="assets/pyq/b2.png"></div></details>
 
 <h3 id="b-q2-b-back-propagation-sigmoid-mse-target-035">B-Q2 (b) – Back-propagation (sigmoid, MSE, target 0.35)</h3>
-<p>Same network and initial weights as A-Q1 (B) (Figure 1), now with target <span class="arithmatex">\(t=0.35\)</span> and <span class="arithmatex">\(L=\tfrac12(t-y_5)^2\)</span> (if the convention <span class="arithmatex">\(L=(t-y_5)^2\)</span> is used, every gradient below is simply doubled).</p>
-<p><strong>Forward pass (epoch 1)</strong> – identical to A-Q1 (B): <span class="arithmatex">\(y_3=0.55231,\;y_4=0.57811,\;y_5=0.66507\)</span>.</p>
-<div class="arithmatex">\[
-L=\tfrac12(0.35-0.66507)^2=0.04964
-\]</div>
-<p><strong>Backward pass</strong></p>
-<div class="arithmatex">\[
-\frac{\partial L}{\partial y_5}=y_5-t=0.31507,\qquad
-\delta_5=(y_5-t)\,y_5(1-y_5)=0.31507\cdot0.22275=0.07018
-\]</div>
-<div class="arithmatex">\[
-\delta_3=\delta_5\,w_{13}\,y_3(1-y_3)=0.07018\cdot0.3\cdot0.24727=0.00521,\qquad
-\delta_4=\delta_5\,w_{23}\,y_4(1-y_4)=0.07018\cdot0.9\cdot0.24390=0.01541
-\]</div>
+<p>Same network and initial weights as A-Q1 (B) (Figure 1). Only the target (<span class="arithmatex">\(t=0.35\)</span>) and the loss (<span class="arithmatex">\(E=\tfrac12(t-y_5)^2\)</span>) change. If your course defines MSE without the <span class="arithmatex">\(\tfrac12\)</span>, every gradient and delta below is simply <strong>doubled</strong>.</p>
+<div class="w" data-w="bp" data-loss="mse" data-t="0.35" data-lr="0.01" data-n="2" data-cap="Output moves slowly toward the target"></div>
+
+<p>We solve this by <strong>forward propagation + back-propagation for 2 epochs</strong>, showing every calculation.</p>
+<p>The network has 2 input nodes <span class="arithmatex">\(x_1, x_2\)</span>, 2 hidden nodes <span class="arithmatex">\(h_1, h_2\)</span> (outputs <span class="arithmatex">\(y_3, y_4\)</span>) and 1 output node <span class="arithmatex">\(o_3\)</span> (output <span class="arithmatex">\(y_5\)</span>). Activation: <strong>sigmoid</strong>. Loss: <strong>Mean Squared Error (MSE)</strong>.</p>
+<h4 id="1-given-data_1">1 Given data</h4>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(x_1\)</span></td>
+<td>0.35</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(x_2\)</span></td>
+<td>0.70</td>
+</tr>
+<tr>
+<td>Target output <span class="arithmatex">\(t\)</span></td>
+<td>0.35</td>
+</tr>
+<tr>
+<td>Learning rate <span class="arithmatex">\(\eta\)</span></td>
+<td>0.01</td>
+</tr>
+<tr>
+<td>Epochs</td>
+<td>2</td>
+</tr>
+</tbody>
+</table></div>
+<p>Initial weights:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Connection</th>
+<th>Weight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(x_1 \to h_1\)</span> (<span class="arithmatex">\(w_{11}\)</span>)</td>
+<td>0.2</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(x_2 \to h_1\)</span> (<span class="arithmatex">\(w_{21}\)</span>)</td>
+<td>0.2</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(x_1 \to h_2\)</span> (<span class="arithmatex">\(w_{12}\)</span>)</td>
+<td>0.3</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(x_2 \to h_2\)</span> (<span class="arithmatex">\(w_{22}\)</span>)</td>
+<td>0.3</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(h_1 \to o_3\)</span> (<span class="arithmatex">\(w_{13}\)</span>)</td>
+<td>0.3</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(h_2 \to o_3\)</span> (<span class="arithmatex">\(w_{23}\)</span>)</td>
+<td>0.9</td>
+</tr>
+</tbody>
+</table></div>
+<p>No bias terms are used because none are shown in the figure.</p>
+<h4 id="2-formulas-used_1">2 Formulas used</h4>
+<div class="arithmatex">\[\sigma(z)=\frac{1}{1+e^{-z}},\qquad \sigma'(z)=\sigma(z)\,\big(1-\sigma(z)\big)\]</div>
+<div class="arithmatex">\[E=\tfrac12\,(t-y_5)^2,\qquad \frac{\partial E}{\partial y_5}=y_5-t\]</div>
+<div class="arithmatex">\[\delta_o=(y_5-t)\;y_5(1-y_5)\]</div>
+<div class="arithmatex">\[\delta_{h_1}=y_3(1-y_3)\,\delta_o\,w_{13},\qquad \delta_{h_2}=y_4(1-y_4)\,\delta_o\,w_{23}\]</div>
+<div class="arithmatex">\[\frac{\partial E}{\partial w_{13}}=\delta_o\,y_3,\quad \frac{\partial E}{\partial w_{23}}=\delta_o\,y_4,\quad \frac{\partial E}{\partial w_{11}}=\delta_{h_1}x_1,\quad \frac{\partial E}{\partial w_{21}}=\delta_{h_1}x_2,\quad \frac{\partial E}{\partial w_{12}}=\delta_{h_2}x_1,\quad \frac{\partial E}{\partial w_{22}}=\delta_{h_2}x_2\]</div>
+<div class="arithmatex">\[w_{new}=w_{old}-\eta\,\frac{\partial E}{\partial w}\]</div>
+<blockquote>
+<p>The hidden deltas use the <strong>old</strong> output weights <span class="arithmatex">\(w_{13}, w_{23}\)</span> (the values used in the forward pass), not the freshly updated ones. All six weights are updated together at the end of the epoch.</p>
+</blockquote>
+<h4 id="3-epoch-1-forward-propagation_1">3 Epoch 1: forward propagation</h4>
+<p><strong>Step 1 – hidden node <span class="arithmatex">\(h_1\)</span> (output <span class="arithmatex">\(y_3\)</span>)</strong></p>
+<div class="arithmatex">\[Net_{h_1}=x_1w_{11}+x_2w_{21}=0.35(0.200000)+0.7(0.200000)=0.070000+0.140000=0.210000\]</div>
+<div class="arithmatex">\[y_3=\frac{1}{1+e^{-0.210000}}\;\Rightarrow\;\boxed{y_3=0.552308}\]</div>
+<p><strong>Step 2 – hidden node <span class="arithmatex">\(h_2\)</span> (output <span class="arithmatex">\(y_4\)</span>)</strong></p>
+<div class="arithmatex">\[Net_{h_2}=x_1w_{12}+x_2w_{22}=0.35(0.300000)+0.7(0.300000)=0.105000+0.210000=0.315000\]</div>
+<div class="arithmatex">\[y_4=\frac{1}{1+e^{-0.315000}}\;\Rightarrow\;\boxed{y_4=0.578105}\]</div>
+<p><strong>Step 3 – output node <span class="arithmatex">\(o_3\)</span> (output <span class="arithmatex">\(y_5\)</span>)</strong></p>
+<div class="arithmatex">\[Net_{o_3}=y_3w_{13}+y_4w_{23}=0.552308(0.300000)+0.578105(0.900000)=0.165692+0.520295=0.685987\]</div>
+<div class="arithmatex">\[y_5=\frac{1}{1+e^{-0.685987}}\;\Rightarrow\;\boxed{y_5=0.665074}\]</div>
+<p><strong>Step 4 – error</strong></p>
+<div class="arithmatex">\[E=\tfrac12(t-y_5)^2=\tfrac12(0.35-0.665074)^2=\tfrac12(-0.315074)^2\;\Rightarrow\;\boxed{E=0.049636}\]</div>
+<h4 id="4-epoch-1-back-propagation-and-weight-update_1">4 Epoch 1: back-propagation and weight update</h4>
+<p><strong>Step 1 – output delta</strong></p>
+<div class="arithmatex">\[\delta_o=(y_5-t)\,y_5(1-y_5)=(0.665074-0.35)(0.665074)(1-0.665074)=0.315074\times0.222751\;\Rightarrow\;\boxed{\delta_o=0.070183}\]</div>
+<p><strong>Step 2 – update the output-layer weights</strong></p>
+<div class="arithmatex">\[\frac{\partial E}{\partial w_{13}}=\delta_oy_3=0.070183\times0.552308=0.038763\]</div>
+<div class="arithmatex">\[w_{13}^{new}=w_{13}-\eta\,\delta_oy_3=0.300000-0.01(0.038763)\;\Rightarrow\;\boxed{w_{13}=0.299612}\]</div>
+<div class="arithmatex">\[\frac{\partial E}{\partial w_{23}}=\delta_oy_4=0.070183\times0.578105=0.040573\]</div>
+<div class="arithmatex">\[w_{23}^{new}=w_{23}-\eta\,\delta_oy_4=0.900000-0.01(0.040573)\;\Rightarrow\;\boxed{w_{23}=0.899594}\]</div>
+<p><strong>Step 3 – hidden deltas</strong> (using the old <span class="arithmatex">\(w_{13}, w_{23}\)</span>)</p>
+<div class="arithmatex">\[\delta_{h_1}=y_3(1-y_3)\,\delta_o\,w_{13}=0.552308(1-0.552308)(0.070183)(0.300000)\;\Rightarrow\;\boxed{\delta_{h_1}=0.005206}\]</div>
+<div class="arithmatex">\[\delta_{h_2}=y_4(1-y_4)\,\delta_o\,w_{23}=0.578105(1-0.578105)(0.070183)(0.900000)\;\Rightarrow\;\boxed{\delta_{h_2}=0.015406}\]</div>
+<p><strong>Step 4 – update the input-to-hidden weights</strong></p>
+<div class="arithmatex">\[w_{11}^{new}=w_{11}-\eta\,\delta_{h_1}\,x_1=0.200000-0.01(0.005206)(0.35)\;\Rightarrow\;\boxed{w_{11}=0.199982}\]</div>
+<div class="arithmatex">\[w_{21}^{new}=w_{21}-\eta\,\delta_{h_1}\,x_2=0.200000-0.01(0.005206)(0.7)\;\Rightarrow\;\boxed{w_{21}=0.199964}\]</div>
+<div class="arithmatex">\[w_{12}^{new}=w_{12}-\eta\,\delta_{h_2}\,x_1=0.300000-0.01(0.015406)(0.35)\;\Rightarrow\;\boxed{w_{12}=0.299946}\]</div>
+<div class="arithmatex">\[w_{22}^{new}=w_{22}-\eta\,\delta_{h_2}\,x_2=0.300000-0.01(0.015406)(0.7)\;\Rightarrow\;\boxed{w_{22}=0.299892}\]</div>
+<h4 id="5-epoch-2-forward-propagation_1">5 Epoch 2: forward propagation</h4>
+<p>Use the weights updated at the end of epoch 1.</p>
+<p><strong>Step 1 – hidden node <span class="arithmatex">\(h_1\)</span> (output <span class="arithmatex">\(y_3\)</span>)</strong></p>
+<div class="arithmatex">\[Net_{h_1}=x_1w_{11}+x_2w_{21}=0.35(0.199982)+0.7(0.199964)=0.069994+0.139974=0.209968\]</div>
+<div class="arithmatex">\[y_3=\frac{1}{1+e^{-0.209968}}\;\Rightarrow\;\boxed{y_3=0.552300}\]</div>
+<p><strong>Step 2 – hidden node <span class="arithmatex">\(h_2\)</span> (output <span class="arithmatex">\(y_4\)</span>)</strong></p>
+<div class="arithmatex">\[Net_{h_2}=x_1w_{12}+x_2w_{22}=0.35(0.299946)+0.7(0.299892)=0.104981+0.209925=0.314906\]</div>
+<div class="arithmatex">\[y_4=\frac{1}{1+e^{-0.314906}}\;\Rightarrow\;\boxed{y_4=0.578082}\]</div>
+<p><strong>Step 3 – output node <span class="arithmatex">\(o_3\)</span> (output <span class="arithmatex">\(y_5\)</span>)</strong></p>
+<div class="arithmatex">\[Net_{o_3}=y_3w_{13}+y_4w_{23}=0.552300(0.299612)+0.578082(0.899594)=0.165476+0.520039=0.685515\]</div>
+<div class="arithmatex">\[y_5=\frac{1}{1+e^{-0.685515}}\;\Rightarrow\;\boxed{y_5=0.664969}\]</div>
+<p><strong>Step 4 – error</strong></p>
+<div class="arithmatex">\[E=\tfrac12(t-y_5)^2=\tfrac12(0.35-0.664969)^2=\tfrac12(-0.314969)^2\;\Rightarrow\;\boxed{E=0.049603}\]</div>
+<h4 id="6-epoch-2-back-propagation-and-weight-update_1">6 Epoch 2: back-propagation and weight update</h4>
+<p><strong>Step 1 – output delta</strong></p>
+<div class="arithmatex">\[\delta_o=(y_5-t)\,y_5(1-y_5)=(0.664969-0.35)(0.664969)(1-0.664969)=0.314969\times0.222785\;\Rightarrow\;\boxed{\delta_o=0.070170}\]</div>
+<p><strong>Step 2 – update the output-layer weights</strong></p>
+<div class="arithmatex">\[\frac{\partial E}{\partial w_{13}}=\delta_oy_3=0.070170\times0.552300=0.038755\]</div>
+<div class="arithmatex">\[w_{13}^{new}=w_{13}-\eta\,\delta_oy_3=0.299612-0.01(0.038755)\;\Rightarrow\;\boxed{w_{13}=0.299225}\]</div>
+<div class="arithmatex">\[\frac{\partial E}{\partial w_{23}}=\delta_oy_4=0.070170\times0.578082=0.040564\]</div>
+<div class="arithmatex">\[w_{23}^{new}=w_{23}-\eta\,\delta_oy_4=0.899594-0.01(0.040564)\;\Rightarrow\;\boxed{w_{23}=0.899189}\]</div>
+<p><strong>Step 3 – hidden deltas</strong> (using the old <span class="arithmatex">\(w_{13}, w_{23}\)</span>)</p>
+<div class="arithmatex">\[\delta_{h_1}=y_3(1-y_3)\,\delta_o\,w_{13}=0.552300(1-0.552300)(0.070170)(0.299612)\;\Rightarrow\;\boxed{\delta_{h_1}=0.005198}\]</div>
+<div class="arithmatex">\[\delta_{h_2}=y_4(1-y_4)\,\delta_o\,w_{23}=0.578082(1-0.578082)(0.070170)(0.899594)\;\Rightarrow\;\boxed{\delta_{h_2}=0.015396}\]</div>
+<p><strong>Step 4 – update the input-to-hidden weights</strong></p>
+<div class="arithmatex">\[w_{11}^{new}=w_{11}-\eta\,\delta_{h_1}\,x_1=0.199982-0.01(0.005198)(0.35)\;\Rightarrow\;\boxed{w_{11}=0.199964}\]</div>
+<div class="arithmatex">\[w_{21}^{new}=w_{21}-\eta\,\delta_{h_1}\,x_2=0.199964-0.01(0.005198)(0.7)\;\Rightarrow\;\boxed{w_{21}=0.199927}\]</div>
+<div class="arithmatex">\[w_{12}^{new}=w_{12}-\eta\,\delta_{h_2}\,x_1=0.299946-0.01(0.015396)(0.35)\;\Rightarrow\;\boxed{w_{12}=0.299892}\]</div>
+<div class="arithmatex">\[w_{22}^{new}=w_{22}-\eta\,\delta_{h_2}\,x_2=0.299892-0.01(0.015396)(0.7)\;\Rightarrow\;\boxed{w_{22}=0.299784}\]</div>
+<h4 id="7-weights-after-each-epoch_1">7 Weights after each epoch</h4>
 <div class="tw"><table>
 <thead>
 <tr>
 <th>Weight</th>
-<th>Gradient (epoch 1)</th>
+<th>Initial</th>
 <th>After epoch 1</th>
-<th>Gradient (epoch 2)</th>
 <th>After epoch 2</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><span class="arithmatex">\(w_{13}\)</span></td>
-<td>0.038763</td>
-<td>0.299612</td>
-<td>0.038755</td>
-<td>0.299225</td>
-</tr>
-<tr>
-<td><span class="arithmatex">\(w_{23}\)</span></td>
-<td>0.040573</td>
-<td>0.899594</td>
-<td>0.040564</td>
-<td>0.899189</td>
-</tr>
-<tr>
 <td><span class="arithmatex">\(w_{11}\)</span></td>
-<td>0.001822</td>
+<td>0.2</td>
 <td>0.199982</td>
-<td>0.001819</td>
 <td>0.199964</td>
 </tr>
 <tr>
 <td><span class="arithmatex">\(w_{21}\)</span></td>
-<td>0.003644</td>
+<td>0.2</td>
 <td>0.199964</td>
-<td>0.003639</td>
 <td>0.199927</td>
 </tr>
 <tr>
 <td><span class="arithmatex">\(w_{12}\)</span></td>
-<td>0.005392</td>
+<td>0.3</td>
 <td>0.299946</td>
-<td>0.005389</td>
 <td>0.299892</td>
 </tr>
 <tr>
 <td><span class="arithmatex">\(w_{22}\)</span></td>
-<td>0.010784</td>
+<td>0.3</td>
 <td>0.299892</td>
-<td>0.010777</td>
 <td>0.299784</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(w_{13}\)</span></td>
+<td>0.3</td>
+<td>0.299612</td>
+<td>0.299225</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(w_{23}\)</span></td>
+<td>0.9</td>
+<td>0.899594</td>
+<td>0.899189</td>
 </tr>
 </tbody>
 </table></div>
+<h4 id="8-final-answer_1">8 Final answer</h4>
 <div class="tw"><table>
 <thead>
 <tr>
 <th></th>
-<th><span class="arithmatex">\(y_3\)</span></th>
-<th><span class="arithmatex">\(y_4\)</span></th>
-<th><span class="arithmatex">\(y_5\)</span></th>
-<th>Loss</th>
+<th>Epoch 1 forward pass</th>
+<th>Epoch 2 forward pass</th>
+<th>Fresh forward pass with the final weights (after epoch 2 update)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Epoch 1 forward</td>
-<td>0.55231</td>
-<td>0.57811</td>
-<td>0.66507</td>
-<td>0.04964</td>
+<td><span class="arithmatex">\(y_3\)</span> (hidden <span class="arithmatex">\(h_1\)</span>)</td>
+<td>0.552308</td>
+<td>0.552300</td>
+<td>0.552292</td>
 </tr>
 <tr>
-<td>Epoch 2 forward</td>
-<td>0.55230</td>
-<td>0.57808</td>
-<td>0.66497</td>
-<td>0.04960</td>
+<td><span class="arithmatex">\(y_4\)</span> (hidden <span class="arithmatex">\(h_2\)</span>)</td>
+<td>0.578105</td>
+<td>0.578082</td>
+<td>0.578059</td>
 </tr>
 <tr>
-<td><strong>After 2 epochs</strong></td>
-<td><strong>0.55229</strong></td>
-<td><strong>0.57806</strong></td>
-<td><strong>0.66486</strong></td>
-<td>0.04957</td>
+<td><span class="arithmatex">\(y_5\)</span> (output <span class="arithmatex">\(o_3\)</span>)</td>
+<td>0.665074</td>
+<td>0.664969</td>
+<td>0.664863</td>
+</tr>
+<tr>
+<td>Error <span class="arithmatex">\(E\)</span></td>
+<td>0.049636</td>
+<td>0.049603</td>
+<td>0.049570</td>
 </tr>
 </tbody>
 </table></div>
-<div class="w" data-w="bp" data-loss="mse" data-t="0.35" data-lr="0.01" data-n="2" data-cap="Output moves slowly toward the target"></div>
-
-<p>The graph (run for many epochs with <span class="arithmatex">\(\eta=0.01\)</span>) shows that the output creeps toward the target very slowly – two epochs hardly change it.</p>
+<p><strong>Answer (outputs of the second epoch's forward pass):</strong> <span class="arithmatex">\(y_3\approx0.5523\)</span>, <span class="arithmatex">\(y_4\approx0.5781\)</span>, <span class="arithmatex">\(y_5\approx0.6650\)</span>, error after epoch 2 <span class="arithmatex">\(E=0.049603\)</span>.</p>
+<p>If the question means "after training for 2 epochs" (i.e. re-run the network with the final weights), then <span class="arithmatex">\(y_3\approx0.5523\)</span>, <span class="arithmatex">\(y_4\approx0.5781\)</span>, <span class="arithmatex">\(y_5\approx0.6649\)</span>. State which interpretation you use.</p>
+<p>The error falls from 0.049636 to 0.049603, so the network is learning, but with <span class="arithmatex">\(\eta=0.01\)</span> it moves toward the target <span class="arithmatex">\(t=0.35\)</span> very slowly.</p>
+<h4 id="9-exam-checklist_1">9 Exam checklist</h4>
+<ol>
+<li>Net input of each hidden node = weighted sum of the inputs; apply sigmoid to get <span class="arithmatex">\(y_3, y_4\)</span>.</li>
+<li>Net input of the output node from <span class="arithmatex">\(y_3, y_4\)</span>; apply sigmoid to get <span class="arithmatex">\(y_5\)</span>.</li>
+<li>Compute the error.</li>
+<li>Output delta <span class="arithmatex">\(\delta_o\)</span> (<span class="arithmatex">\((y_5-t)\)</span> times <span class="arithmatex">\(y_5(1-y_5)\)</span>).</li>
+<li>Hidden deltas from <span class="arithmatex">\(\delta_o\)</span> and the <strong>old</strong> output weights.</li>
+<li>Update all six weights with <span class="arithmatex">\(w_{new}=w_{old}-\eta\,\delta\cdot(\text{input of that weight})\)</span>.</li>
+<li>Repeat the whole process for epoch 2 with the new weights.</li>
+</ol>
 <hr />
 <h2 id="b-q3-bias-variance-1x1-nxn-filters">B-Q3 – Bias-variance &amp; 1x1 / nxn filters</h2>
 <details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="B Q3 and Q4(a) – original questions" src="assets/pyq/b3.png"></div></details>
@@ -2034,6 +2294,1312 @@ R^{l}=\underbrace{\mathbb 1[f^{l}&gt;0]}_{\text{forward activation was positive}
 </table></div>
 <div class="w" data-w="reg" data-cap="Regularisation"></div>
 
+<hr />
+<h1 id="paper-d">Paper D – Question set 4</h1>
+<h2 id="d-q1">D-Q1</h2>
+<p><details class="pg" open><summary>Original question (image) – click to collapse</summary><div class="pages"><img class="zoom" loading="lazy" alt="D Q1–Q2 – original questions" src="assets/pyq/d1.png"></div></details></p>
+<h3 id="d-q1-a-loss-function-for-classification-with-definition">D-Q1 (a) – Loss function for classification (with definition)</h3>
+<p>The standard loss for classification is the <strong>cross-entropy loss</strong> (log loss), the negative log-likelihood of the true class.</p>
+<p><strong>Binary</strong> (label <span class="arithmatex">\(y\in\{0,1\}\)</span>, predicted probability <span class="arithmatex">\(\hat y=\sigma(z)\)</span>):</p>
+<div class="arithmatex">\[
+\boxed{L(y,\hat y)=-\big[\,y\log\hat y+(1-y)\log(1-\hat y)\,\big]}
+\]</div>
+<p><strong>Multi-class</strong> (<span class="arithmatex">\(K\)</span> classes, one-hot <span class="arithmatex">\(y\)</span>, softmax output <span class="arithmatex">\(\hat y_k=\dfrac{e^{z_k}}{\sum_j e^{z_j}}\)</span>):</p>
+<div class="arithmatex">\[
+\boxed{L=-\sum_{k=1}^{K}y_k\log\hat y_k}
+\]</div>
+<p><strong>Cost over <span class="arithmatex">\(N\)</span> examples:</strong> <span class="arithmatex">\(J=\dfrac1N\sum_{i=1}^{N}L\big(y^{(i)},\hat y^{(i)}\big)\)</span>.</p>
+<p>Why it is used: it is the maximum-likelihood loss for a Bernoulli/categorical output, it heavily penalises confident wrong predictions (<span class="arithmatex">\(\hat y\to0\)</span> when <span class="arithmatex">\(y=1\)</span> gives <span class="arithmatex">\(L\to\infty\)</span>), and with sigmoid/softmax its gradient is simply <span class="arithmatex">\(\partial L/\partial z=\hat y-y\)</span> (no vanishing factor, unlike MSE).</p>
+<h3 id="d-q1-b-mcculloch-pitts-neuron-for-3-bit-or">D-Q1 (b) – McCulloch–Pitts neuron for 3-bit OR</h3>
+<p>MP neuron: binary inputs, all excitatory weights <span class="arithmatex">\(=+1\)</span>, output <span class="arithmatex">\(y=1\)</span> iff <span class="arithmatex">\(\sum x_i\ge\theta\)</span>. OR fires when <strong>at least one</strong> input is 1, so <span class="arithmatex">\(\theta=1\)</span>.</p>
+<p><img alt="MP neuron" src="assets/f_mp.png" loading="lazy" class="zoom"></p>
+<div class="arithmatex">\[
+y=\begin{cases}1&amp;x_1+x_2+x_3\ge1\0&amp;\text{otherwise}\end{cases}\qquad(w_1=w_2=w_3=1,\ \theta=1)
+\]</div>
+<div class="tw"><table>
+<thead>
+<tr>
+<th><span class="arithmatex">\(x_1x_2x_3\)</span></th>
+<th>000</th>
+<th>001</th>
+<th>010</th>
+<th>011</th>
+<th>100</th>
+<th>101</th>
+<th>110</th>
+<th>111</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\sum\)</span></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(y\)</span></td>
+<td><strong>0</strong></td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table></div>
+<p>(The figure above shows <span class="arithmatex">\(\theta=3\)</span> for AND; for OR simply change the threshold to 1.)</p>
+<h3 id="d-q1-c-weight-update-equations">D-Q1 (c) – Weight-update equations</h3>
+<p>Let <span class="arithmatex">\(g_t=\nabla_wL(w_t)\)</span>, learning rate <span class="arithmatex">\(\eta\)</span>, <span class="arithmatex">\(\epsilon\approx10^{-8}\)</span>.</p>
+<p><strong>i) Adam</strong> (momentum + RMSProp with bias correction; <span class="arithmatex">\(\beta_1\approx0.9,\ \beta_2\approx0.999\)</span>)</p>
+<div class="arithmatex">\[
+m_t=\beta_1m_{t-1}+(1-\beta_1)g_t,\qquad v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^{2},\qquad m_0=v_0=0
+\]</div>
+<div class="arithmatex">\[
+\hat m_t=\frac{m_t}{1-\beta_1^{\,t}},\qquad \hat v_t=\frac{v_t}{1-\beta_2^{\,t}},\qquad
+\boxed{w_{t+1}=w_t-\frac{\eta}{\sqrt{\hat v_t}+\epsilon}\,\hat m_t}
+\]</div>
+<ul>
+<li><span class="arithmatex">\(m_t\)</span> = running mean of gradients (direction / momentum); <span class="arithmatex">\(v_t\)</span> = running mean of squared gradients (per-weight adaptive step size).</li>
+<li>Bias correction fixes the start-up bias towards 0; it tends to 1 as <span class="arithmatex">\(t\to\infty\)</span>.</li>
+</ul>
+<p><strong>ii) NAG – Nesterov Accelerated Gradient</strong> (look-ahead momentum; <span class="arithmatex">\(\gamma\approx0.9\)</span>)</p>
+<div class="arithmatex">\[
+v_t=\gamma v_{t-1}+\eta\,\nabla_wL\big(w_t-\gamma v_{t-1}\big),\qquad
+\boxed{w_{t+1}=w_t-v_t}
+\]</div>
+<ul>
+<li>First take the momentum step to the look-ahead point <span class="arithmatex">\(w_t-\gamma v_{t-1}\)</span>, <strong>then</strong> compute the gradient there and correct. This anticipates where the weights are going, reduces overshoot/oscillation and converges faster than plain momentum.</li>
+</ul>
+<h3 id="d-q1-d-characteristics-of-a-sequential-learning-problem">D-Q1 (d) – Characteristics of a sequential learning problem</h3>
+<ol>
+<li><strong>Order matters</strong> – data are ordered (time series, text, speech, DNA); shuffling inside a sequence destroys information.</li>
+<li><strong>Temporal / long-range dependence</strong> – output at step <span class="arithmatex">\(t\)</span> depends on the current <em>and past</em> inputs, so memory/state is required.</li>
+<li><strong>Variable-length</strong> inputs and/or outputs (padding / masking needed).</li>
+<li><strong>Parameter sharing across time</strong> – the same weights are applied at every time step.</li>
+<li><strong>Samples are not i.i.d.</strong> (neighbours are correlated); trained with back-propagation through time.</li>
+<li>Modes: one-to-many, many-to-one, many-to-many.</li>
+</ol>
+<hr />
+<h2 id="d-q2">D-Q2</h2>
+<h3 id="d-q2-a-which-statements-are-true">D-Q2 (a) – Which statements are true?</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Statement</th>
+<th>Verdict</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a</td>
+<td>Complex models have high bias and low variance.</td>
+<td><strong>False</strong></td>
+<td>Complex models have <strong>low bias and high variance</strong> (they over-fit). High bias / low variance belongs to <em>simple</em> models.</td>
+</tr>
+<tr>
+<td>b</td>
+<td>In overfitting train error is low while test error is high.</td>
+<td><strong>True</strong></td>
+<td>The model memorises the training data (low train error) but does not generalise (high test error).</td>
+</tr>
+<tr>
+<td>c</td>
+<td>Both bias and variance contribute to error.</td>
+<td><strong>True</strong></td>
+<td><span class="arithmatex">\(\mathrm{Err}=\mathrm{Bias}^2+\mathrm{Variance}+\sigma^2\)</span> (irreducible noise).</td>
+</tr>
+<tr>
+<td>d</td>
+<td>Pooling is used to detect edges.</td>
+<td><strong>False</strong></td>
+<td>Edges are detected by <strong>convolution filters</strong> (e.g. Sobel-like kernels). Pooling <strong>down-samples</strong> the feature map, reduces computation and gives small translation invariance.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Answer: b and c are true.</strong></p>
+<h3 id="d-q2-b-cnn-block-on-a-input">D-Q2 (b) – CNN block on a <span class="arithmatex">\(128\times128\times16\)</span> input</h3>
+<p>Notation <span class="arithmatex">\((H,W,C)\)</span>; convolutions use stride 1 (not stated), padding 0.</p>
+<p><strong>i) CONV4-32</strong> (32 filters, <span class="arithmatex">\(4\times4\)</span>)</p>
+<div class="arithmatex">\[
+H_2=W_2=\frac{128-4+0}{1}+1=125,\quad C_2=32\;\Rightarrow\;\boxed{(125,125,32)}
+\]</div>
+<div class="arithmatex">\[
+\text{Params}=(4\cdot4\cdot16+1)\cdot32=257\cdot32=\boxed{8{,}224}\quad(8{,}192\ \text{weights}+32\ \text{biases})
+\]</div>
+<p><strong>ii) POOL4</strong> (<span class="arithmatex">\(4\times4\)</span> max-pool, stride 2, padding 0) on <span class="arithmatex">\((125,125,32)\)</span></p>
+<div class="arithmatex">\[
+H=W=\left\lfloor\frac{125-4}{2}\right\rfloor+1=\lfloor60.5\rfloor+1=61\;\Rightarrow\;\boxed{(61,61,32)},\qquad\text{Params}=\boxed{0}
+\]</div>
+<p>(pooling has no learnable parameters; channels unchanged.)</p>
+<p><strong>iii) CONV2-16</strong> (16 filters, <span class="arithmatex">\(2\times2\)</span>) on <span class="arithmatex">\((61,61,32)\)</span></p>
+<div class="arithmatex">\[
+H_2=W_2=\frac{61-2+0}{1}+1=60,\quad C_2=16\;\Rightarrow\;\boxed{(60,60,16)}
+\]</div>
+<div class="arithmatex">\[
+\text{Params}=(2\cdot2\cdot32+1)\cdot16=129\cdot16=\boxed{2{,}064}\quad(2{,}048\ \text{weights}+16\ \text{biases})
+\]</div>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Output</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input</td>
+<td>(128, 128, 16)</td>
+<td>0</td>
+</tr>
+<tr>
+<td>CONV4-32</td>
+<td>(125, 125, 32)</td>
+<td>8,224</td>
+</tr>
+<tr>
+<td>POOL4</td>
+<td>(61, 61, 32)</td>
+<td>0</td>
+</tr>
+<tr>
+<td>CONV2-16</td>
+<td>(60, 60, 16)</td>
+<td>2,064</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td><strong>10,288</strong></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="d-q3">D-Q3</h2>
+<h3 id="d-q3-a-short-note-on-lstm-with-the-gate-equations">D-Q3 (a) – Short note on LSTM, with the gate equations</h3>
+<p>An <strong>LSTM</strong> (Long Short-Term Memory) is an RNN cell with a separate <strong>cell state</strong> <span class="arithmatex">\(c_t\)</span> (a "conveyor belt") that is changed only by additive, gated updates. This lets gradients flow over many time steps, so it mitigates the vanishing-gradient problem of a plain RNN and learns long-range dependencies.</p>
+<p><img alt="LSTM cell" src="assets/f_lstm.png" loading="lazy" class="zoom"></p>
+<p>Let <span class="arithmatex">\(z_t=[h_{t-1},x_t]\)</span> (concatenation), <span class="arithmatex">\(\sigma\)</span> = sigmoid, <span class="arithmatex">\(\odot\)</span> = element-wise product.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>Equation</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Forget gate</strong></td>
+<td><span class="arithmatex">\(f_t=\sigma(W_fz_t+b_f)\)</span></td>
+<td>how much of the old cell state <span class="arithmatex">\(c_{t-1}\)</span> to keep</td>
+</tr>
+<tr>
+<td><strong>Input gate</strong></td>
+<td><span class="arithmatex">\(i_t=\sigma(W_iz_t+b_i)\)</span></td>
+<td>how much of the new candidate to write</td>
+</tr>
+<tr>
+<td><strong>Candidate state</strong></td>
+<td><span class="arithmatex">\(\tilde c_t=\tanh(W_cz_t+b_c)\)</span></td>
+<td>new information proposal</td>
+</tr>
+<tr>
+<td><strong>Output gate</strong></td>
+<td><span class="arithmatex">\(o_t=\sigma(W_oz_t+b_o)\)</span></td>
+<td>how much of the cell to expose as <span class="arithmatex">\(h_t\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<div class="arithmatex">\[
+c_t=f_t\odot c_{t-1}+i_t\odot\tilde c_t,\qquad h_t=o_t\odot\tanh(c_t)
+\]</div>
+<p>Because <span class="arithmatex">\(\partial c_t/\partial c_{t-1}=f_t\)</span> (no repeated squashing by <span class="arithmatex">\(W\)</span> and <span class="arithmatex">\(\tanh'\)</span>), gradients do not vanish when <span class="arithmatex">\(f_t\approx1\)</span>. Uses: language modelling, translation, speech, time series.</p>
+<h3 id="d-q3-b-perceptron-convergence-theorem">D-Q3 (b) – Perceptron convergence theorem</h3>
+<p><strong>Claim.</strong> If <span class="arithmatex">\(P\)</span> (positive) and <span class="arithmatex">\(N\)</span> (negative) are finite and linearly separable, the perceptron algorithm updates <span class="arithmatex">\(w_t\)</span> only a finite number of times.</p>
+<p><strong>Setup.</strong> Replace every <span class="arithmatex">\(x\in N\)</span> by <span class="arithmatex">\(-x\)</span> and let <span class="arithmatex">\(P'=P\cup N^-\)</span>. Now we need <span class="arithmatex">\(w\)</span> with <span class="arithmatex">\(w\cdot x>0\)</span> for all <span class="arithmatex">\(x\in P'\)</span>. Let <span class="arithmatex">\(R=\max\lVert x\rVert\)</span> (finite set). Algorithm: if <span class="arithmatex">\(w_t\cdot x\le0\)</span> for some <span class="arithmatex">\(x\in P'\)</span>, set <span class="arithmatex">\(w_{t+1}=w_t+x\)</span> (start <span class="arithmatex">\(w_0=0\)</span>).</p>
+<p>Since the sets are linearly separable, there is a unit vector <span class="arithmatex">\(w^*\)</span> and margin <span class="arithmatex">\(\gamma>0\)</span> with <span class="arithmatex">\(w^*\cdot x\ge\gamma\)</span> for all <span class="arithmatex">\(x\in P'\)</span>.</p>
+<p><strong>Step 1 – the projection on <span class="arithmatex">\(w^*\)</span> grows linearly.</strong> After <span class="arithmatex">\(k\)</span> updates</p>
+<div class="arithmatex">\[
+w_{k}\cdot w^*=w_{k-1}\cdot w^*+x\cdot w^*\;\ge\;w_{k-1}\cdot w^*+\gamma\;\Rightarrow\;w_k\cdot w^*\ge k\gamma
+\]</div>
+<p><strong>Step 2 – the norm grows at most like <span class="arithmatex">\(\sqrt k\)</span>.</strong> An update only happens when <span class="arithmatex">\(w_{k-1}\cdot x\le0\)</span>:</p>
+<div class="arithmatex">\[
+\lVert w_k\rVert^2=\lVert w_{k-1}\rVert^2+2\,w_{k-1}\cdot x+\lVert x\rVert^2\;\le\;\lVert w_{k-1}\rVert^2+R^2\;\Rightarrow\;\lVert w_k\rVert^2\le kR^2
+\]</div>
+<p><strong>Step 3 – combine</strong> (Cauchy–Schwarz, <span class="arithmatex">\(\lVert w^*\rVert=1\)</span>):</p>
+<div class="arithmatex">\[
+k\gamma\le w_k\cdot w^*\le\lVert w_k\rVert\le\sqrt k\,R\;\Rightarrow\;\boxed{k\le\frac{R^2}{\gamma^2}}
+\]</div>
+<p>So the number of updates is bounded by <span class="arithmatex">\(R^2/\gamma^2\)</span> – <strong>finite</strong>. After the last update every point is classified correctly, i.e. <span class="arithmatex">\(P\)</span> and <span class="arithmatex">\(N\)</span> are separated. <span class="arithmatex">\(\blacksquare\)</span></p>
+<hr />
+<h2 id="d-q4">D-Q4</h2>
+<h3 id="d-q4-a-relu-its-derivative-the-problem-and-leaky-relu">D-Q4 (a) – ReLU, its derivative, the problem, and Leaky ReLU</h3>
+<p><strong>ReLU:</strong> <span class="arithmatex">\(f(x)=\max(0,x)\)</span>.</p>
+<div class="arithmatex">\[
+f'(x)=\begin{cases}1&amp;x>0\\0&amp;x<0\end{cases}\qquad(\text{at }x=0\text{ undefined; taken as }0\text{ or }1)
+\]</div>
+<p>Advantages: cheap, no saturation for <span class="arithmatex">\(x>0\)</span> (gradient is exactly 1, so no vanishing gradient), sparse activations, fast convergence.</p>
+<p><strong>Problem – dying ReLU.</strong> For <span class="arithmatex">\(x&lt;0\)</span> the output <strong>and gradient are 0</strong>. If a large update (e.g. a big learning rate) pushes a neuron's pre-activation negative for all inputs, then <span class="arithmatex">\(\partial L/\partial w=0\)</span> for it, its weights never change again and the neuron is permanently "dead". Also the output is not zero-centred.</p>
+<p><strong>Leaky ReLU</strong> keeps a small slope for negative inputs:</p>
+<div class="arithmatex">\[
+f(x)=\begin{cases}x&amp;x>0\\\alpha x&amp;x\le0\end{cases},\qquad f'(x)=\begin{cases}1&amp;x>0\\\alpha&amp;x\le0\end{cases}\quad(\alpha\approx0.01)
+\]</div>
+<p>Since the gradient for <span class="arithmatex">\(x&lt;0\)</span> is <span class="arithmatex">\(\alpha\neq0\)</span>, the weights of such a neuron still get (small) updates and it can recover – no dead neurons. (Parametric ReLU learns <span class="arithmatex">\(\alpha\)</span>.)</p>
+<h3 id="d-q4-b">D-Q4 (b)</h3>
+<p><strong>i) Parameters (6 inputs, 1 hidden layer of 5 neurons, 2 outputs, bias at each neuron) [2]</strong></p>
+<div class="arithmatex">\[
+\text{Hidden: }(6+1)\cdot5=35,\qquad \text{Output: }(5+1)\cdot2=12,\qquad \boxed{\text{Total}=35+12=47}
+\]</div>
+<p>(weights <span class="arithmatex">\(6\cdot5+5\cdot2=40\)</span>, biases <span class="arithmatex">\(5+2=7\)</span>.)</p>
+<p><strong>ii) How train / validation / test splitting reveals overfitting [2]</strong></p>
+<ul>
+<li><strong>Train set</strong> – used to learn the weights.</li>
+<li><strong>Validation set</strong> – used during training to tune hyper-parameters and monitor generalisation (early stopping).</li>
+<li><strong>Test set</strong> – touched once at the end for an unbiased estimate of the final performance.</li>
+</ul>
+<p>Plot train and validation loss against epochs: if the <strong>training error keeps falling but the validation (test) error starts to rise</strong> (large train–validation gap), the model is memorising the training data → <strong>overfitting</strong>. Training error alone always looks good, so a single set cannot show this. Remedies: more data, regularisation, dropout, early stopping, simpler model.</p>
+<p><strong>iii) Step function <span class="arithmatex">\(f(x)=1\)</span> if <span class="arithmatex">\(x\ge0\)</span>, else <span class="arithmatex">\(0\)</span> as the non-linearity with SGD [2]</strong></p>
+<p><strong>No, I would not follow the advice.</strong> SGD updates weights using gradients obtained by back-propagation, which needs <span class="arithmatex">\(f'(x)\)</span>. For the step function</p>
+<div class="arithmatex">\[
+f'(x)=0\ \ \text{for all }x\neq0\ \ (\text{undefined at }0)
+\]</div>
+<p>so the gradient passed to every earlier layer is <span class="arithmatex">\(0\)</span>, i.e. <span class="arithmatex">\(\partial L/\partial w=0\)</span>: the weights never change and <strong>the network cannot learn</strong> (the surface is flat and gives no direction that reduces the loss). It also gives only a binary output with no notion of "how far". Use ReLU / Leaky ReLU (or sigmoid/tanh) instead – differentiable (almost everywhere) with a useful non-zero gradient.</p>
+<hr />
+<h2 id="d-q5">D-Q5</h2>
+<h3 id="d-q5-a-architecture-of-lenet-5-with-hyper-parameters">D-Q5 (a) – Architecture of LeNet-5 with hyper-parameters</h3>
+<p><img alt="LeNet-5" src="assets/f_lenet.png" loading="lazy" class="zoom"></p>
+<p>Input: <span class="arithmatex">\(32\times32\times1\)</span> grayscale image (MNIST padded). <span class="arithmatex">\(F\)</span> = filter size, <span class="arithmatex">\(S\)</span> = stride, <span class="arithmatex">\(P\)</span> = padding, <span class="arithmatex">\(K\)</span> = number of filters.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Type</th>
+<th>Hyper-parameters</th>
+<th>Output</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INPUT</td>
+<td>image</td>
+<td>–</td>
+<td>32×32×1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>C1</td>
+<td>Conv</td>
+<td><span class="arithmatex">\(K=6,\ F=5,\ S=1,\ P=0\)</span>, tanh</td>
+<td>28×28×6</td>
+<td>156</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>Avg-pool</td>
+<td><span class="arithmatex">\(F=2,\ S=2\)</span></td>
+<td>14×14×6</td>
+<td>0 (12 in original)</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>Conv</td>
+<td><span class="arithmatex">\(K=16,\ F=5,\ S=1,\ P=0\)</span>, tanh</td>
+<td>10×10×16</td>
+<td>2,416 (1,516 sparse)</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>Avg-pool</td>
+<td><span class="arithmatex">\(F=2,\ S=2\)</span></td>
+<td>5×5×16</td>
+<td>0</td>
+</tr>
+<tr>
+<td>C5</td>
+<td>Conv (=FC)</td>
+<td><span class="arithmatex">\(K=120,\ F=5,\ S=1\)</span></td>
+<td>1×1×120</td>
+<td>48,120</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>FC</td>
+<td>84 units, tanh</td>
+<td>84</td>
+<td>10,164</td>
+</tr>
+<tr>
+<td>OUTPUT</td>
+<td>FC</td>
+<td>10 units, softmax/RBF</td>
+<td>10</td>
+<td>850</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td><strong>≈ 61,706</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>Flow: <span class="arithmatex">\(32\times32\to28\times28\to14\times14\to10\times10\to5\times5\to1\times1\to84\to10\)</span>, using <span class="arithmatex">\(W_2=\frac{W_1-F+2P}{S}+1\)</span> and conv params <span class="arithmatex">\(K(F^2D+1)\)</span>.</p>
+<h3 id="d-q5-b-mlp-for-3-variable-xor-with-one-hidden-layer">D-Q5 (b) – MLP for 3-variable XOR with one hidden layer</h3>
+<p>3-bit XOR (parity) <span class="arithmatex">\(=1\)</span> when an <strong>odd</strong> number of inputs are 1; it is not linearly separable, so a hidden layer is required.</p>
+<p>Hidden unit <span class="arithmatex">\(h_i\)</span> fires when at least <span class="arithmatex">\(i\)</span> inputs are on:</p>
+<div class="arithmatex">\[
+h_i=\mathbb 1\big[x_1+x_2+x_3\ge i\big],\quad i=1,2,3\qquad(\text{weights }1,1,1;\ \text{thresholds }1,2,3)
+\]</div>
+<p>Output: <span class="arithmatex">\(y=\mathbb 1\big[h_1-h_2+h_3-0.5\ge0\big]\)</span> (weights <span class="arithmatex">\(+1,-1,+1\)</span>, bias <span class="arithmatex">\(-0.5\)</span>).</p>
+<p><img alt="XOR3 network" src="assets/f_xor3.png" loading="lazy" class="zoom"></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th><span class="arithmatex">\(\sum x_i\)</span></th>
+<th><span class="arithmatex">\(h_1h_2h_3\)</span></th>
+<th><span class="arithmatex">\(h_1-h_2+h_3\)</span></th>
+<th><span class="arithmatex">\(y\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0 0 0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1 0 0</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1 1 0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>3</td>
+<td>1 1 1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Network:</strong> 3 inputs → 3 hidden perceptrons → 1 output perceptron.</p>
+<h3 id="d-q5-c-why-moving-against-the-gradient-minimises-the-function-back-propagation">D-Q5 (c) – Why moving against the gradient minimises the function; back-propagation</h3>
+<p><strong>Proof.</strong> Take a small step of size <span class="arithmatex">\(\eta\)</span> in a unit direction <span class="arithmatex">\(u\)</span> from <span class="arithmatex">\(w\)</span>. By the first-order Taylor expansion</p>
+<div class="arithmatex">\[
+L(w+\eta u)\approx L(w)+\eta\,\nabla L(w)\cdot u
+\]</div>
+<p>The change in loss is <span class="arithmatex">\(\eta\,\nabla L\cdot u=\eta\lVert\nabla L\rVert\cos\theta\)</span>, where <span class="arithmatex">\(\theta\)</span> is the angle between <span class="arithmatex">\(u\)</span> and <span class="arithmatex">\(\nabla L\)</span>. It is <strong>most negative when <span class="arithmatex">\(\cos\theta=-1\)</span></strong>, i.e. <span class="arithmatex">\(u=-\nabla L/\lVert\nabla L\rVert\)</span> (the direction opposite to the gradient). Hence the update</p>
+<div class="arithmatex">\[
+\boxed{w_{t+1}=w_t-\eta\,\nabla L(w_t)}\ \Rightarrow\ L(w_{t+1})\approx L(w_t)-\eta\lVert\nabla L(w_t)\rVert^2\le L(w_t)
+\]</div>
+<p>so the loss decreases for small <span class="arithmatex">\(\eta>0\)</span> (until <span class="arithmatex">\(\nabla L=0\)</span>, a minimum). <span class="arithmatex">\(\blacksquare\)</span></p>
+<p><strong>Back-propagation with the gradient-descent rule.</strong></p>
+<ol>
+<li><strong>Forward pass:</strong> for layer <span class="arithmatex">\(l\)</span>: <span class="arithmatex">\(z^{(l)}=W^{(l)}a^{(l-1)}+b^{(l)}\)</span>, <span class="arithmatex">\(a^{(l)}=f(z^{(l)})\)</span>; compute the loss <span class="arithmatex">\(L\)</span> at the output.</li>
+<li><strong>Output error:</strong> <span class="arithmatex">\(\delta^{(L)}=\dfrac{\partial L}{\partial a^{(L)}}\odot f'(z^{(L)})\)</span> (sigmoid + MSE: <span class="arithmatex">\(\delta=(y-t)\,y(1-y)\)</span>).</li>
+<li><strong>Propagate backwards (chain rule):</strong> <span class="arithmatex">\(\delta^{(l)}=\big(W^{(l+1)T}\delta^{(l+1)}\big)\odot f'(z^{(l)})\)</span>.</li>
+<li><strong>Gradients:</strong> <span class="arithmatex">\(\dfrac{\partial L}{\partial W^{(l)}}=\delta^{(l)}\,a^{(l-1)T},\qquad \dfrac{\partial L}{\partial b^{(l)}}=\delta^{(l)}\)</span>.</li>
+<li><strong>Gradient-descent update:</strong> <span class="arithmatex">\(W^{(l)}\leftarrow W^{(l)}-\eta\,\delta^{(l)}a^{(l-1)T},\quad b^{(l)}\leftarrow b^{(l)}-\eta\,\delta^{(l)}\)</span>.</li>
+<li>Repeat over mini-batches/epochs until the loss converges.</li>
+</ol>
+<p>Back-propagation is the chain rule applied layer by layer from the output, re-using the <span class="arithmatex">\(\delta\)</span> of the next layer, so all gradients come from one backward sweep.</p>
+<hr />
+<h2 id="d-q6">D-Q6</h2>
+<p>(Question number not visible in the screenshot; parts (b) and (c) are numbered here as Q6.)</p>
+<h3 id="d-q6-b-transfer-learning-and-its-cases-3">D-Q6 (b) – Transfer learning and its cases [3]</h3>
+<p><strong>Transfer learning</strong> means re-using the knowledge (learned weights/features) of a model trained on a large <strong>source</strong> task/dataset (e.g. ImageNet) to solve a different but related <strong>target</strong> task, usually with little data. Early layers learn generic features (edges, textures) that are useful across tasks, so we do not train from scratch. Benefits: less data, less training time, better accuracy, less over-fitting.</p>
+<p><strong>Cases</strong> (depend on the size of the target dataset and its similarity to the source):</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Target data</th>
+<th>Similarity to source</th>
+<th>What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Small</td>
+<td>High (similar)</td>
+<td>Freeze all conv layers, use the network as a <strong>fixed feature extractor</strong>, train only a new classifier (linear/softmax) on top. Fine-tuning would over-fit.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Small</td>
+<td>Low (different)</td>
+<td>Take features from <strong>earlier/generic layers</strong> only (later layers are source-specific), train a new classifier (e.g. SVM) on them; or use heavy augmentation.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Large</td>
+<td>High (similar)</td>
+<td><strong>Fine-tune</strong> the whole network (or most layers) starting from the pre-trained weights, with a small learning rate.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Large</td>
+<td>Low (different)</td>
+<td>Pre-trained weights are only used as <strong>initialisation</strong>; fine-tune/retrain the whole network (or train from scratch).</td>
+</tr>
+</tbody>
+</table></div>
+<p>Other common forms: <strong>feature extraction</strong> (freeze) vs <strong>fine-tuning</strong> (unfreeze some/all layers); by task type – <em>inductive</em> (target labelled), <em>transductive</em> (same task, different domain – domain adaptation), <em>unsupervised</em> transfer.</p>
+<p>Typical procedure: load pre-trained model → remove the last layer → add a new layer for the target classes → freeze early layers → train → optionally unfreeze deeper layers and fine-tune with a low learning rate.</p>
+<h3 id="d-q6-c-advantages-of-skip-connections">D-Q6 (c) – Advantages of skip connections</h3>
+<p>A <strong>skip (shortcut) connection</strong> adds the input of a block to its output, e.g. in ResNet <span class="arithmatex">\(y=\mathcal F(x,\{W_i\})+x\)</span>, or concatenates earlier feature maps (DenseNet, U-Net).</p>
+<ol>
+<li><strong>Mitigates vanishing gradients:</strong> <span class="arithmatex">\(\dfrac{\partial y}{\partial x}=\dfrac{\partial\mathcal F}{\partial x}+1\)</span>, so the gradient always has an identity path back to earlier layers and does not shrink to zero – very deep networks (50–1000 layers) can be trained.</li>
+<li><strong>Solves the degradation problem:</strong> a deeper plain net can have higher training error; with skip connections a block can learn the identity (<span class="arithmatex">\(\mathcal F\to0\)</span>) easily, so extra layers do not hurt.</li>
+<li><strong>Easier optimisation / faster convergence:</strong> the block only learns the <em>residual</em> <span class="arithmatex">\(\mathcal F(x)=H(x)-x\)</span>, which is easier than learning the full mapping; the loss surface is smoother.</li>
+<li><strong>Feature re-use and information flow:</strong> low-level (fine, spatial) features are passed directly to later layers; in U-Net skips restore spatial detail lost by down-sampling.</li>
+<li><strong>Better accuracy / generalisation</strong> with no extra parameters and almost no extra computation (the identity shortcut is parameter-free).</li>
+</ol>
+<hr />
+<h2 id="d-q7">D-Q7</h2>
+<p>(Numbered 4(a), 4(b) in the newest screenshot; shown here as D-Q7.)</p>
+<h3 id="d-q7-a-encoder-decoder-seq2seq-architecture">D-Q7 (a) – Encoder–Decoder (seq2seq) architecture</h3>
+<p><strong>Idea.</strong> Two networks (RNN/LSTM/GRU, or Transformer blocks) joined by a fixed-size summary:</p>
+<ul>
+<li><strong>Encoder</strong> reads the input sequence <span class="arithmatex">\(x_1,\dots,x_T\)</span> one token at a time and compresses it into a <strong>context vector</strong> <span class="arithmatex">\(c\)</span> (the final hidden state): <span class="arithmatex">\(h_t=f(h_{t-1},x_t),\ c=h_T\)</span>.</li>
+<li><strong>Decoder</strong> is initialised with <span class="arithmatex">\(c\)</span> and generates the output sequence <span class="arithmatex">\(y_1,\dots,y_{T'}\)</span> one token at a time: <span class="arithmatex">\(s_t=g(s_{t-1},y_{t-1},c),\ P(y_t\mid y_{&lt;t},x)=\text{softmax}(W s_t)\)</span>, starting from a <code>&lt;sos&gt;</code> token and stopping when it emits <code>&lt;eos&gt;</code>.</li>
+</ul>
+<div class="arithmatex">\[
+P(y_1,\dots,y_{T'}\mid x_1,\dots,x_T)=\prod_{t=1}^{T'}P(y_t\mid y_{<t},c)
+\]</div>
+<p><strong>Variable-length input and output.</strong> The encoder loops for as many steps as the input has tokens (any <span class="arithmatex">\(T\)</span>) and always ends with a fixed-size vector <span class="arithmatex">\(c\)</span>; the decoder loops until it produces <code>&lt;eos&gt;</code> (any <span class="arithmatex">\(T'\)</span>). Input and output lengths are therefore independent (<span class="arithmatex">\(T\ne T'\)</span> is fine). In batches, sequences are padded to the same length and masked. <strong>Attention</strong> removes the fixed-vector bottleneck: at each step the decoder uses <span class="arithmatex">\(c_t=\sum_i\alpha_{ti}h_i\)</span> with weights <span class="arithmatex">\(\alpha_{ti}=\text{softmax}(\text{score}(s_{t-1},h_i))\)</span>, which helps for long sentences.</p>
+<p><strong>Example – machine translation (English → French):</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input</td>
+<td>"I love deep learning" (4 tokens)</td>
+</tr>
+<tr>
+<td>Encoder</td>
+<td>processes <code>I</code>, <code>love</code>, <code>deep</code>, <code>learning</code> → context <span class="arithmatex">\(c\)</span></td>
+</tr>
+<tr>
+<td>Decoder</td>
+<td><code>&lt;sos&gt;</code> → "J'" → "aime" → "l'apprentissage" → "profond" → <code>&lt;eos&gt;</code></td>
+</tr>
+<tr>
+<td>Output</td>
+<td>"J'aime l'apprentissage profond" (different length, different word order)</td>
+</tr>
+</tbody>
+</table></div>
+<p>Other uses: summarisation, speech recognition, image captioning (CNN encoder + RNN decoder), chatbots.</p>
+<h3 id="d-q7-b-positional-encoding-in-transformers">D-Q7 (b) – Positional encoding in Transformers</h3>
+<p><strong>Role.</strong> Positional encoding injects information about the <strong>order/position</strong> of each token into its embedding, so the model knows <em>where</em> a word is: <span class="arithmatex">\(\text{input}_t=\text{embedding}(x_t)+PE(t)\)</span>.</p>
+<p><strong>Why self-attention alone cannot see order.</strong> Self-attention <span class="arithmatex">\(\text{softmax}\!\big(QK^T/\sqrt{d_k}\big)V\)</span> treats the input as an unordered <strong>set</strong>: it is <em>permutation-equivariant</em> – if the tokens are shuffled, the outputs are just shuffled in the same way, and each token's output (a weighted sum over all tokens) does not depend on where the others sit. Unlike an RNN (which reads left-to-right) or a CNN (local windows), nothing in it encodes position. Hence "dog bites man" and "man bites dog" would get the same bag of representations.</p>
+<p><strong>Sinusoidal encoding</strong> (Vaswani et al.), position <span class="arithmatex">\(pos\)</span>, dimension index <span class="arithmatex">\(i\)</span>:</p>
+<div class="arithmatex">\[
+PE_{(pos,2i)}=\sin\!\Big(\frac{pos}{10000^{2i/d}}\Big),\qquad PE_{(pos,2i+1)}=\cos\!\Big(\frac{pos}{10000^{2i/d}}\Big)
+\]</div>
+<p>Each position gets a unique vector; different dimensions have different wavelengths; relative offsets <span class="arithmatex">\(PE_{pos+k}\)</span> are a linear function of <span class="arithmatex">\(PE_{pos}\)</span> (easy for attention to learn relative position) and it extends to longer sequences. (Learned positional embeddings, relative or rotary encodings are alternatives.)</p>
+<p><strong>Illustration</strong> (<span class="arithmatex">\(d=4\)</span>): for the sentence "The cat sat",</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>pos</th>
+<th><span class="arithmatex">\(\sin(pos/1)\)</span></th>
+<th><span class="arithmatex">\(\cos(pos/1)\)</span></th>
+<th><span class="arithmatex">\(\sin(pos/100)\)</span></th>
+<th><span class="arithmatex">\(\cos(pos/100)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 (The)</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1 (cat)</td>
+<td>0.841</td>
+<td>0.540</td>
+<td>0.010</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>2 (sat)</td>
+<td>0.909</td>
+<td>−0.416</td>
+<td>0.020</td>
+<td>1.000</td>
+</tr>
+</tbody>
+</table></div>
+<p>Without PE, "cat sat The" would produce the same set of vectors; with PE the three words get different position-dependent vectors, so the order "The cat sat" is distinguishable from "sat cat The".</p>
+<hr />
+<h2 id="d-q8">D-Q8</h2>
+<h3 id="d-q8-a-gan-architecture-limitations-of-vanilla-gan-dcgan-and-cyclegan">D-Q8 (a) – GAN architecture, limitations of vanilla GAN, DCGAN and CycleGAN</h3>
+<p><strong>Architecture.</strong> Two networks play a minimax game:</p>
+<ul>
+<li><strong>Generator <span class="arithmatex">\(G(z)\)</span></strong> – maps random noise <span class="arithmatex">\(z\sim p_z\)</span> to a fake sample.</li>
+<li><strong>Discriminator <span class="arithmatex">\(D(x)\)</span></strong> – outputs the probability that <span class="arithmatex">\(x\)</span> is real (from the data) rather than generated.</li>
+</ul>
+<div class="arithmatex">\[
+\min_G\max_D\ V(D,G)=\mathbb E_{x\sim p_{data}}[\log D(x)]+\mathbb E_{z\sim p_z}[\log(1-D(G(z)))]
+\]</div>
+<p>Training alternates: update <span class="arithmatex">\(D\)</span> to tell real from fake, update <span class="arithmatex">\(G\)</span> to fool <span class="arithmatex">\(D\)</span> (in practice maximise <span class="arithmatex">\(\log D(G(z))\)</span>). At the optimum <span class="arithmatex">\(p_g=p_{data}\)</span> and <span class="arithmatex">\(D(x)=\tfrac12\)</span>.</p>
+<p><strong>Limitations of the vanilla GAN</strong></p>
+<ol>
+<li><strong>Training instability / non-convergence</strong> – the two players oscillate; no stable equilibrium.</li>
+<li><strong>Mode collapse</strong> – <span class="arithmatex">\(G\)</span> produces only a few kinds of samples.</li>
+<li><strong>Vanishing gradients</strong> – if <span class="arithmatex">\(D\)</span> becomes too good, <span class="arithmatex">\(\log(1-D(G(z)))\)</span> saturates and <span class="arithmatex">\(G\)</span> gets no gradient.</li>
+<li><strong>No useful loss metric</strong> and hard evaluation; sensitive to hyper-parameters.</li>
+<li>Uses fully-connected layers → poor, blurry images; needs <em>paired/unpaired control</em> for translation (none).</li>
+</ol>
+<p><strong>DCGAN (Deep Convolutional GAN)</strong> – stabilises training by architecture guidelines: replace pooling by <strong>strided convolutions</strong> (D) and <strong>transposed (fractional-strided) convolutions</strong> (G); use <strong>batch normalisation</strong> in both; remove fully-connected hidden layers; <strong>ReLU</strong> in <span class="arithmatex">\(G\)</span> (tanh at output), <strong>LeakyReLU</strong> in <span class="arithmatex">\(D\)</span>. Result: stable training, sharper high-quality images, meaningful latent-space arithmetic.</p>
+<p><strong>CycleGAN</strong> – image-to-image translation with <strong>unpaired</strong> data (e.g. horse ↔ zebra, photo ↔ painting). Two generators <span class="arithmatex">\(G:X\to Y\)</span>, <span class="arithmatex">\(F:Y\to X\)</span> and two discriminators <span class="arithmatex">\(D_Y,D_X\)</span>, plus a <strong>cycle-consistency loss</strong> that forces a translated image to come back:</p>
+<div class="arithmatex">\[
+\mathcal L_{cyc}=\mathbb E_x\lVert F(G(x))-x\rVert_1+\mathbb E_y\lVert G(F(y))-y\rVert_1,\qquad
+\mathcal L=\mathcal L_{GAN}(G,D_Y)+\mathcal L_{GAN}(F,D_X)+\lambda\mathcal L_{cyc}
+\]</div>
+<p>This removes the need for paired images, and the cycle constraint reduces mode collapse (the mapping must preserve content).</p>
+<h3 id="d-q8-b-u-net-and-the-bellman-equation-in-q-learning">D-Q8 (b) – U-Net, and the Bellman equation in Q-learning</h3>
+<p><strong>U-Net architecture (biomedical image segmentation).</strong> A fully convolutional encoder–decoder shaped like a "U", trained with few images (heavy augmentation):</p>
+<ul>
+<li><strong>Contracting path (encoder, left):</strong> repeated blocks of two <span class="arithmatex">\(3\times3\)</span> convolutions + ReLU, followed by <span class="arithmatex">\(2\times2\)</span> max-pooling (stride 2); the number of channels doubles at each level (64→128→256→512→1024) – captures <em>context</em> (what is in the image).</li>
+<li><strong>Bottleneck:</strong> two <span class="arithmatex">\(3\times3\)</span> convs at the lowest resolution.</li>
+<li><strong>Expanding path (decoder, right):</strong> <span class="arithmatex">\(2\times2\)</span> up-convolution (transposed conv) that halves the channels, <strong>concatenation with the cropped feature map from the same level of the encoder (skip connection)</strong>, then two <span class="arithmatex">\(3\times3\)</span> convs + ReLU – recovers <em>localisation</em> (where).</li>
+<li><strong>Output:</strong> a <span class="arithmatex">\(1\times1\)</span> convolution maps each pixel's feature vector to the class scores (e.g. cell / background), giving a <strong>pixel-wise segmentation map</strong> (softmax + cross-entropy or Dice loss).</li>
+</ul>
+<p>The skip connections give the decoder the fine spatial detail lost by pooling, so boundaries are precise even with small training sets; the overlap-tile strategy handles large images. Used for cells, tumours, organs, etc.</p>
+<p><strong>Bellman equation in Q-learning.</strong> In reinforcement learning an agent in state <span class="arithmatex">\(s\)</span> takes action <span class="arithmatex">\(a\)</span>, receives reward <span class="arithmatex">\(r\)</span> and moves to <span class="arithmatex">\(s'\)</span>. The action-value <span class="arithmatex">\(Q(s,a)\)</span> is the expected discounted return when taking <span class="arithmatex">\(a\)</span> in <span class="arithmatex">\(s\)</span> and acting optimally afterwards. The <strong>Bellman optimality equation</strong> expresses it recursively:</p>
+<div class="arithmatex">\[
+Q^*(s,a)=\mathbb E\Big[\,r+\gamma\max_{a'}Q^*(s',a')\ \Big|\ s,a\Big]
+\]</div>
+<p>with discount factor <span class="arithmatex">\(0\le\gamma\le1\)</span>. Q-learning turns this into an iterative <strong>temporal-difference update</strong> from each observed transition <span class="arithmatex">\((s,a,r,s')\)</span>:</p>
+<div class="arithmatex">\[
+\boxed{Q(s,a)\leftarrow Q(s,a)+\alpha\Big[\underbrace{r+\gamma\max_{a'}Q(s',a')}_{\text{Bellman target}}-Q(s,a)\Big]}
+\]</div>
+<p>(<span class="arithmatex">\(\alpha\)</span> = learning rate; the bracket is the TD error.) Actions are chosen with an <span class="arithmatex">\(\varepsilon\)</span>-greedy policy (explore/exploit). Repeating the update makes <span class="arithmatex">\(Q\)</span> converge to <span class="arithmatex">\(Q^*\)</span>, and the optimal policy is <span class="arithmatex">\(\pi^*(s)=\arg\max_aQ^*(s,a)\)</span>. In <strong>Deep Q-Networks (DQN)</strong> a neural network approximates <span class="arithmatex">\(Q(s,a;\theta)\)</span> and minimises <span class="arithmatex">\(\big(r+\gamma\max_{a'}Q(s',a';\theta^-)-Q(s,a;\theta)\big)^2\)</span> using experience replay and a target network.</p>
+<hr />
+<h2 id="d-q9">D-Q9</h2>
+<p>(Newest screenshots, numbered 1, 2, 3 in the paper; shown here as D-Q9 to D-Q11.)</p>
+<h3 id="d-q9-a-autoencoder-denoising-autoencoder-noise-robust-features">D-Q9 (a) – Autoencoder, denoising autoencoder, noise-robust features</h3>
+<p><strong>Autoencoder.</strong> An unsupervised neural network trained to <strong>reconstruct its own input</strong> through a narrow bottleneck:</p>
+<ul>
+<li><strong>Encoder</strong> <span class="arithmatex">\(h=f(Wx+b)\)</span> compresses <span class="arithmatex">\(x\)</span> to a low-dimensional <strong>code</strong> <span class="arithmatex">\(h\)</span>;</li>
+<li><strong>Decoder</strong> <span class="arithmatex">\(\hat x=g(W'h+b')\)</span> reconstructs the input;</li>
+<li><strong>Loss:</strong> <span class="arithmatex">\(L=\lVert x-\hat x\rVert^2\)</span> (MSE) or cross-entropy for binary data.</li>
+</ul>
+<p>Because the code is smaller than the input, the network must learn the most informative features (non-linear generalisation of PCA). Uses: dimensionality reduction, feature learning, anomaly detection, pre-training.</p>
+<p><strong>Denoising autoencoder (DAE) vs vanilla autoencoder</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th>Vanilla AE</th>
+<th>Denoising AE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input to encoder</td>
+<td>clean <span class="arithmatex">\(x\)</span></td>
+<td><strong>corrupted</strong> <span class="arithmatex">\(\tilde x\)</span> (Gaussian noise, masking/dropout of some pixels)</td>
+</tr>
+<tr>
+<td>Target of the loss</td>
+<td><span class="arithmatex">\(x\)</span></td>
+<td>the <strong>original clean</strong> <span class="arithmatex">\(x\)</span></td>
+</tr>
+<tr>
+<td>Loss</td>
+<td><span class="arithmatex">\(\lVert x-g(f(x))\rVert^2\)</span></td>
+<td><span class="arithmatex">\(\lVert x-g(f(\tilde x))\rVert^2\)</span></td>
+</tr>
+<tr>
+<td>Risk</td>
+<td>may learn the <strong>identity</strong> (copy input), especially if the code is large</td>
+<td>cannot just copy – it must remove noise, so it learns the structure of the data</td>
+</tr>
+<tr>
+<td>Features</td>
+<td>can be fragile</td>
+<td><strong>robust</strong> to noise and small perturbations</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Noise-robust feature learning.</strong> Since the network is trained to map many different noisy versions of <span class="arithmatex">\(x\)</span> back to the same clean <span class="arithmatex">\(x\)</span>, the code <span class="arithmatex">\(h\)</span> keeps only the stable, high-level structure (shapes, edges, correlations) and ignores random noise. These features are used for image/audio denoising, inpainting of missing parts, robust pre-training of classifiers (stacked DAE), and anomaly detection (large reconstruction error).</p>
+<h3 id="d-q9-b-scaled-dot-product-attention-numerical">D-Q9 (b) – Scaled dot-product attention (numerical)</h3>
+<p>Given <span class="arithmatex">\(Q=[1,2]\)</span>, keys <span class="arithmatex">\(k_1=[1,0],\ k_2=[0,2]\)</span>, values <span class="arithmatex">\(v_1=[1,1],\ v_2=[3,1]\)</span>, <span class="arithmatex">\(d_k=2\)</span>.</p>
+<div class="arithmatex">\[
+\text{Attention}(Q,K,V)=\text{softmax}\!\Big(\frac{QK^T}{\sqrt{d_k}}\Big)V
+\]</div>
+<p><strong>1. Dot-product scores</strong></p>
+<div class="arithmatex">\[
+Q\cdot k_1=1\cdot1+2\cdot0=1,\qquad Q\cdot k_2=1\cdot0+2\cdot2=4\ \Rightarrow\ \boxed{[1,\ 4]}
+\]</div>
+<p><strong>2. Scaled scores</strong> (divide by <span class="arithmatex">\(\sqrt{d_k}=\sqrt2\approx1.414\)</span>)</p>
+<div class="arithmatex">\[
+\Big[\tfrac{1}{1.414},\ \tfrac{4}{1.414}\Big]=\boxed{[0.707,\ 2.828]}
+\]</div>
+<p><strong>3. Softmax attention weights</strong></p>
+<div class="arithmatex">\[
+e^{0.707}=2.028,\quad e^{2.828}=16.919,\quad \text{sum}=18.947
+\]</div>
+<div class="arithmatex">\[
+\alpha_1=\frac{2.028}{18.947}=0.107,\qquad \alpha_2=\frac{16.919}{18.947}=0.893\ \Rightarrow\ \boxed{[0.107,\ 0.893]}
+\]</div>
+<p><strong>4. Final output</strong> (weighted sum of the values)</p>
+<div class="arithmatex">\[
+\text{out}=0.107\,[1,1]+0.893\,[3,1]=[0.107+2.679,\ 0.107+0.893]=\boxed{[2.786,\ 1.000]}
+\]</div>
+<p>The query is much closer to <span class="arithmatex">\(k_2\)</span>, so the output is dominated by <span class="arithmatex">\(v_2\)</span>.</p>
+<hr />
+<h2 id="d-q10">D-Q10</h2>
+<h3 id="d-q10-a-gru-architecture-vanishing-gradient-gru-vs-simple-rnn">D-Q10 (a) – GRU architecture, vanishing gradient, GRU vs simple RNN</h3>
+<p><strong>GRU</strong> (Cho et al., 2014) is a simplified LSTM with <strong>two gates</strong> and no separate cell state. Gates act on <span class="arithmatex">\(x_t\)</span> and <span class="arithmatex">\(h_{t-1}\)</span>:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\text{update gate: }&amp;u_t=\sigma(W_ux_t+U_uh_{t-1}+b_u)\\
+\text{reset gate: }&amp;r_t=\sigma(W_rx_t+U_rh_{t-1}+b_r)\\
+\text{candidate: }&amp;\tilde h_t=\tanh\big(W_hx_t+U_h(r_t\odot h_{t-1})+b_h\big)\\
+\text{new state: }&amp;h_t=(1-u_t)\odot h_{t-1}+u_t\odot\tilde h_t
+\end{aligned}
+\]</div>
+<ul>
+<li><strong>Update gate</strong> <span class="arithmatex">\(u_t\)</span>: how much of the old state to keep vs replace by the new candidate (acts like LSTM's forget + input gates).</li>
+<li><strong>Reset gate</strong> <span class="arithmatex">\(r_t\)</span>: how much of the past to use when forming the candidate (<span class="arithmatex">\(r_t\to0\)</span> ignores history).</li>
+</ul>
+<p><strong>How it mitigates vanishing gradients.</strong> The state update is <strong>additive/convex</strong>: <span class="arithmatex">\(\partial h_t/\partial h_{t-1}\approx(1-u_t)+\dots\)</span>. When <span class="arithmatex">\(u_t\approx0\)</span>, <span class="arithmatex">\(h_t\approx h_{t-1}\)</span> and the gradient passes through unchanged (like the LSTM cell-state highway), instead of being multiplied by <span class="arithmatex">\(W^T\,\text{diag}(\tanh')\)</span> at every step as in a simple RNN. The gates are learned, so the network decides when to keep information over long spans.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th>Simple RNN</th>
+<th>GRU</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Update</td>
+<td><span class="arithmatex">\(h_t=\tanh(Wx_t+Uh_{t-1}+b)\)</span> – overwritten completely every step</td>
+<td><span class="arithmatex">\(h_t=(1-u_t)\odot h_{t-1}+u_t\odot\tilde h_t\)</span> – selective</td>
+</tr>
+<tr>
+<td>Gates</td>
+<td>none</td>
+<td>update and reset</td>
+</tr>
+<tr>
+<td>Memory retention</td>
+<td>short-term only; old information is washed out</td>
+<td>can <strong>retain information for long</strong> (update gate ≈ 0), can also forget (reset)</td>
+</tr>
+<tr>
+<td>Gradient</td>
+<td>vanishes/explodes (repeated product)</td>
+<td>additive path → much more stable</td>
+</tr>
+<tr>
+<td>Parameters</td>
+<td><span class="arithmatex">\(1\)</span> weight block</td>
+<td><span class="arithmatex">\(3\)</span> weight blocks (≈3× RNN, fewer than LSTM's 4)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="d-q10-b-i-simple-rnn-step">D-Q10 (b)(i) – Simple RNN step</h3>
+<p>Reading the matrices row-wise: <span class="arithmatex">\(W=\begin{bmatrix}0.1&amp;-0.2\\0.4&amp;0.3\end{bmatrix},\ U=\begin{bmatrix}0.3&amp;0.1\\-0.2&amp;0.2\end{bmatrix}\)</span>, <span class="arithmatex">\(b=0\)</span>.</p>
+<div class="arithmatex">\[
+h_t=\tanh(Wx_t+Uh_{t-1}+b)
+\]</div>
+<div class="arithmatex">\[
+Wx_t=\begin{bmatrix}0.1(0.2)-0.2(-0.4)\\0.4(0.2)+0.3(-0.4)\end{bmatrix}=\begin{bmatrix}0.02+0.08\\0.08-0.12\end{bmatrix}=\begin{bmatrix}0.10\\-0.04\end{bmatrix}
+\]</div>
+<div class="arithmatex">\[
+Uh_{t-1}=\begin{bmatrix}0.3(0.3)+0.1(0.5)\\-0.2(0.3)+0.2(0.5)\end{bmatrix}=\begin{bmatrix}0.09+0.05\\-0.06+0.10\end{bmatrix}=\begin{bmatrix}0.14\\0.04\end{bmatrix}
+\]</div>
+<div class="arithmatex">\[
+Wx_t+Uh_{t-1}=\begin{bmatrix}0.24\\0.00\end{bmatrix}\ \Rightarrow\ \boxed{h_t=\begin{bmatrix}\tanh(0.24)\\\tanh(0)\end{bmatrix}\approx\begin{bmatrix}0.2355\\0\end{bmatrix}}
+\]</div>
+<hr />
+<h2 id="d-q11">D-Q11</h2>
+<h3 id="d-q11-a-alexnet-vs-googlenet-why-inception-modules">D-Q11 (a) – AlexNet vs GoogLeNet; why Inception modules</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>AlexNet (2012)</th>
+<th>GoogLeNet / Inception-v1 (2014)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Layer design</td>
+<td>8 weight layers: 5 conv + 3 FC; large filters (11×11, 5×5), sequential stack; ReLU, dropout, LRN</td>
+<td>22 layers with <strong>9 Inception modules</strong> stacked; parallel 1×1, 3×3, 5×5 convs + pooling; auxiliary classifiers</td>
+</tr>
+<tr>
+<td>Parameters</td>
+<td>≈ <strong>60 M</strong> (most in the 3 FC layers, ~4096-wide)</td>
+<td>≈ <strong>6–7 M</strong> (≈ 9× fewer): no big FC layers, <strong>global average pooling</strong> + one FC</td>
+</tr>
+<tr>
+<td>Computation</td>
+<td>≈ 0.7 GFLOPs</td>
+<td>≈ 1.5 GFLOPs (but far fewer params)</td>
+</tr>
+<tr>
+<td>Feature extraction</td>
+<td>one filter size per layer – the designer must choose it</td>
+<td><strong>multi-scale</strong> features in every module (small and large receptive fields concatenated)</td>
+</tr>
+<tr>
+<td>Dimension reduction</td>
+<td>none</td>
+<td><strong>1×1 "bottleneck" convolutions</strong> before 3×3/5×5</td>
+</tr>
+<tr>
+<td>Depth / efficiency</td>
+<td>shallow, memory heavy, over-fitting prone (needs dropout)</td>
+<td>deeper yet efficient, less over-fitting; top-5 error 6.7 % vs 15.3 %</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why Inception modules?</strong></p>
+<ol>
+<li>Objects appear at <strong>different scales</strong>; a single filter size fits poorly. The module applies 1×1, 3×3, 5×5 convolutions and 3×3 max-pooling <strong>in parallel</strong> and concatenates the outputs, so the network picks the useful scale itself.</li>
+<li><strong>1×1 convolutions reduce channels</strong> first (e.g. 192→16 before a 5×5), cutting computation and parameters massively while adding extra non-linearity.</li>
+<li>Approximates a <strong>sparse</strong> network with dense, hardware-friendly blocks → deeper/wider networks within a fixed compute budget.</li>
+<li>Global average pooling replaces FC layers → far fewer parameters, less over-fitting.</li>
+</ol>
+<h3 id="d-q11-b-feature-map-sizes">D-Q11 (b) – Feature-map sizes</h3>
+<p>Input <span class="arithmatex">\(64\times64\times3\)</span>. Formula <span class="arithmatex">\(W_2=\dfrac{W_1-F+2P}{S}+1\)</span>.</p>
+<p><strong>Layer 1 – Conv, 32 filters <span class="arithmatex">\(5\times5\)</span>, <span class="arithmatex">\(S=1\)</span>, <span class="arithmatex">\(P=2\)</span></strong></p>
+<div class="arithmatex">\[
+\frac{64-5+2\cdot2}{1}+1=64\ \Rightarrow\ \boxed{64\times64\times32},\qquad\text{Params}=(5\cdot5\cdot3+1)\cdot32=2{,}432
+\]</div>
+<p><strong>Layer 2 – Max-pool <span class="arithmatex">\(2\times2\)</span>, <span class="arithmatex">\(S=2\)</span></strong></p>
+<div class="arithmatex">\[
+\frac{64-2}{2}+1=32\ \Rightarrow\ \boxed{32\times32\times32},\qquad\text{Params}=0
+\]</div>
+<p><strong>Layer 3 – Conv, 64 filters <span class="arithmatex">\(3\times3\)</span>, <span class="arithmatex">\(S=1\)</span>, <span class="arithmatex">\(P=1\)</span></strong></p>
+<div class="arithmatex">\[
+\frac{32-3+2\cdot1}{1}+1=32\ \Rightarrow\ \boxed{32\times32\times64},\qquad\text{Params}=(3\cdot3\cdot32+1)\cdot64=18{,}496
+\]</div>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Output</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input</td>
+<td>64×64×3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Conv 5×5, 32 (P=2)</td>
+<td>64×64×32</td>
+<td>2,432</td>
+</tr>
+<tr>
+<td>MaxPool 2×2, S=2</td>
+<td>32×32×32</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Conv 3×3, 64 (P=1)</td>
+<td>32×32×64</td>
+<td>18,496</td>
+</tr>
+</tbody>
+</table></div>
+<p>(Both convolutions use "same" padding, so only the pooling layer reduces the spatial size.)</p>
+<hr />
+<h2 id="d-q12">D-Q12</h2>
+<p>(Newest screenshots: paper with CO/BL tags; numbered 1(a)–5(b) there, shown here as D-Q12 to D-Q16.)</p>
+<h3 id="d-q12-a-supervised-vs-unsupervised-learning-5">D-Q12 (a) – Supervised vs unsupervised learning [5]</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th>Supervised learning</th>
+<th>Unsupervised learning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data</td>
+<td><strong>labelled</strong>: <span class="arithmatex">\(D=\{(x_i,y_i):i\le N\}\)</span> – each input <span class="arithmatex">\(x_i\)</span> has a target <span class="arithmatex">\(y_i\)</span></td>
+<td><strong>unlabelled</strong>: <span class="arithmatex">\(D=\{x_i:i\le N\}\)</span> – no targets</td>
+</tr>
+<tr>
+<td>Goal</td>
+<td>learn a mapping <span class="arithmatex">\(f:x\to y\)</span> that predicts <span class="arithmatex">\(y\)</span> for new <span class="arithmatex">\(x\)</span></td>
+<td>discover hidden structure / distribution of <span class="arithmatex">\(x\)</span></td>
+</tr>
+<tr>
+<td>Learning signal</td>
+<td>error between prediction <span class="arithmatex">\(\hat y_i=f(x_i;w)\)</span> and <span class="arithmatex">\(y_i\)</span></td>
+<td>no explicit error; uses similarity, reconstruction, likelihood</td>
+</tr>
+<tr>
+<td>Typical tasks</td>
+<td>classification, regression</td>
+<td>clustering, dimensionality reduction, density estimation, auto-encoding</td>
+</tr>
+<tr>
+<td>Examples</td>
+<td>perceptron, MLP, CNN, SVM</td>
+<td>k-means, PCA, autoencoder, GAN</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Supervised scheme on <span class="arithmatex">\(D=\{(x_i,y_i)\}\)</span>.</strong> Choose a model <span class="arithmatex">\(f(x;w)\)</span> and a loss <span class="arithmatex">\(L\)</span>, and minimise the empirical risk</p>
+<div class="arithmatex">\[
+w^*=\arg\min_w\ \frac1N\sum_{i=1}^{N}L\big(f(x_i;w),\,y_i\big)
+\]</div>
+<p>(e.g. squared loss for regression <span class="arithmatex">\(y_i\in\mathbb R\)</span>, cross-entropy for classification <span class="arithmatex">\(y_i\in\{1..K\}\)</span>) by gradient descent; generalisation is checked on unseen data.</p>
+<p><strong>Unsupervised scheme on <span class="arithmatex">\(D=\{x_i\}\)</span>.</strong> There is no <span class="arithmatex">\(y_i\)</span>; we learn <span class="arithmatex">\(w\)</span> by optimising an objective defined on the inputs only, e.g. clustering <span class="arithmatex">\(\min\sum_i\lVert x_i-\mu_{c(i)}\rVert^2\)</span> (k-means), or reconstruction <span class="arithmatex">\(\min\sum_i\lVert x_i-g(f(x_i))\rVert^2\)</span> (autoencoder), or maximum likelihood <span class="arithmatex">\(\max\sum_i\log p(x_i;w)\)</span>.</p>
+<h3 id="d-q12-b-single-layer-perceptron-for-logic-circuits-5">D-Q12 (b) – Single-layer perceptron for logic circuits [5]</h3>
+<p>Perceptron: <span class="arithmatex">\(y=\mathbb 1\big[w_1x_1+w_2x_2+\beta\ge0\big]\)</span>.</p>
+<p><strong>i) OR gate:</strong> <span class="arithmatex">\(W=(1,\,1),\ \beta=-0.5\)</span></p>
+<p><strong>ii) AND gate:</strong> <span class="arithmatex">\(W=(1,\,1),\ \beta=-1.5\)</span></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th><span class="arithmatex">\(x_1x_2\)</span></th>
+<th>OR: <span class="arithmatex">\(x_1+x_2-0.5\)</span></th>
+<th>OR <span class="arithmatex">\(y\)</span></th>
+<th>AND: <span class="arithmatex">\(x_1+x_2-1.5\)</span></th>
+<th>AND <span class="arithmatex">\(y\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>00</td>
+<td>−0.5</td>
+<td>0</td>
+<td>−1.5</td>
+<td>0</td>
+</tr>
+<tr>
+<td>01</td>
+<td>0.5</td>
+<td>1</td>
+<td>−0.5</td>
+<td>0</td>
+</tr>
+<tr>
+<td>10</td>
+<td>0.5</td>
+<td>1</td>
+<td>−0.5</td>
+<td>0</td>
+</tr>
+<tr>
+<td>11</td>
+<td>1.5</td>
+<td>1</td>
+<td>0.5</td>
+<td>1</td>
+</tr>
+</tbody>
+</table></div>
+<p>(Any <span class="arithmatex">\(\beta\in(-1,0]\)</span> works for OR and <span class="arithmatex">\(\beta\in(-2,-1]\)</span> for AND with weights <span class="arithmatex">\((1,1)\)</span>.)</p>
+<p><strong>iii) Cascade: AND gate first, then an OR gate whose inputs are the AND output and the source input <span class="arithmatex">\(x_2\)</span>.</strong></p>
+<ul>
+<li>Neuron 1 (AND): <span class="arithmatex">\(a=\mathbb 1[x_1+x_2-1.5\ge0]\)</span>, <span class="arithmatex">\(W_1=(1,1),\ \beta_1=-1.5\)</span></li>
+<li>Neuron 2 (OR): <span class="arithmatex">\(y=\mathbb 1[a+x_2-0.5\ge0]\)</span>, <span class="arithmatex">\(W_2=(1,1)\)</span> on <span class="arithmatex">\((a,x_2)\)</span>, <span class="arithmatex">\(\beta_2=-0.5\)</span></li>
+</ul>
+<p><img alt="Circuit" src="assets/f_circuit.png" loading="lazy" class="zoom"></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th><span class="arithmatex">\(x_1x_2\)</span></th>
+<th><span class="arithmatex">\(a=x_1\wedge x_2\)</span></th>
+<th><span class="arithmatex">\(y=a\vee x_2\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>00</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>01</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>10</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>11</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table></div>
+<p>Output <span class="arithmatex">\(y=x_1x_2+x_2=x_2\)</span> (absorption law). Two perceptrons in series are needed because the circuit has two gates; the overall function happens to equal <span class="arithmatex">\(x_2\)</span>.</p>
+<hr />
+<h2 id="d-q13">D-Q13</h2>
+<h3 id="d-q13-a-gradient-descent-and-its-variants-5">D-Q13 (a) – Gradient descent and its variants [5]</h3>
+<p><strong>Gradient descent (GD)</strong> minimises the training loss <span class="arithmatex">\(J(w)\)</span> of an ANN by repeatedly moving the weights opposite to the gradient (the direction of steepest descent, see D-Q5 (c)):</p>
+<div class="arithmatex">\[
+w_{t+1}=w_t-\eta\,\nabla_wJ(w_t)
+\]</div>
+<p>The gradients of all layers are obtained by back-propagation.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Variant</th>
+<th>Gradient computed on</th>
+<th>Update</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Batch GD</strong></td>
+<td>all <span class="arithmatex">\(N\)</span> examples</td>
+<td><span class="arithmatex">\(w\leftarrow w-\eta\frac1N\sum_{i=1}^N\nabla L_i\)</span></td>
+<td>smooth, stable, converges to the minimum (convex)</td>
+<td>slow, whole data in memory, one update per epoch</td>
+</tr>
+<tr>
+<td><strong>Stochastic GD (SGD)</strong></td>
+<td>1 example</td>
+<td><span class="arithmatex">\(w\leftarrow w-\eta\nabla L_i(w)\)</span></td>
+<td>fast updates, online, can escape local minima</td>
+<td>very noisy, zig-zag, no exact convergence</td>
+</tr>
+<tr>
+<td><strong>Mini-batch GD</strong></td>
+<td><span class="arithmatex">\(B\)</span> examples (32–256)</td>
+<td><span class="arithmatex">\(w\leftarrow w-\eta\frac1B\sum_{i\in B}\nabla L_i\)</span></td>
+<td>best trade-off, vectorised on GPU</td>
+<td>needs <span class="arithmatex">\(B\)</span> tuned</td>
+</tr>
+<tr>
+<td><strong>Momentum</strong></td>
+<td>running average of gradients</td>
+<td><span class="arithmatex">\(v_t=\gamma v_{t-1}+\eta g_t,\ w\leftarrow w-v_t\)</span></td>
+<td>damps oscillations, faster along valleys</td>
+<td>may overshoot</td>
+</tr>
+<tr>
+<td><strong>NAG</strong></td>
+<td>gradient at look-ahead point</td>
+<td><span class="arithmatex">\(v_t=\gamma v_{t-1}+\eta\nabla J(w-\gamma v_{t-1}),\ w\leftarrow w-v_t\)</span></td>
+<td>anticipates, less overshoot</td>
+<td>–</td>
+</tr>
+<tr>
+<td><strong>Adagrad</strong></td>
+<td>per-weight accumulated <span class="arithmatex">\(g^2\)</span></td>
+<td><span class="arithmatex">\(G_t=G_{t-1}+g_t^2,\ w\leftarrow w-\frac{\eta}{\sqrt{G_t+\epsilon}}g_t\)</span></td>
+<td>adaptive rates, good for sparse data</td>
+<td>rate decays to 0</td>
+</tr>
+<tr>
+<td><strong>RMSProp</strong></td>
+<td>moving average of <span class="arithmatex">\(g^2\)</span></td>
+<td><span class="arithmatex">\(E_t=\rho E_{t-1}+(1-\rho)g_t^2,\ w\leftarrow w-\frac{\eta}{\sqrt{E_t+\epsilon}}g_t\)</span></td>
+<td>fixes Adagrad decay</td>
+<td>–</td>
+</tr>
+<tr>
+<td><strong>Adam</strong></td>
+<td>momentum + RMSProp</td>
+<td><span class="arithmatex">\(m_t=\beta_1m_{t-1}+(1-\beta_1)g_t,\ v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^2,\ w\leftarrow w-\eta\frac{\hat m_t}{\sqrt{\hat v_t}+\epsilon}\)</span></td>
+<td>fast, robust default</td>
+<td>may generalise slightly worse</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="d-q13-b-confusion-matrix-for-a-binary-classifier-5">D-Q13 (b) – Confusion matrix for a binary classifier [5]</h3>
+<p><strong>Building it.</strong> Run the classifier on a labelled test set; compare each predicted label with the actual label and count the four possible outcomes in a <span class="arithmatex">\(2\times2\)</span> table (rows = actual, columns = predicted):</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Predicted Positive</strong></th>
+<th><strong>Predicted Negative</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Actual Positive</strong></td>
+<td><strong>TP</strong> (true positive)</td>
+<td><strong>FN</strong> (false negative)</td>
+</tr>
+<tr>
+<td><strong>Actual Negative</strong></td>
+<td><strong>FP</strong> (false positive)</td>
+<td><strong>TN</strong> (true negative)</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>TP</strong> – actual positive, predicted positive (correct hit), e.g. a sick patient diagnosed sick.</li>
+<li><strong>TN</strong> – actual negative, predicted negative (correct rejection), e.g. a healthy patient diagnosed healthy.</li>
+<li><strong>FP</strong> – actual negative, predicted positive (<strong>Type I error</strong>, false alarm), e.g. a healthy patient diagnosed sick.</li>
+<li><strong>FN</strong> – actual positive, predicted negative (<strong>Type II error</strong>, miss), e.g. a sick patient diagnosed healthy – usually the costliest.</li>
+</ul>
+<p><span class="arithmatex">\(TP+TN\)</span> = correct predictions; <span class="arithmatex">\(FP+FN\)</span> = errors; <span class="arithmatex">\(TP+FP+FN+TN=N\)</span>. From it: accuracy <span class="arithmatex">\(=\frac{TP+TN}{N}\)</span> etc. (see D-Q14 (b)). Steps: threshold the output probability (e.g. 0.5) → predicted class → tally the four counts.</p>
+<hr />
+<h2 id="d-q14">D-Q14</h2>
+<h3 id="d-q14-a-bias-variance-trade-off-derivation-of-expected-error-5">D-Q14 (a) – Bias–variance trade-off, derivation of expected error [5]</h3>
+<p>Let the true relation be <span class="arithmatex">\(y=f(x)+\varepsilon\)</span> with noise <span class="arithmatex">\(E[\varepsilon]=0,\ \mathrm{Var}(\varepsilon)=\sigma^2\)</span>, and <span class="arithmatex">\(\hat f(x)\)</span> the model learned from a random training set. The expected squared error at a point <span class="arithmatex">\(x\)</span>:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+E\big[(y-\hat f)^2\big]&amp;=E\big[(f+\varepsilon-\hat f)^2\big]=E\big[(f-\hat f)^2\big]+\sigma^2\quad(\varepsilon\text{ independent, zero mean})\\
+E\big[(f-\hat f)^2\big]&amp;=E\big[(f-E[\hat f]+E[\hat f]-\hat f)^2\big]\\
+&amp;=(f-E[\hat f])^2+E\big[(\hat f-E[\hat f])^2\big]+2(f-E[\hat f])\underbrace{E[E[\hat f]-\hat f]}_{=0}
+\end{aligned}
+\]</div>
+<div class="arithmatex">\[
+\boxed{\ \text{Err}(x)=\underbrace{\big(E[\hat f(x)]-f(x)\big)^2}_{\text{Bias}^2}+\underbrace{E\big[(\hat f(x)-E[\hat f(x)])^2\big]}_{\text{Variance}}+\underbrace{\sigma^2}_{\text{irreducible error}}\ }
+\]</div>
+<ul>
+<li><strong>Bias</strong> – error from wrong/too simple assumptions (under-fitting); high for simple models.</li>
+<li><strong>Variance</strong> – sensitivity to the particular training set (over-fitting); high for complex models.</li>
+</ul>
+<p><img alt="Bias-variance" src="assets/f_biasvar.png" loading="lazy" class="zoom"></p>
+<p><strong>Trade-off.</strong> As model complexity increases, bias falls and variance rises; the total error is U-shaped. The optimum is at the complexity where <span class="arithmatex">\(\text{Bias}^2+\text{Variance}\)</span> is minimal. Simple model: high bias, low variance (train and test error both high). Complex model: low bias, high variance (train error low, test error high). Control via regularisation, more data, early stopping, model size.</p>
+<h3 id="d-q14-b-evaluation-metrics-5">D-Q14 (b) – Evaluation metrics [5]</h3>
+<p>Using the confusion matrix (TP, FP, FN, TN):</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Formula</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Precision</strong> <span class="arithmatex">\(p\)</span></td>
+<td><span class="arithmatex">\(\dfrac{TP}{TP+FP}\)</span></td>
+<td>of everything predicted positive, the fraction that is really positive</td>
+</tr>
+<tr>
+<td><strong>Recall</strong> <span class="arithmatex">\(r\)</span></td>
+<td><span class="arithmatex">\(\dfrac{TP}{TP+FN}\)</span></td>
+<td>of all actual positives, the fraction found</td>
+</tr>
+<tr>
+<td><strong>F1-score</strong></td>
+<td><span class="arithmatex">\(\dfrac{2pr}{p+r}=\dfrac{2TP}{2TP+FP+FN}\)</span></td>
+<td>harmonic mean of precision and recall (balances both)</td>
+</tr>
+<tr>
+<td><strong>Sensitivity</strong></td>
+<td><span class="arithmatex">\(\dfrac{TP}{TP+FN}\)</span></td>
+<td>= recall = true-positive rate (TPR)</td>
+</tr>
+<tr>
+<td><strong>Specificity</strong></td>
+<td><span class="arithmatex">\(\dfrac{TN}{TN+FP}\)</span></td>
+<td>true-negative rate (TNR) <span class="arithmatex">\(=1-\text{FPR}\)</span></td>
+</tr>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td><span class="arithmatex">\(\dfrac{TP+TN}{TP+TN+FP+FN}\)</span></td>
+<td>overall fraction correct</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>ROC curve</strong> (Receiver Operating Characteristic): plot <strong>TPR</strong> (sensitivity, y-axis) against <strong>FPR</strong> <span class="arithmatex">\(=\dfrac{FP}{FP+TN}=1-\)</span>specificity (x-axis) while the decision threshold is varied from 1 to 0. The diagonal is a random classifier; the closer the curve to the top-left corner, the better. <strong>AUC</strong> (area under the curve) summarises it: 1 = perfect, 0.5 = random.</p>
+<p><code>TPR
+ 1 |      ____------ perfect → top-left corner
+   |   .-'  . model
+   | .'  .'
+   |/ .'      diagonal = random (AUC 0.5)
+ 0 +-----------------  FPR
+   0                1</code></p>
+<p><strong>Example:</strong> TP=40, FP=10, FN=20, TN=30 → <span class="arithmatex">\(p=0.80,\ r=0.667,\ F1=0.727\)</span>, specificity <span class="arithmatex">\(=0.75\)</span>, accuracy <span class="arithmatex">\(=0.70\)</span>.</p>
+<hr />
+<h2 id="d-q15">D-Q15</h2>
+<h3 id="d-q15-a-fixed-learning-rate-and-optimizers-with-time-dependent-5">D-Q15 (a) – Fixed learning rate and optimizers with time-dependent <span class="arithmatex">\(\eta_t\)</span> [5]</h3>
+<p><strong>Disadvantages of a fixed <span class="arithmatex">\(\eta\)</span></strong></p>
+<ol>
+<li>Too large → loss oscillates/diverges and overshoots the minimum; too small → very slow convergence, may get stuck on plateaus/saddle points.</li>
+<li>A constant step never settles: near the minimum, noisy (SGD) updates keep bouncing around it.</li>
+<li>The same rate is used for <strong>all</strong> weights, although gradients have different scales (sparse vs dense features, steep vs flat directions).</li>
+<li>The best value differs between stages of training (large early, small late) and needs expensive tuning.</li>
+</ol>
+<p><strong>Methods with time-dependent / adaptive <span class="arithmatex">\(\eta_t\)</span></strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Method</th>
+<th><span class="arithmatex">\(\eta_t\)</span> / update</th>
+<th>Idea</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Step decay</strong></td>
+<td><span class="arithmatex">\(\eta_t=\eta_0\,\gamma^{\lfloor t/k\rfloor}\)</span></td>
+<td>drop by factor <span class="arithmatex">\(\gamma\)</span> every <span class="arithmatex">\(k\)</span> epochs</td>
+</tr>
+<tr>
+<td><strong>Exponential decay</strong></td>
+<td><span class="arithmatex">\(\eta_t=\eta_0e^{-\lambda t}\)</span></td>
+<td>smooth decay</td>
+</tr>
+<tr>
+<td><strong>Inverse-time (<span class="arithmatex">\(1/t\)</span>)</strong></td>
+<td><span class="arithmatex">\(\eta_t=\dfrac{\eta_0}{1+\lambda t}\)</span></td>
+<td>decay satisfying <span class="arithmatex">\(\sum\eta_t=\infty,\sum\eta_t^2&lt;\infty\)</span></td>
+</tr>
+<tr>
+<td><strong>Cosine annealing / warm restarts</strong></td>
+<td><span class="arithmatex">\(\eta_t=\eta_{min}+\tfrac12(\eta_0-\eta_{min})\big(1+\cos\frac{\pi t}{T}\big)\)</span></td>
+<td>smooth decay, periodic restarts</td>
+</tr>
+<tr>
+<td><strong>Adagrad</strong></td>
+<td><span class="arithmatex">\(\eta_t=\dfrac{\eta}{\sqrt{G_t+\epsilon}},\ G_t=\sum_{\tau\le t}g_\tau^2\)</span></td>
+<td>per-parameter, shrinks for frequently-updated weights; decays to 0</td>
+</tr>
+<tr>
+<td><strong>RMSProp</strong></td>
+<td><span class="arithmatex">\(\eta_t=\dfrac{\eta}{\sqrt{E_t+\epsilon}},\ E_t=\rho E_{t-1}+(1-\rho)g_t^2\)</span></td>
+<td>exponential average – no vanishing rate</td>
+</tr>
+<tr>
+<td><strong>Adam</strong></td>
+<td><span class="arithmatex">\(w_{t+1}=w_t-\dfrac{\eta}{\sqrt{\hat v_t}+\epsilon}\hat m_t\)</span></td>
+<td>momentum + RMSProp + bias correction</td>
+</tr>
+</tbody>
+</table></div>
+<p>Compare: schedules (step/exp/cosine) change the <strong>global</strong> rate with time and are model-independent; Adagrad/RMSProp/Adam adapt <strong>per-parameter</strong> from gradient history – Adagrad is good for sparse data but its rate dies, RMSProp fixes this, Adam adds momentum and is the usual default (often combined with a schedule).</p>
+<h3 id="d-q15-b-assertion-10-of-layers-do-the-core-computation-90-redundant-5">D-Q15 (b) – Assertion: 10 % of layers do the core computation, 90 % redundant [5]</h3>
+<p><strong>Conclusion: FALSE</strong> (both statements).</p>
+<p><strong>Reasons</strong></p>
+<ol>
+<li>Layers are <strong>not independent</strong>: the output of layer <span class="arithmatex">\(l\)</span> is the input to layer <span class="arithmatex">\(l+1\)</span>, and in deep nets every layer contributes to the hierarchical representation (edges → parts → objects). A layer that looks "redundant" after training was needed during training to <em>learn</em> those features; we cannot know in advance which 10 % to keep.</li>
+<li><strong>Back-propagation affects all layers.</strong> The chain rule</li>
+</ol>
+<div class="arithmatex">\[
+\frac{\partial L}{\partial w^{(l)}}=\delta^{(l)}a^{(l-1)T},\qquad \delta^{(l)}=\big(W^{(l+1)T}\delta^{(l+1)}\big)\odot f'(z^{(l)})
+\]</div>
+<p>passes the error through every layer, so each layer's weights are updated. Removing 90 % of the layers changes the function, the gradient flow and the loss – the claim that back-propagation will "not have a major impact" on the remaining layers is wrong (they must re-adapt, and accuracy generally drops).</p>
+<ol>
+<li>What <strong>is</strong> true: networks are often <strong>over-parameterised</strong>, so after training they can be compressed – <em>pruning</em>, quantisation, knowledge distillation, lottery-ticket sub-networks, dropout – with little accuracy loss. This needs the full network to be trained first (or careful re-training/fine-tuning); simply "using only 10 % of the layers" is not an efficient design. Efficiency is better obtained by architecture design (depth-wise convs, bottlenecks, skip connections) rather than deleting layers.</li>
+</ol>
+<hr />
+<h2 id="d-q16">D-Q16</h2>
+<h3 id="d-q16-a-role-of-regularisers-l1-and-l2-5">D-Q16 (a) – Role of regularisers; L1 and L2 [5]</h3>
+<p><strong>Role.</strong> A regulariser adds a <strong>penalty on the weights</strong> to the loss to discourage over-complex models (large weights) → lower variance, <strong>less over-fitting</strong>, better generalisation:</p>
+<div class="arithmatex">\[
+J(w)=L_{data}(w)+\lambda\,\Omega(w),\qquad\lambda\ge0\ \text{(regularisation strength)}
+\]</div>
+<p><strong>L2 regularisation (weight decay / ridge)</strong></p>
+<div class="arithmatex">\[
+\Omega(w)=\lVert w\rVert_2^2=\sum_jw_j^2,\qquad J=L+\frac\lambda2\sum_jw_j^2
+\]</div>
+<p>Gradient and update:</p>
+<div class="arithmatex">\[
+\frac{\partial J}{\partial w_j}=\frac{\partial L}{\partial w_j}+\lambda w_j,\qquad
+w_j\leftarrow(1-\eta\lambda)\,w_j-\eta\frac{\partial L}{\partial w_j}
+\]</div>
+<p>Each step first <strong>shrinks</strong> the weight by the factor <span class="arithmatex">\((1-\eta\lambda)\)</span> (weight decay). Weights become small and spread out, but rarely exactly zero. Equivalent to a Gaussian prior on the weights.</p>
+<p><strong>L1 regularisation (lasso)</strong></p>
+<div class="arithmatex">\[
+\Omega(w)=\lVert w\rVert_1=\sum_j|w_j|,\qquad J=L+\lambda\sum_j|w_j|
+\]</div>
+<div class="arithmatex">\[
+\frac{\partial J}{\partial w_j}=\frac{\partial L}{\partial w_j}+\lambda\,\mathrm{sign}(w_j),\qquad
+w_j\leftarrow w_j-\eta\frac{\partial L}{\partial w_j}-\eta\lambda\,\mathrm{sign}(w_j)
+\]</div>
+<p>It subtracts a <strong>constant</strong> amount toward zero each step, so many weights become <strong>exactly 0</strong> → sparse model / built-in feature selection. Equivalent to a Laplace prior.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th>L1</th>
+<th>L2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Penalty</td>
+<td><span class="arithmatex">\(\lambda\sum\lvert w_j\rvert\)</span></td>
+<td><span class="arithmatex">\(\frac\lambda2\sum w_j^2\)</span></td>
+</tr>
+<tr>
+<td>Effect</td>
+<td>sparse weights (exact zeros)</td>
+<td>small, non-zero weights</td>
+</tr>
+<tr>
+<td>Gradient of penalty</td>
+<td><span class="arithmatex">\(\lambda\,\mathrm{sign}(w)\)</span> (constant)</td>
+<td><span class="arithmatex">\(\lambda w\)</span> (proportional)</td>
+</tr>
+<tr>
+<td>Use</td>
+<td>feature selection, sparse models</td>
+<td>general, smooth; default weight decay</td>
+</tr>
+<tr>
+<td>Geometry</td>
+<td>diamond constraint – optimum at a corner/axis</td>
+<td>circle constraint – no corners</td>
+</tr>
+</tbody>
+</table></div>
+<p>(Elastic net combines both. Large <span class="arithmatex">\(\lambda\)</span> → under-fitting; <span class="arithmatex">\(\lambda=0\)</span> → no regularisation.)</p>
+<h3 id="d-q16-b-conv1-on-a-image-5">D-Q16 (b) – Conv1 on a <span class="arithmatex">\(227\times227\times3\)</span> image, <span class="arithmatex">\(K=96,\ F=11,\ S=4,\ P=0\)</span> [5]</h3>
+<div class="arithmatex">\[
+W_2=\frac{W_1-F+2P}{S}+1=\frac{227-11+0}{4}+1=\frac{216}{4}+1=55,\qquad H_2=55,\qquad D_2=K=96
+\]</div>
+<div class="arithmatex">\[
+\boxed{W_2=H_2=55\ \Rightarrow\ \text{output }55\times55\times96}
+\]</div>
+<p><strong>Parameters.</strong> Each filter has <span class="arithmatex">\(F\cdot F\cdot D=11\cdot11\cdot3=363\)</span> weights <span class="arithmatex">\(+1\)</span> bias:</p>
+<div class="arithmatex">\[
+\text{Params}=(11\cdot11\cdot3+1)\cdot96=364\cdot96=\boxed{34{,}944}\quad(34{,}848\ \text{weights}+96\ \text{biases})
+\]</div>
+<p>(This is the first layer of AlexNet; the output has <span class="arithmatex">\(55\cdot55\cdot96=290{,}400\)</span> activations.)</p>
+<hr />
 <hr />
 <h1 class="plain" id="quick-formula-sheet">Quick formula sheet</h1>
 <div class="tw"><table>
